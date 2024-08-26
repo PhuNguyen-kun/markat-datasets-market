@@ -1,10 +1,9 @@
-const loginRoute = require('./login');
-const sitesRoute = require('./sites');
+const users = require("./users");
+const dataset = require("./dataset");
 function route(app) {
-    //app.use('/courses', coursesRoute);
-    app.use('/login', loginRoute);
     //app.use('/me', meRoute);
-    app.use('/', sitesRoute);
+    const users = require("./users");
+    const dataset = require("./dataset");
 }
 
 module.exports = route;
