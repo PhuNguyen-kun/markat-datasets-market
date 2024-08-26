@@ -1,7 +1,7 @@
 {
   "name": "markat",
   "version": "1.0.0",
-  "description": "",
+  "description": "��#\u0000 \u0000M\u0000a\u0000t\u0000k\u0000a\u0000t\u0000\r\u0000 \u0000",
   "main": "index.js",
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -25,5 +25,9 @@
     "server": "cd server && nodemon",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""
-  }
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
