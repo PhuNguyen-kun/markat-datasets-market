@@ -5,6 +5,5 @@ client/.eslintcache
 
 # Local Netlify folder
 .netlify
-db
 dist
 client/public/sitemap.xml
