@@ -8,7 +8,7 @@ const helmet = require("helmet");
 const compression = require("compression");
 const unknownEndpoint = require("./middleware/unKnownEndpoint");
 const { handleError } = require("./helpers/error");
-
+const database = require('./config');
 const app = express();
 
 app.set("trust proxy", 1);
@@ -26,5 +26,6 @@ app.get("/", (req, res) =>
 );
 app.use(unknownEndpoint);
 app.use(handleError);
-
+database.connect();
+//database.connectDb();
 module.exports = app;
