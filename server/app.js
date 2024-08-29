@@ -19,12 +19,11 @@ app.use(compression());
 app.use(helmet());
 app.use(cookieParser());
 
-app.use("/api", routes);
-
+app.use(routes);
 app.get("/", (req, res) =>
   res.send("<h1 style='text-align: center'>E-COMMERCE API</h1>")
 );
-app.use(unknownEndpoint);
+//app.use(unknownEndpoint);
 app.use(handleError);
 database.connect();
 //database.connectDb();

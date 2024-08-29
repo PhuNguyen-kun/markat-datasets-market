@@ -16,7 +16,7 @@ const getAllDatasetsDb = async ({limit, offset }) => {
 };
 
 const getDatasetDb = async ({ id }) => {
-    const { rows: order } = await pool.query(
+    const { rows: order } = await client.query(
       `SELECT products.*, order_item.quantity 
         from orders 
         join order_item
