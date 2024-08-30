@@ -4,34 +4,32 @@ let state = {
     isShowPassword: false
 };
 
-document.getElementById('sdt').addEventListener('input', handleOnChangeSDT);
+document.getElementById('email').addEventListener('input', handleOnChangeEmail);
 document.getElementById('password').addEventListener('input', handleOnChangePassword);
 document.getElementById('loginForm').addEventListener('submit', handleLogIn);
 
-function handleOnChangeSDT(event) {
-    state.sdt = event.target.value;
+function handleOnChangeEmail(event) {
+    state.email = event.target.value;
 }
 
 function handleOnChangePassword(event) {
     state.password = event.target.value;
 }
-
-
+console.log("email : ",state.email);
+console.log("password : ", state.password);
 async function handleLogIn(event) {
     event.preventDefault();  // Ngăn form gửi yêu cầu mặc định
     try {
-        // console.log("email : ",state.email);
-        // console.log("password : ", state.password);
-        let response = await axios.post('http://localhost:8081/auth/login', {
+        let response = await axios.post('http://localhost:8888/auth/login', {
             email: state.email,
             password: state.password
         });
         let data = response.data;
         console.log('Login response data:', data); // Thêm dòng này để kiểm tra dữ liệu trả về
-        if (data !== 0) {
+        if (data === 0) {
             document.getElementById('loginResult').textContent = "Login Error";
         }
-        if (data === 0) {
+        if (data !== 0) {
             document.getElementById('loginResult').textContent = 'Login successful!';
             sessionStorage.setItem('customer', JSON.stringify(data.data)); // Lưu thông tin người dùng vào sessionStorage
             window.location.href = 'index-logined.html';

@@ -11,7 +11,7 @@ class AuthService {
           id_user,
           password : dbPassword,
         } = user;
-        console.log(user);
+        //console.log("user",user);
         if (!user) {
           throw new ErrorHandler(403, "Email or password incorrect.");
         }
