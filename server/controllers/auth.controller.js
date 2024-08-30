@@ -1,10 +1,10 @@
 const authService = require("../services/auth.service.js");
 
 const loginUser = async (req, res) => {
-    const { phone_number, password } = req.body;
-    console.log(phone_number);
+    const {email, password } = req.body;
+    console.log("reqbodyyyyyyyyyyyyyyyyyyyyyy",req.body);
     const { user } = await authService.login(
-      phone_number,
+      email,
       password
     );
     res.status(200).json({
@@ -12,6 +12,15 @@ const loginUser = async (req, res) => {
     });
 };
 
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  await authService.forgotPassword(email);
+
+  res.json({ status: "OK" });
+};
+
 module.exports = {
-    loginUser
+  loginUser,
+  forgotPassword,
 };
