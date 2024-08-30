@@ -12,6 +12,15 @@ const loginUser = async (req, res) => {
     });
 };
 
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  await authService.forgotPassword(email);
+
+  res.json({ status: "OK" });
+};
+
 module.exports = {
-    loginUser
+  loginUser,
+  forgotPassword,
 };

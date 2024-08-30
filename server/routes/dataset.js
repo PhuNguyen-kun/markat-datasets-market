@@ -6,7 +6,7 @@ const {
 
 router.route("/create").post(createDataset);
 
-//router.route("/").get(verifyToken, getAllDatasets);
+router.route("/").get(getAllDatasets);
 
 //router.route("/:id").get(verifyToken, getOrder);
 
