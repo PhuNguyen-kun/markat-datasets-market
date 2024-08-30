@@ -283,9 +283,17 @@
     height: 30px;
     border-radius: 999px;
 
+    &__search:active {
+      border: 1px solid #000;
+    }
+
     &--icon {
       margin: 10px;
       width: 16px;
     }
   }
+}
+
+.search {
+  width: 85%;
 }

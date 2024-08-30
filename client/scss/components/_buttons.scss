@@ -81,6 +81,13 @@
     // background: #ff914d;
   }
 
+  &--green {
+    color: #fff;
+    background: #00b000;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
   &--outline {
     background: transparent;
     border: 1px solid #d2d1d6;
