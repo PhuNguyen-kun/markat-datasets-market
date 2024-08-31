@@ -6,44 +6,44 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault(); // Ngăn chặn hành động mặc định nếu cần
             const actionText = this.textContent.trim();
             console.log(`You clicked on: ${actionText}`);
-
-            // Thực hiện hành động tùy theo liên kết
             if (actionText === 'Profile') {
-                // Xử lý khi nhấn vào Profile
+               loadCustomerData();
             } else if (actionText === 'Owned Datasets') {
-                // Xử lý khi nhấn vào Owned Datasets
+                console.log("Error");
             } else if (actionText === 'Transaction History') {
-                // Xử lý khi nhấn vào Transaction History
+                console.log("Error");
             } else if (actionText === 'Request History') {
-                // Xử lý khi nhấn vào Request History
+                console.log("Error");
             } else if (actionText === 'Lịch sử gửi đăng ký') {
-                // Xử lý khi nhấn vào Lịch sử gửi đăng ký
+                console.log("Error");
             } else if (actionText === 'Log out') {
-                logout(); // Gọi hàm logout đã định nghĩa
+                logout();
             }
 
-            // Nếu không ngăn chặn hành động mặc định, có thể di chuyển đến trang khác
             window.location.href = this.href;
         });
     });
 });
 
-function loadCustomerData() {
+async function loadCustomerData() {
     const customerData = JSON.parse(sessionStorage.getItem('customer'));
-    if (customerData) {
-        // Hiển thị thông tin khách hàng lên trang
-        document.getElementById('first_name').value = customerData.first_name || '';
-        document.getElementById('last_name').value = customerData.last_name || '';
-        document.getElementById('email').value = customerData.email || '';
-        document.getElementById('birth_date').value = customerData.birth_date || '';
-        document.getElementById('join_date').value = customerData.join_date || '';
-        document.getElementById('current_location').value = customerData.current_location || '';
-        document.getElementById('current_company').value = customerData.current_company || '';
-        document.getElementById('phone_number').value = customerData.primary_language || '';
-        document.getElementById('desired_payrate').value = customerData.join_date || '';
-        document.getElementById('available_time_per_week').value = customerData.join_date || '';
-    } else {
-        console.log('No customer data found in session storage');
+    try {
+        let response = await axios.post('http://localhost:8888/users/profile', {
+            id_user : customerData,
+        });
+        let userProfile = response.data;
+        document.getElementById('first_name').value = userProfile.first_name || '';
+        document.getElementById('last_name').value = userProfile.last_name || '';
+        document.getElementById('email').value = userProfile.email || '';
+        document.getElementById('birth_date').value = userProfile.birth_date || '';
+        document.getElementById('join_date').value = userProfile.join_date || '';
+        document.getElementById('current_location').value = userProfile.current_location || '';
+        document.getElementById('current_company').value = userProfile.current_company || '';
+        document.getElementById('phone_number').value = userProfile.primary_language || '';
+        document.getElementById('desired_payrate').value = userProfile.join_date || '';
+        document.getElementById('available_time_per_week').value = userProfilea.join_date || '';
+    } catch (error) {
+        console.log("User not found");
     }
 }
 
