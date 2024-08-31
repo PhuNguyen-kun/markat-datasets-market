@@ -22,7 +22,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "scripts": {
-    "start": "nodemon ./server/index.js localhost 8081",
+    "start": "nodemon --inspect ./server/index.js localhost 8081",
     "server": "cd server && nodemon",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""

@@ -3,7 +3,7 @@ const {
     //getDatasetDb,
     createDatasetDb,
 } = require("../db/datasets.db.js");
-
+const { ErrorHandler } = require("../helpers/error");
 class DatasetService {
     createDataset = async (data) => {
         try {
@@ -14,7 +14,7 @@ class DatasetService {
     };
     getAllDatasets = async (page) => {
         const limit = 5;
-        offset = (page - 1) * limit;
+        const offset = (page - 1) * limit;
         try {
             return await getAllDatasetsDb({limit, offset });
         } catch (error) {

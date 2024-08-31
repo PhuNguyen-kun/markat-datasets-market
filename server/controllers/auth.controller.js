@@ -2,7 +2,6 @@ const authService = require("../services/auth.service.js");
 
 const loginUser = async (req, res) => {
     const {email, password } = req.body;
-   // console.log("reqbodyyyyyyyyyyyyyyyyyyyyyy",req.body);
     const { user } = await authService.login(
       email,
       password
@@ -19,6 +18,10 @@ const forgotPassword = async (req, res) => {
 
   res.json({ status: "OK" });
 };
+
+// const createAccount = async (req,res) => {
+//   const {}
+// }
 
 module.exports = {
   loginUser,

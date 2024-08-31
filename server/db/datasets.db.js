@@ -18,16 +18,16 @@ const getAllDatasetsDb = async ({limit, offset }) => {
             d.ID_Dataset, d.Avatar, d.Name_dataset, d.Voucher, v.Data_format
         ORDER BY
             d.ID_Dataset ASC
-        OFFSET 0
-        LIMIT 10
+        OFFSET $1
+        LIMIT $2
       `,
-        [limit, offset]
+        [offset, limit]
     );
-    return { items: orders.rows};
+    return { items: datasets.rows};
 };
 
 const getDatasetDb = async ({ id }) => {
-    const { rows: order } = await client.query(
+    const { rows: datasets } = await client.query(
       `SELECT products.*, order_item.quantity
         from orders
         join order_item
@@ -37,7 +37,7 @@ const getDatasetDb = async ({ id }) => {
         where orders.order_id = $1 AND orders.user_id = $2`,
       [id]
     );
-    return order;
+    return datasets[0];
 };
 
 const createDatasetDb = async ({
@@ -61,6 +61,6 @@ const createDatasetDb = async ({
 
 module.exports = {
     getAllDatasetsDb,
-    //getDatasetDb,
+    getDatasetDb,
     createDatasetDb,
 };
