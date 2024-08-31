@@ -3,7 +3,7 @@ const client = new Client({
     user: 'postgres',
     host: 'localhost',
     database: 'markat_db',
-    password: 'admin',
+    password: '123456',
     port: 5432,
 });
 async function connect() {
