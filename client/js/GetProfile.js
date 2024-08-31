@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Error");
             } else if (actionText === 'Log out') {
                 logout();
+                return;
             }
 
             window.location.href = this.href;
