@@ -1,0 +1,57 @@
+.profile {
+  &__item {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    width: 250px;
+    height: 500px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 35px 40px 20px 50px;
+    margin-right: 20px;
+    gap: 20px;
+    font-weight: 400;
+    background-color: #fff;
+
+    &--each:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__detail {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    width: 750px;
+    height: 500px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 35px 40px;
+    gap: 20px;
+    background-color: #fff;
+
+    &--heading {
+      font-size: 20px;
+      font-weight: 550;
+    }
+  }
+
+  &__infor {
+    display: flex;
+    width: 100%;
+  }
+
+  &__sub-title {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-size: 15px;
+    font-weight: 400;
+    margin-left: 30px;
+    width: 35%;
+  }
+
+  &__desc {
+    font-size: 15px;
+  }
+}
