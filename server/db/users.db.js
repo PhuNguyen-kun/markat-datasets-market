@@ -10,16 +10,16 @@ const getUserByIdDb = async (id) => {
 
 const getUserByEmailDb = async (email) => {
   const { rows: user } = await client.query(
-    "SELECT ID_User,First_name,Last_name,Username,Password,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE email = $1",
+    "SELECT First_name,Last_name,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE email = $1",
     [email]
   );
   return user[0];
 };
 
-const getUserByPhoneNumberDb = async (phone_number) => {
+const getUserByUsernameDb = async (username) => {
   const { rows: user } = await client.query(
-    "SELECT ID_User,First_name,Last_name,Username,Password,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE phone_number = $1",
-    [phone_number]
+    "SELECT First_name,Last_name,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE username = $1",
+    [username]
   );
   return user[0];
 };
@@ -29,11 +29,17 @@ const changeUserPasswordDb = async (password, email) => {
       email,
     ]);
 };
-
+const createUserDb = async (email,password,username) => {
+  const {rows : user} = await client.query(
+    "Them user moi tu data returning ", [
+      email,password,username
+  ]);
+}
 module.exports = {
     // getAllUsersDb,
     getUserByIdDb,
     getUserByEmailDb,
-    getUserByPhoneNumberDb,
+    getUserByUsernameDb,
     changeUserPasswordDb,
+    createUserDb,
 }

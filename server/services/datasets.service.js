@@ -13,7 +13,7 @@ class DatasetService {
         }
     };
     getAllDatasets = async (page) => {
-        const limit = 5;
+        const limit = 20;
         const offset = (page - 1) * limit;
         try {
             return await getAllDatasetsDb({limit, offset });
