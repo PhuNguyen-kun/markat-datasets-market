@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const auth = require("./auth");
 const users = require("./users");
-const dataset = require("./dataset");
+const datasets = require("./datasets");
 
 router.use("/auth", auth);
 router.use("/users",users);
-router.use("/dataset",dataset);
+router.use("/datasets",datasets);
 
 module.exports = router;
