@@ -21,6 +21,7 @@
     "pg": "^8.12.0",
     "pino": "^9.3.2",
     "pino-pretty": "^11.2.2",
+    "prettier": "^3.3.3",
     "stripe": "^16.8.0",
     "swagger-ui-express": "^5.0.1"
   },
@@ -28,7 +29,8 @@
     "start": "nodemon --inspect ./server/index.js localhost 8081",
     "server": "cd server && nodemon",
     "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
