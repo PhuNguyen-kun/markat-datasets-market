@@ -8,7 +8,7 @@ const helmet = require("helmet");
 const compression = require("compression");
 const unknownEndpoint = require("./middleware/unKnownEndpoint");
 const { handleError } = require("./helpers/error");
-const database = require('./config');
+const database = require("./config");
 const app = express();
 
 app.set("trust proxy", 1);
