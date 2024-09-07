@@ -16,11 +16,14 @@
 
 .datasets {
   &__bgr {
-    width: 300px;
-    height: 300px;
-    object-fit: cover;
     margin-left: 200px;
     margin-top: 30px;
+  }
+
+  &__bgr-container {
+    width: 300px;
+    min-height: 300px;
+    object-fit: cover;
   }
 
   &__item:hover {

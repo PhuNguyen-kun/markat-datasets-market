@@ -2837,11 +2837,13 @@ strong {
 }
 
 .datasets__bgr {
-  width: 300px;
-  height: 300px;
-  object-fit: cover;
   margin-left: 200px;
   margin-top: 30px;
+}
+.datasets__bgr-container {
+  width: 300px;
+  min-height: 300px;
+  object-fit: cover;
 }
 .datasets__item:hover {
   border: 1px solid #000;
