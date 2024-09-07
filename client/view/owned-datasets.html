@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <!-- Font -->
+    <link rel="stylesheet" href="../assets/fonts/stylesheet.css" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/main.css" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../assets/js/scripts.js"></script>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header id="header" class="header"></header>
+    <script>
+      load("#header", "../templates/header-logined.html");
+    </script>
+
+    <!-- Main -->
+    <!-- Title -->
+    <div class="owned-datasets__bgr">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="title">Your owned-datasets</h1>
+            <p class="page-desc">Explore your datasets</p>
+            <div class="main-page__search">
+              <img
+                src="../assets/icons/search.svg"
+                alt=""
+                class="main-page__search--icon"
+              />
+              <form action="" class="search">
+                <input
+                  type="text"
+                  name=""
+                  id="full-name"
+                  placeholder="Search for data"
+                  class="form__input"
+                  required=""
+                />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Owned-datasets lists -->
+    <div class="container">
+      <div class="owned-datasets">
+        <div class="row">
+          <div class="col-1"></div>
+          <div class="owned-datasets__item col-10">
+            <span class="owned-datasets__title">Dataset name</span>
+            <span class="owned-datasets__title">Total stock</span>
+            <span class="owned-datasets__title">Earning</span>
+          </div>
+          <div class="col-1"></div>
+          <!-- Row-->
+          <div class="col-1"></div>
+          <div class="owned-datasets__item col-10">
+            <span class="owned-datasets__detail"
+              >Demographic Data Analysis
+            </span>
+            <span class="owned-datasets__detail">1,000 shares</span>
+            <span class="owned-datasets__detail">5.000.000$</span>
+          </div>
+          <div class="col-1"></div>
+          <!-- Row -->
+          <div class="col-1"></div>
+          <div class="owned-datasets__item col-10">
+            <span class="owned-datasets__detail"
+              >Electronics Market Research
+            </span>
+            <span class="owned-datasets__detail">200 shares</span>
+            <span class="owned-datasets__detail">1.000$</span>
+          </div>
+          <div class="col-1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+    <script>
+      load("#footer", "../templates/footer.html");
+    </script>
+  </body>
+</html>
