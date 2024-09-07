@@ -29,6 +29,13 @@ class DatasetService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
+  getUserOwnedDatasetById = async (datasetId) => {
+    try {
+      return await getUserOwnedDatasetByIdDb(datasetId);
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  };
 }
 
 module.exports = new DatasetService();

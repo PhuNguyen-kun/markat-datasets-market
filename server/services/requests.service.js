@@ -1,5 +1,6 @@
 const {
   createSendingRequestDb,
+  createBuyingRequestDb,
   getRequestsHistoryByIdDb,
   getSendingRequestsByIdDb,
   getBuyingRequestsByIdDb,
@@ -19,6 +20,29 @@ class RequestService {
         data_type,
         id_dataset,
         description
+      );
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  };
+  createBuyingRequest = async (
+    id_user,
+    id_dataset,
+    description,
+    deposit,
+    price,
+    due_date,
+    data_type
+  ) => {
+    try {
+      return await createBuyingRequestDb(
+        id_user,
+        id_dataset,
+        description,
+        deposit,
+        price,
+        due_date,
+        data_type
       );
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);

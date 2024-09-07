@@ -1,16 +1,19 @@
 const router = require("express").Router();
 const {
   createDataset,
-  getAllDatasets,
-  getUserOwnedDataset,
+  getUserOwnedDatasetById,
   getUserOwnedDatasets,
+  getAllDatasets,
+  getDatasetbyID
 } = require("../controllers/datasets.controller.js");
 
 router.route("/owned").get(getUserOwnedDatasets);
-//router.route("/owned/:id").get(getUserOwnedDataset);
+router.route("/owned/:id").get(getUserOwnedDatasetById);
 router.route("/create").post(createDataset);
 router.route("/").get(getAllDatasets);
-
+router.route("/:id").get(getDatasetbyID);
+// router.route("/version").get(getAllVersion);
+// router.route("/version/:slug").get(getVersionBySlug);
 //router.route("/:id").get(verifyToken, getOrder);
 
 module.exports = router;

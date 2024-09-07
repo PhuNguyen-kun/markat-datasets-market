@@ -59,7 +59,7 @@ const createDatasetDb = async ({
 };
 
 const getUserOwnedDatasetsDb = async (id) => {
-  const { rows: users } = await client.query(
+  const { rows: datasets } = await client.query(
     `SELECT
       d.ID_Dataset,
       d.Name_dataset,
@@ -76,13 +76,36 @@ const getUserOwnedDatasetsDb = async (id) => {
     WHERE
         e.ID_User = $1
     GROUP BY
-        d.ID_Dataset, d.Name_dataset, v.Stock_percent;
+        d.ID_Dataset, d.Name_dataset, v.Stock_percent
     `,
     [id]
   );
-  return users;
+  return datasets;
 };
-
+const getUserOwnedDatasetByIdDb = async (datasetId) => {
+  const {rows : dataset} = await client.query(
+    `SELECT
+      d.ID_Dataset,
+      d.Name_dataset,
+      v.Stock_percent,
+      SUM(v.Price) AS Total_Amount
+    FROM
+        Dataset d
+    JOIN
+        Version v ON d.ID_Dataset = v.ID_Dataset
+    JOIN
+        Database_Expert de ON d.ID_Dataset = de.ID_Dataset
+    JOIN
+        Expert e ON de.ID_Expert = e.ID_Expert
+    WHERE
+        e.ID_User = $1
+    GROUP BY
+        d.ID_Dataset, d.Name_dataset, v.Stock_percent
+    `,
+    [datasetId]
+  );
+  return dataset;
+}
 module.exports = {
   getAllDatasetsDb,
   getDatasetDb,

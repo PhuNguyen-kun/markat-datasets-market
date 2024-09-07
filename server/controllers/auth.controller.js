@@ -10,7 +10,6 @@ const createAccount = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   const { user } = await authService.login(email, password);
-  console.log(email);
   res.status(200).json({
     user,
   });
