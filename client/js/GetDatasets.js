@@ -64,7 +64,7 @@ function renderDatasets(datasets) {
     const datasetElement = `
             <div class="col-3">
                 <div class="datasets__item">
-                    <img src="../assets/img/${dataset.avatar}" alt="${dataset.name_dataset}" class="datasets__item--bgr" />
+                    <img src="./assets/img/${dataset.avatar}" alt="${dataset.name_dataset}" class="datasets__item--bgr" />
                     <div class="datasets__item--details">
                         <h3 class="datasets__item--title">${dataset.name_dataset}</h3>
                         <p class="datasets__item--desc1">
@@ -74,7 +74,7 @@ function renderDatasets(datasets) {
                         </p>
                         <div class="datasets__item--desc2">
                             <div style="display: flex; align-items: center; justify-content: center;">
-                                <img src="../assets/icons/eye.svg" alt="Views" style="width: 15px; height: 20px; margin-right: 4px" />
+                                <img src="./assets/icons/eye.svg" alt="Views" style="width: 15px; height: 20px; margin-right: 4px" />
                                 <span style="font-size: 13px; font-weight: 400; margin-right: 12px;">${dataset.views}</span>
                                 <button class="btn btn--green" style="width: 65px; height: 19px; font-size: 12px">Verified</button>
                             </div>

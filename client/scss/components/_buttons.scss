@@ -115,6 +115,12 @@
     background: #ed4337;
   }
 
+  &--function {
+    background-color: #000;
+    color: #fff;
+    width: 150px;
+  }
+
   &[disabled],
   &--disabled {
     opacity: 0.5;
@@ -122,7 +128,6 @@
   }
 
   &:hover {
-    opacity: 0.9;
-    box-shadow: 0.5px 0.5px 2px 2px #cccccc;
+    opacity: 0.95;
   }
 }

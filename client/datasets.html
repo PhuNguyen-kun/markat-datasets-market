@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Datasets</title>
+
+    <!-- Font -->
+    <link rel="stylesheet" href="./assets/fonts/stylesheet.css" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./assets/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./js/GetDatasets.js"></script>
+    <script src="./assets/js/scripts.js"></script>
+
+    <!-- Đã cập nhật để sử dụng đúng file JS -->
+  </head>
+
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <div class="sidebar" id="sidebar"></div>
+      <script>
+        load("#sidebar", "./templates/sidebar.html");
+      </script>
+
+      <div class="main">
+        <!-- Header -->
+        <header id="header" class="header"></header>
+        <script>
+          load("#header", "./templates/header-logined.html");
+        </script>
+
+        <!-- Main -->
+        <!-- Title & Description -->
+        <div class="datasets-bgr">
+          <div class="container datasets">
+            <div class="row">
+              <div class="col-6">
+                <h1 class="title">Datasets</h1>
+                <p class="page-desc">
+                  Explore, analyze, and share high-quality data. Learn more
+                  about the different types of data, how to create it, and
+                  collaborate effectively.
+                </p>
+              </div>
+
+              <div class="col-6">
+                <div class="datasets__bgr-container">
+                  <img
+                    src="./assets/img/datasets-background.svg"
+                    alt=""
+                    class="datasets__bgr"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datasets List -->
+        <div class="container" style="margin-top: 30px">
+          <div class="row">
+            <!-- List datasets -->
+            <div class="col-10">
+              <div class="row">
+                <!-- Dữ liệu datasets sẽ được render vào đây bởi JavaScript -->
+              </div>
+            </div>
+
+            <!-- Bộ lọc -->
+            <div class="col-2 datasets__filters">
+              <div
+                style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  margin-top: 10px;
+                  gap: 7px;
+                  margin-right: 100px;
+                  margin-bottom: 20px;
+                "
+              >
+                <img
+                  src="./assets/icons/filter.svg"
+                  alt=""
+                  style="width: 20px"
+                />
+                <h2 class="filter__title">Filters</h2>
+              </div>
+              <div class="filter__lists">
+                <button class="btn btn--white filter__buttons-gap">
+                  Medical
+                </button>
+                <button class="btn btn--white filter__buttons-gap">
+                  Finance
+                </button>
+                <button class="btn btn--white filter__buttons-gap">
+                  Well-documented
+                </button>
+                <button class="btn btn--white filter__buttons-gap">
+                  Research
+                </button>
+                <button class="btn btn--white filter__buttons-gap">
+                  LLM Fine-tuning
+                </button>
+                <button class="btn btn--white filter__buttons-gap">
+                  Learning
+                </button>
+                <button class="btn btn--white filter__buttons-gap">
+                  Application
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <footer id="footer"></footer>
+        <script>
+          load("#footer", "./templates/footer.html");
+        </script>
+      </div>
+    </div>
+  </body>
+</html>

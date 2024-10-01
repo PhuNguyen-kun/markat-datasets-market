@@ -17,12 +17,14 @@
 //
 
 .header {
-  position: sticky;
-  top: -11px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  margin-left: 270px;
   z-index: 2;
-  background-color: rgba(245, 245, 245, 0.95);
-  box-shadow: 0.5px 0.5px 3px 3px #ccc;
-  // background-color: #333;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0px 1px 1px 0 #ccc;
 }
 
 .top-bar {
@@ -47,19 +49,6 @@
   }
 }
 
-.logo {
-  &__img {
-    margin-top: 1px;
-    width: 255px;
-    height: 60px;
-    object-fit: cover;
-  }
-
-  &__img--signin {
-    margin-top: 40px;
-  }
-}
-
 .navbar {
   margin-left: 20px;
 
@@ -73,13 +62,6 @@
 
   &__list {
     @extend %flexItemsCenter;
-  }
-
-  &__link {
-    padding: 0 30px;
-    color: black;
-    font-size: 16px;
-    font-weight: 600;
   }
 }
 
@@ -141,7 +123,7 @@
     .dropdown {
       position: absolute;
       width: 350px;
-      left: -160px;
+      left: -200px;
 
       &-head {
         width: 100%;
@@ -178,7 +160,7 @@
 
 .home {
   &__container {
-    margin-top: 20px;
+    margin-top: 70px;
   }
 }
 
@@ -210,9 +192,9 @@
   }
 }
 
-.row {
-  padding-top: 20px;
-}
+// .row {
+//   padding-top: 20px;
+// }
 
 .small-banner {
   width: 555px;
@@ -230,14 +212,14 @@
 .main-page {
   margin-bottom: -60px;
   &__title {
-    font-size: 58px;
-    line-height: 80px;
+    font-size: 50px;
+    line-height: 70px;
     font-weight: 600;
     margin-top: 40px;
   }
 
   &__desc {
-    font-size: 18px;
+    font-size: 17px;
     line-height: 30px;
     margin: 25px 0;
   }
@@ -259,12 +241,12 @@
   }
 
   &__img:last-child {
-    width: 500px;
-    height: 350px;
+    width: 460px;
+    height: 300px;
     object-fit: cover;
     position: absolute;
-    bottom: 100px;
-    right: -50px;
+    bottom: 150px;
+    right: -10px;
     z-index: 0;
     border-radius: 8px;
   }
@@ -278,12 +260,12 @@
   &__search {
     display: flex;
     align-items: center;
-    border: 1px solid #ccc;
-    width: 350px;
+    // border: 1px solid #ccc;
+    width: 900px;
     height: 30px;
-    border-radius: 999px;
-
-    &__search:active {
+    border-radius: 3px;
+    gap: 12px;
+    f &__search:active {
       border: 1px solid #000;
     }
 

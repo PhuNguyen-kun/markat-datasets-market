@@ -1,47 +1,26 @@
 <div class="container">
   <div class="top-bar">
-    <!-- More -->
-
-    <!-- Logo -->
-    <a href="../view/index-logined.html" class="logo">
-      <img
-        src="../assets/img/logo-text.png"
-        alt=""
-        class="logo__img"
-        style="margin-left: -45px; margin-right: 70px"
-      />
-    </a>
-
-    <!-- Navbar -->
-    <nav class="navbar">
-      <ul class="navbar__list">
-        <li class="navbar__item">
-          <a href="./index-logined.html" class="navbar__link">Home</a>
-        </li>
-        <li class="navbar__item">
-          <a href="./datasets.html" class="navbar__link">Datasets</a>
-        </li>
-        <li class="navbar__item">
-          <a href="./menu.html" class="navbar__link">Posts</a>
-        </li>
-        <li class="navbar__item">
-          <a href="./sign-in.html" class="navbar__link">Docs</a>
-        </li>
-        <li class="navbar__item">
-          <a href="./sign-in.html" class="navbar__link">Discussions</a>
-        </li>
-        <!-- <li class="navbar__item">
-                      <a href="" class="navbar__link">Cửa hàng</a>
-                  </li> -->
-      </ul>
-    </nav>
+    <!-- Search -->
+    <div class="main-page__search">
+      <i class="fa-solid fa-magnifying-glass" style="color: #3c3d49"></i>
+      <form action="" class="search">
+        <input
+          type="text"
+          name=""
+          id="full-name"
+          placeholder="Search for data"
+          class="form__input"
+          required=""
+        />
+      </form>
+    </div>
 
     <!-- Actions -->
     <div class="top-act">
       <div class="top-act__cart">
-        <a href="../view/checkout.html">
+        <a href="./checkout.html">
           <img
-            src="../assets/icons/cart-shopping-solid.svg"
+            src="./assets/icons/cart-shopping-solid.svg"
             alt=""
             class="cart-icon"
           />
@@ -57,28 +36,20 @@
       </div>
 
       <div class="top-act__user">
-        <img src="../assets/img/avatar.jpg" alt="" class="top-act__avatar" />
+        <img src="./assets/img/avatar.jpg" alt="" class="top-act__avatar" />
 
         <!-- Dropdown -->
         <div class="dropdown">
           <div class="dropdown__inner">
-            <a href="../view/profile.html" class="dropdown-action">
-              Profile
+            <a href="./profile.html" class="dropdown-action">
+              Your profile
               <!-- <p class="dropdown-balance" id="Wallet"></p> -->
             </a>
-            <a href="../view/owned-datasets.html" class="dropdown-action">
-              Owned Datasets
-            </a>
-            <a href="../view/purchase-history.html" class="dropdown-action">
+            <a href="./your-work.html" class="dropdown-action"> Your work </a>
+            <a href="./transaction-history.html" class="dropdown-action">
               Transaction History
             </a>
-            <a href="../view/purchase-history.html" class="dropdown-action">
-              Request History
-            </a>
-            <a href="../view/purchase-history.html" class="dropdown-action">
-              Lịch sử gửi đăng ký
-            </a>
-
+            <a href="./settings.html" class="dropdown-action"> Settings </a>
             <a
               href="#"
               class="dropdown-action"
