@@ -83,7 +83,7 @@ const getUserOwnedDatasetsDb = async (id) => {
   return datasets;
 };
 const getUserOwnedDatasetByIdDb = async (datasetId) => {
-  const {rows : dataset} = await client.query(
+  const { rows: dataset } = await client.query(
     `SELECT
       d.ID_Dataset,
       d.Name_dataset,
@@ -105,10 +105,11 @@ const getUserOwnedDatasetByIdDb = async (datasetId) => {
     [datasetId]
   );
   return dataset;
-}
+};
 module.exports = {
   getAllDatasetsDb,
   getDatasetDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,
+  getUserOwnedDatasetByIdDb,
 };

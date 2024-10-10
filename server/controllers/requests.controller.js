@@ -11,13 +11,14 @@ const sendSendingRequest = async (req, res) => {
   return res.status(200).json(request);
 };
 const sendBuyingRequest = async (req, res) => {
-  const { id_user,
+  const {
+    id_user,
     id_dataset,
     description,
     deposit,
     price,
     due_date,
-    data_type
+    data_type,
   } = req.body;
   const request = await RequestService.createBuyingRequest(
     id_dataset,
@@ -25,10 +26,10 @@ const sendBuyingRequest = async (req, res) => {
     deposit,
     price,
     due_date,
-    data_type,
-  )
+    data_type
+  );
   return res.status(200).json(request);
-}
+};
 const getRequestsHistory = async (req, res) => {
   const { id_user } = req.body;
   const requests = await RequestService.getRequestsHistoryById(id_user);

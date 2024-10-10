@@ -11,7 +11,7 @@ class AuthService {
   async login(email, password) {
     try {
       const user = await getUserByEmailDb(email);
-      const { id_user,email : dbEmail, password: dbPassword } = user;
+      const { id_user, email: dbEmail, password: dbPassword } = user;
       if (password != dbPassword && email != dbEmail) {
         throw new ErrorHandler(403, "Email or password incorrect.");
       }
