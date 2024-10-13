@@ -2,15 +2,16 @@ const client = require("../config");
 
 const getUserByIdDb = async (id) => {
   const { rows: users } = await client.query(
-    "SELECT First_name,Last_name,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE ID_User = $1",
+    "SELECT Full_name,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE ID_User = $1",
     [id]
   );
+  //console.log(id);
   return users[0];
 };
 
 const getUserByEmailDb = async (email) => {
   const { rows: users } = await client.query(
-    "SELECT ID_user, First_name,Last_name,Password,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE email = $1",
+    "SELECT ID_user, Full_name,Password,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE email = $1",
     [email]
   );
   return users[0];
@@ -18,7 +19,7 @@ const getUserByEmailDb = async (email) => {
 
 const getUserByUsernameDb = async (username) => {
   const { rows: users } = await client.query(
-    "SELECT First_name,Last_name,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE username = $1",
+    "SELECT Full_name,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE username = $1",
     [username]
   );
   return users[0];
