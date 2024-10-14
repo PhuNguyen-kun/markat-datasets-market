@@ -5,7 +5,6 @@ const getUserByIdDb = async (id) => {
     "SELECT Full_name,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE ID_User = $1",
     [id]
   );
-  //console.log(id);
   return users[0];
 };
 
@@ -41,10 +40,20 @@ const createUserDb = async (email, password, username) => {
   return users[0];
 };
 
+const getUserReliabilitybyIdDb = async (id_user) => {
+  const { rows: reliability } = await client.query(
+    "SELECT reliability FROM users WHERE id_user = $1", // Thêm dấu phẩy ở đây
+    [id_user]
+  );
+  return reliability[0];
+};
+
+
 module.exports = {
   getUserByIdDb,
-  getUserByEmailDb,
-  getUserByUsernameDb,
+  //getUserByEmailDb,
+  //getUserByUsernameDb,
   changeUserPasswordDb,
-  createUserDb,
+  // createUserDb,
+  getUserReliabilitybyIdDb,
 };

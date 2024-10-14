@@ -1,4 +1,8 @@
-const { getUserByIdDb, changeUserPasswordDb } = require("../db/users.db.js");
+const {
+  getUserByIdDb,
+  changeUserPasswordDb,
+  getUserReliabilitybyIdDb,
+} = require("../db/users.db.js");
 const { ErrorHandler } = require("../helpers/error");
 
 class UsersService {
@@ -16,6 +20,13 @@ class UsersService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
+  getUserReliabilitybyId = async (id_user) => {
+    try {
+      return await getUserReliabilitybyIdDb(id_user);
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  }
 }
 
 module.exports = new UsersService();

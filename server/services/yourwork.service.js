@@ -1,9 +1,9 @@
-const { getAllYourWorkVersionsDb } = require("../db/yourwork.db");
+const { getAllYourWorkVersionsByIdDb } = require("../db/yourwork.db");
 const { ErrorHandler } = require("../helpers/error.js");
 class YourWorkService {
-  getAllYourWorkVersions = async (data) => {
+  getAllYourWorkVersionsById = async (data) => {
     try {
-      return await getAllYourWorkVersionsDb(data);
+      return await getAllYourWorkVersionsByIdDb(data);
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }

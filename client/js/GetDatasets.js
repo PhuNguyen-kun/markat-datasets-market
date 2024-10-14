@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Gọi API để lấy danh sách datasets
+  const customerData = JSON.parse(sessionStorage.getItem("customer"));
+  //console.log(customerData.id_user);
+
+  // Gọi API để lấy danh sách datasets với id_user
   axios
     .get("http://localhost:8888/datasets")
     .then((response) => {

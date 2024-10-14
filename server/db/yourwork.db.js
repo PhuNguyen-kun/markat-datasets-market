@@ -1,5 +1,5 @@
 const client = require("../config");
-const getAllYourWorkVersionsDb = async (id_user) => {
+const getAllYourWorkVersionsByIdDb = async (id_user) => {
   const versions = await client.query(
     `SELECT
     d.Name_dataset AS Dataset_Name,
@@ -22,14 +22,6 @@ const getAllYourWorkVersionsDb = async (id_user) => {
   return { items: versions.rows };
 };
 
-// const getYourWorkVersionById = async(id) => {
-//   const version = await client.query(
-//     `
-
-//     `
-//   )
-// }
-
 module.exports = {
-  getAllYourWorkVersionsDb,
+  getAllYourWorkVersionsByIdDb,
 };

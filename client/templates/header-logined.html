@@ -38,26 +38,13 @@
       <div class="top-act__user">
         <img src="./assets/img/avatar.jpg" alt="" class="top-act__avatar" />
 
-        <!-- Dropdown -->
-        <div class="dropdown">
+        <div class="dropdown" aria-labelledby="userAvatar" role="menu">
           <div class="dropdown__inner">
-            <a href="./profile.html" class="dropdown-action">
-              Your profile
-              <!-- <p class="dropdown-balance" id="Wallet"></p> -->
-            </a>
-            <a href="./your-work.html" class="dropdown-action"> Your work </a>
-            <a href="./transaction-history.html" class="dropdown-action">
-              Transaction History
-            </a>
-            <a href="./settings.html" class="dropdown-action"> Settings </a>
-            <a
-              href="#"
-              class="dropdown-action"
-              onclick="logout()"
-              style="color: red"
-            >
-              Log out
-            </a>
+            <a href="./profile.html" class="dropdown-action" role="menuitem">Your profile</a>
+            <a href="./your-work.html" class="dropdown-action" role="menuitem">Your work</a>
+            <a href="./transaction-history.html" class="dropdown-action" role="menuitem">Transaction History</a>
+            <a href="./settings.html" class="dropdown-action" role="menuitem">Settings</a>
+            <a href="#" class="dropdown-action" style="color: red" role="menuitem">Log out</a>
           </div>
         </div>
       </div>
