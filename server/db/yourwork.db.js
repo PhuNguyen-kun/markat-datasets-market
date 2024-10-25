@@ -5,6 +5,7 @@ const getAllYourWorkVersionsByUserIdDb = async (user_id) => {
     d.Name_dataset AS Dataset_name,
     d.ID_Dataset,
     v.ID_Ver AS ID_Version,
+    uvp.Participation_Type,
     v.Create_Date,
     v.Data_sending_time_duration,
     v.Labeling_time_duration,
