@@ -1,3 +1,4 @@
+DROP DATABASE markat_db;
 CREATE DATABASE markat_db;
 \c markat_db
 
@@ -9,8 +10,8 @@ CREATE TABLE Status (
 );
 
 CREATE TABLE Users (
-    ID_User SERIAL PRIMARY KEY,
-    full_name VARCHAR(255),
+    User_ID SERIAL PRIMARY KEY,
+    Full_name VARCHAR(255),
     Password VARCHAR(255),
     Reliability INT,
     Kat FLOAT,
@@ -37,9 +38,9 @@ CREATE TABLE Dataset (
 );
 
 CREATE TABLE User_Click (
-    ID_user_click SERIAL PRIMARY KEY,
+    User_ID_click SERIAL PRIMARY KEY,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	ID_User INT REFERENCES Users(ID_User),
+	User_ID INT REFERENCES Users(User_ID),
     ID_Dataset INT REFERENCES Dataset(ID_Dataset)
 );
 
@@ -64,6 +65,13 @@ CREATE TABLE Version (
     Status INT
 );
 
+CREATE TABLE User_Version_Participation (
+    ID SERIAL PRIMARY KEY,
+    User_ID INT REFERENCES Users(User_ID),
+    ID_Version INT REFERENCES Version(ID_Ver),
+    Join_date TIMESTAMP
+);
+
 CREATE TABLE Admin (
     ID_Admin SERIAL PRIMARY KEY,
     Username VARCHAR(255) UNIQUE,
@@ -74,7 +82,7 @@ CREATE TABLE Admin (
 
 CREATE TABLE Data_sending_request (
     ID_data_sending_request SERIAL PRIMARY KEY,
-    ID_User INT REFERENCES Users(ID_User),
+    User_ID INT REFERENCES Users(User_ID),
     Data_type INT,
 	ID_dataset INT REFERENCES Dataset(ID_Dataset),
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -83,7 +91,7 @@ CREATE TABLE Data_sending_request (
 
 CREATE TABLE Data_buying_request (
     ID_buying_request SERIAL PRIMARY KEY,
-    ID_User INT REFERENCES Users(ID_User),
+    User_ID INT REFERENCES Users(User_ID),
     Public_data BOOLEAN,
     ID_Dataset INT REFERENCES Dataset(ID_Dataset),
     Description TEXT,
@@ -125,7 +133,7 @@ CREATE TABLE Censorship_complete_version(
 
 CREATE TABLE Expert_Register (
     ID_Expert_register SERIAL PRIMARY KEY,
-    ID_User INT REFERENCES Users(ID_User),
+    User_ID INT REFERENCES Users(User_ID),
     File_CV TEXT
 );
 
@@ -140,7 +148,7 @@ CREATE TABLE Authen (
 
 CREATE TABLE Expert (
     ID_Expert SERIAL PRIMARY KEY,
-    ID_User INT REFERENCES Users(ID_User),
+    User_ID INT REFERENCES Users(User_ID),
     Field INT,
     Description TEXT
 );
@@ -157,13 +165,13 @@ CREATE TABLE Report (
     ID_Report SERIAL PRIMARY KEY,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	Content TEXT,
-	ID_user INT REFERENCES Users(ID_User)
+	User_ID INT REFERENCES Users(User_ID)
 );
 
 CREATE TABLE Valuation (
     ID_valuation SERIAL PRIMARY KEY,
     Time_valuation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ID_user INT REFERENCES Users(ID_User),
+    User_ID INT REFERENCES Users(User_ID),
     ID_ver INT REFERENCES Version(ID_ver),
     Price NUMERIC(10, 2)
 );
@@ -171,7 +179,7 @@ CREATE TABLE Valuation (
 CREATE TABLE Transaction (
     ID_transaction SERIAL PRIMARY KEY,
     Time_transaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ID_user INT REFERENCES Users(ID_User),
+    User_ID INT REFERENCES Users(User_ID),
     ID_ver INT REFERENCES Version(ID_ver)
 );
 
@@ -188,7 +196,7 @@ VALUES ('Active', '2023-01-01 09:00:00'),
 ('Archived', '2023-01-09 19:00:00'),
 ('Locked', '2023-01-10 20:15:00');
 
-INSERT INTO Users (full_name, Password, Reliability, Kat, Phone_number, Email, Birth_date, Join_date, Current_location, Current_company, Primary_language, Desired_Payrate, Available_time_per_week, ID_Status)
+INSERT INTO Users (Full_name, Password, Reliability, Kat, Phone_number, Email, Birth_date, Join_date, Current_location, Current_company, Primary_language, Desired_Payrate, Available_time_per_week, ID_Status)
 VALUES
 ('John Doe', 'password123', 85, 20000, '1234567890', 'johndoe@example.com', '1985-01-15', '2023-06-10 10:00:00', 'New York', 'TechCorp', 'English', 25.00, 40, 1),
 ('Jane Smith', 'password456', 90, 351222, '0987654321', 'janesmith@example.com', '1990-04-22', '2023-07-12 15:30:00', 'Los Angeles', 'HealthCare Inc.', 'English', 30.00, 35, 2),
@@ -242,7 +250,7 @@ VALUES
 (FALSE, 'avatar17.png', 'Sending e-commerce product sales data', 11.0, 1, 'sending-e-commerce-product-sales-data'),
 (TRUE, 'avatar18.png', 'Sending climate analysis weather data', 11.0, 6, 'sending-climate-analysis-weather-data');
 
-INSERT INTO User_Click (ID_User, ID_Dataset) VALUES
+INSERT INTO User_Click (User_ID, ID_Dataset) VALUES
 (1, 1), (2, 2),(3, 3),(4, 4), (5, 5),(6, 6),(7, 7),(8, 8),
 (9, 9),(10, 10),(1, 4),(2, 3),(3, 4),(4, 5),(15, 1),(16, 2),(17, 3),
 (21, 9),(16, 7),(17, 8),(20, 1),(25, 6),(16, 7),(12, 2),(13, 3);
@@ -271,6 +279,40 @@ INSERT INTO Version (
 (5, 460.25, 2, 64,  '2024-09-15 10:00:00', 65.32145, 60.54321, 1400, '2024-09-15 12:00:00', '2024-09-15 14:00:00', '2024-09-15 16:00:00', 70.0, 'mongodb://link15', 2, 2);
 
 
+INSERT INTO User_Version_Participation (User_ID, ID_Version, Join_date) VALUES
+(1, 1, '2023-08-01 10:00:00'),
+(1, 2, '2024-08-02 11:00:00'),
+(1, 3, '2024-08-03 12:00:00'),
+(1, 4, '2024-08-03 12:00:00'),
+(1, 11, '2024-08-03 11:00:00'),
+(2, 1, '2024-08-01 09:30:00'),
+(2, 4, '2024-09-02 10:30:00'),
+(2, 5, '2024-09-03 11:30:00'),
+(13, 2, '2024-10-01 08:15:00'),
+(23, 6, '2024-10-02 09:15:00'),
+(13, 7, '2024-10-03 10:15:00'),
+(14, 1, '2024-10-01 07:45:00'),
+(24, 8, '2024-10-02 08:45:00'),
+(24, 9, '2024-10-03 09:45:00'),
+(15, 5, '2024-10-01 07:00:00'),
+(15, 10, '2024-11-02 08:00:00'),
+(15, 3, '2024-11-03 09:00:00'),
+(26, 6, '2024-11-01 08:00:00'),
+(26, 4, '2024-11-02 09:00:00'),
+(26, 1, '2024-11-03 10:00:00'),
+(17, 7, '2024-11-01 11:00:00'),
+(17, 2, '2024-11-02 12:00:00'),
+(17, 5, '2024-12-03 13:00:00'),
+(28, 8, '2024-12-01 06:45:00'),
+(28, 9, '2024-12-02 07:45:00'),
+(28, 10, '2024-12-03 08:45:00'),
+(19, 1, '2024-12-01 07:15:00'),
+(19, 3, '2024-12-02 08:15:00'),
+(19, 6, '2024-12-03 09:15:00'),
+(20, 4, '2024-12-01 09:50:00'),
+(20, 5, '2024-12-02 10:50:00'),
+(20, 7, '2024-12-03 11:50:00');
+
 INSERT INTO Admin (Username, Password, Permission) VALUES
 ('admin1', 'password1', 1),
 ('admin2', 'password2', 2),
@@ -278,7 +320,7 @@ INSERT INTO Admin (Username, Password, Permission) VALUES
 ('admin4', 'password4', 2),
 ('admin5', 'password5', 1);
 
-INSERT INTO Data_sending_request (ID_User, Data_type, ID_dataset, Description)
+INSERT INTO Data_sending_request (User_ID, Data_type, ID_dataset, Description)
 VALUES
 (1, 1, 1, 'Sending demographic data analysis results'),
 (2, 2, 11, 'Sending market research dataset for electronics'),
@@ -291,7 +333,7 @@ VALUES
 (19, 6, 18, 'Sending climate analysis weather data'),
 (20, 3, 10, 'Sending mobile app user behavior dataset');
 
-INSERT INTO Data_buying_request (ID_User, Public_data, ID_Dataset, Description, Time, Deposit, Price, Due_Date, Data_type)
+INSERT INTO Data_buying_request (User_ID, Public_data, ID_Dataset, Description, Time, Deposit, Price, Due_Date, Data_type)
 VALUES
 (1, TRUE, NULL, 'Request for demographic data analysis', NOW(), 500.00, 2500.00, '2024-09-01 12:00:00', 1),
 (2, FALSE, NULL, 'Market research dataset for electronics', NOW(), 1000.00, 4500.00, '2024-09-10 15:30:00', 2),
@@ -342,7 +384,7 @@ INSERT INTO Censorship_complete_version (ID_Admin, ID_Ver, Confirm, Reason) VALU
 (4, 9, FALSE, 'Issues detected during quality assurance.'),
 (5, 10, TRUE, 'All issues resolved, confirmed for release.');
 
-INSERT INTO Expert_Register (ID_User, File_CV)
+INSERT INTO Expert_Register (User_ID, File_CV)
 VALUES (11, 'path/to/cv_john_doe.pdf'),
 (12, 'path/to/cv_jane_smith.docx'),
 (13, 'path/to/cv_michael_johnson.pdf'),
@@ -356,7 +398,7 @@ VALUES (1, 1, TRUE, 'Approved without issues.'),
 (4, 4, FALSE, 'Incomplete CV provided.'),
 (5, 5, TRUE, 'Expert registration approved.');
 
-INSERT INTO Expert (ID_User, Field, Description)
+INSERT INTO Expert (User_ID, Field, Description)
 VALUES (1, 101, 'Expert in Data Science with a focus on machine learning and big data analysis.'),
 (3, 102, 'Specialist in Cybersecurity, with extensive experience in ethical hacking and network security.'),
 (8, 103, 'Software Engineering expert, specialized in full-stack development and cloud computing.'),
@@ -370,7 +412,7 @@ INSERT INTO Database_Expert (ID_Expert, ID_Dataset) VALUES
 (2, 5),(5, 7),(1, 4),(2, 7),
 (3, 2),(2, 10),(1, 11);
 
-INSERT INTO Report (Content, ID_user)
+INSERT INTO Report (Content, User_ID)
 VALUES
 ('Quarterly report on user engagement.', 1),
 ('Analysis of market trends for Q2.', 2),
@@ -383,7 +425,7 @@ VALUES
 ('Climate change impact assessment.', 15),
 ('User behavior analysis in mobile app.', 6);
 
-INSERT INTO Valuation (Time_valuation, ID_user, ID_ver, Price) VALUES
+INSERT INTO Valuation (Time_valuation, User_ID, ID_ver, Price) VALUES
 ('2024-01-01 10:00:00', 1, 1, 5000.00),
 ('2024-01-02 11:00:00', 1, 2, 5200.00),
 ('2024-01-03 12:00:00', 1, 3, 5300.00),
@@ -416,7 +458,7 @@ INSERT INTO Valuation (Time_valuation, ID_user, ID_ver, Price) VALUES
 ('2024-10-03 11:50:00', 20, 7, 7700.50);
 
 
-INSERT INTO Transaction (ID_user, ID_ver) VALUES
+INSERT INTO Transaction (User_ID, ID_ver) VALUES
 (1, 1), -- User 1 (John Doe) transacts with Version 1
 (1, 2), -- User 1 (John Doe) transacts with Version 2
 (2, 1), -- User 2 (Jane Smith) transacts with Version 1

@@ -1,6 +1,5 @@
 const {
   getUserByEmailDb,
-  getUserByUsernameDb,
   createUserDb,
   changeUserPasswordDb,
 } = require("../db/users.db.js");
@@ -8,11 +7,42 @@ const validateUser = require("../helpers/validateUser");
 const { ErrorHandler } = require("../helpers/error");
 
 class AuthService {
+  async signUp(user) {
+    try {
+      const { email, password, full_name } = user;
+      if (!email || !password || !full_name) {
+        throw new ErrorHandler(401, "all fields required");
+      }
+
+      if (validateUser(email, password)) {
+        const userByEmail = await getUserByEmailDb(email);
+        if (userByEmail) {
+          throw new ErrorHandler(401, "email taken already");
+        }
+        const newUser = await createUserDb(
+          email,
+          password,
+          full_name,
+        );
+        return {
+          user: {
+            user_id: newUser.user_id,
+            full_name: newUser.full_name,
+            email: newUser.email,
+          },
+        };
+      } else {
+        throw new ErrorHandler(401, "Input validation error");
+      }
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  }
   async login(email, password) {
     try {
       const user = await getUserByEmailDb(email);
       const { id_user, email: dbEmail, password: dbPassword } = user;
-      if (password != dbPassword && email != dbEmail) {
+      if (password != dbPassword || email != dbEmail) {
         throw new ErrorHandler(403, "Email or password incorrect.");
       }
       return {
@@ -25,49 +55,16 @@ class AuthService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   }
-  async signUp(user) {
-    try {
-      const { email, password, username } = user;
-      if (!email || !password || !username) {
-        throw new ErrorHandler(401, "all fields required");
-      }
-
-      if (validateUser(email, password)) {
-        const userByEmail = await getUserByEmailDb(email);
-        const userByUsername = await getUserByUsernameDb(username);
-
-        if (userByEmail) {
-          throw new ErrorHandler(401, "email taken already");
-        }
-
-        if (userByUsername) {
-          throw new ErrorHandler(401, "username taken already");
-        }
-
-        const newUser = await createUserDb({
-          email,
-          password,
-          username,
-        });
-        return {
-          user: {
-            user_id: newUser.user_id,
-            username: newUser.username,
-            email: newUser.email,
-          },
-        };
-      } else {
-        throw new ErrorHandler(401, "Input validation error");
-      }
-    } catch (error) {
-      throw new ErrorHandler(error.statusCode, error.message);
-    }
-  }
   // async forgotPassword(email) {
-  //   try {
-  //     const user = await
-  //   } catch {
-
+  //   const user = await getUserByEmailDb(email);
+  //   if (user) {
+  //     try {
+  //       await mail.forgotPasswordMail(fpSalt, email);
+  //     } catch (error) {
+  //       throw new ErrorHandler(error.statusCode, error.message);
+  //     }
+  //   } else {
+  //     throw new ErrorHandler(400, "Email not found");
   //   }
   // }
   async resetPassword(password, password2, email) {
@@ -84,12 +81,21 @@ class AuthService {
         "Password length must be at least 6 characters"
       );
     }
-
     try {
+      const user = await getUserByEmailDb(email);
+      if (!user) {
+        throw new ErrorHandler(403, "Email incorrect.");
+      }
       await changeUserPasswordDb(password, email);
+
     } catch (error) {
-      throw new ErrorHandler(error.statusCode, error.message);
+      if (error instanceof ErrorHandler) {
+        throw error; 
+      } else {
+        throw new ErrorHandler(500, "Internal Server Error");
+      }
     }
+
   }
 }
 module.exports = new AuthService();

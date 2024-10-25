@@ -1,6 +1,7 @@
+const { P } = require("pino");
 const {
   getAllDatasetsDb,
-  //getDatasetDb,
+  getDatasetByIdDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,
 } = require("../db/datasets.db.js");
@@ -18,6 +19,13 @@ class DatasetService {
     const offset = (page - 1) * limit;
     try {
       return await getAllDatasetsDb({ limit, offset });
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  };
+  getDatasetById = async (datasetId) => {
+    try {
+      return await getDatasetByIdDb(datasetId);
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }

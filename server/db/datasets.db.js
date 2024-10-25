@@ -26,7 +26,7 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
   return { items: datasets.rows };
 };
 
-const getDatasetDb = async ({ id }) => {
+const getDatasetByIdDb = async ({ id }) => {
   const { rows: datasets } = await client.query(
     `SELECT products.*, order_item.quantity
         from orders
@@ -108,7 +108,7 @@ const getUserOwnedDatasetByIdDb = async (datasetId) => {
 };
 module.exports = {
   getAllDatasetsDb,
-  getDatasetDb,
+  getDatasetByIdDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,
   getUserOwnedDatasetByIdDb,

@@ -10,19 +10,12 @@ const getUserByIdDb = async (id) => {
 
 const getUserByEmailDb = async (email) => {
   const { rows: users } = await client.query(
-    "SELECT ID_user, Full_name,Password,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE email = $1",
+    "SELECT User_ID,Password,Email FROM Users WHERE email = $1",
     [email]
   );
   return users[0];
 };
 
-const getUserByUsernameDb = async (username) => {
-  const { rows: users } = await client.query(
-    "SELECT Full_name,Email,Birth_date,Join_date,Current_location,Current_company,Primary_language,Phone_number,Desired_Payrate,Available_time_per_week FROM Users WHERE username = $1",
-    [username]
-  );
-  return users[0];
-};
 
 const changeUserPasswordDb = async (password, email) => {
   const { rows: users } = await client.query(
@@ -32,18 +25,20 @@ const changeUserPasswordDb = async (password, email) => {
   return users[0];
 };
 
-const createUserDb = async (email, password, username) => {
+const createUserDb = async (email, password, full_name) => {
   const { rows: users } = await client.query(
-    "Them user moi tu data returning ",
-    [email, password, username]
+    `INSERT INTO Users (Full_name, Password, Reliability, Kat, Email, Join_date, ID_Status)
+      VALUES ($1, $2, $3, $4, $5, NOW(), 1)
+      RETURNING User_ID, Full_name, Email`,
+    [full_name, password, 100, 0, email]
   );
   return users[0];
 };
 
-const getUserReliabilitybyIdDb = async (id_user) => {
+const getUserReliabilitybyIdDb = async (user_id) => {
   const { rows: reliability } = await client.query(
-    "SELECT reliability FROM users WHERE id_user = $1", // Thêm dấu phẩy ở đây
-    [id_user]
+    "SELECT Reliability FROM Users WHERE User_ID = $1",
+    [user_id]
   );
   return reliability[0];
 };
@@ -51,9 +46,8 @@ const getUserReliabilitybyIdDb = async (id_user) => {
 
 module.exports = {
   getUserByIdDb,
-  //getUserByEmailDb,
-  //getUserByUsernameDb,
+  getUserByEmailDb,
   changeUserPasswordDb,
-  // createUserDb,
+  createUserDb,
   getUserReliabilitybyIdDb,
 };

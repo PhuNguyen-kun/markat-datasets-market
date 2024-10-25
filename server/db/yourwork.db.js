@@ -1,27 +1,29 @@
 const client = require("../config");
-const getAllYourWorkVersionsByIdDb = async (id_user) => {
+const getAllYourWorkVersionsByUserIdDb = async (user_id) => {
   const versions = await client.query(
     `SELECT
-    d.Name_dataset AS Dataset_Name,
-    v.ID_Ver AS Version_ID,
-    v.Status,
-    AGE(NOW(), v.Create_Date) AS Recently_Updated
+    d.Name_dataset AS Dataset_name,
+    d.ID_Dataset,
+    v.ID_Ver AS ID_Version,
+    v.Create_Date,
+    v.Data_sending_time_duration,
+    v.Labeling_time_duration,
+    v.Valuation_time_duration,
+    ROW_NUMBER() OVER (PARTITION BY d.ID_Dataset ORDER BY v.Create_Date) AS Version_number
     FROM
-        Version v
+      User_Version_Participation uvp
     JOIN
-        Dataset d ON v.ID_Dataset = d.ID_Dataset
+      Version v ON uvp.ID_Version = v.ID_Ver
     JOIN
-        Valuation val ON val.ID_ver = v.ID_Ver
+      Dataset d ON v.ID_Dataset = d.ID_Dataset
     WHERE
-        val.ID_user = $1
-    ORDER BY
-        v.Create_Date DESC;
+      uvp.User_ID = $1
     `,
-    [id_user]
+    [user_id]
   );
   return { items: versions.rows };
 };
 
 module.exports = {
-  getAllYourWorkVersionsByIdDb,
+  getAllYourWorkVersionsByUserIdDb,
 };

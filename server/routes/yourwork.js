@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const {
-  getAllYourWorkVersionsById,
+  getAllYourWorkVersionsByUserId,
 } = require("../controllers/yourwork.controller");
-router.route("/").get(getAllYourWorkVersionsById);
+router.route("/").get(getAllYourWorkVersionsByUserId);
 
 module.exports = router;
