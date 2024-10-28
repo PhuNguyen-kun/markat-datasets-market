@@ -5,6 +5,9 @@ const {
 } = require("../db/users.db.js");
 const validateUser = require("../helpers/validateUser");
 const { ErrorHandler } = require("../helpers/error");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const SECRET_KEY = process.env.SECRET_KEY;
 
 class AuthService {
   async signUp(user) {
@@ -19,11 +22,7 @@ class AuthService {
         if (userByEmail) {
           throw new ErrorHandler(401, "email taken already");
         }
-        const newUser = await createUserDb(
-          email,
-          password,
-          full_name,
-        );
+        const newUser = await createUserDb(email, password, full_name);
         return {
           user: {
             user_id: newUser.user_id,
@@ -38,23 +37,51 @@ class AuthService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   }
+
+  // async login(email, password) {
+  //   try {
+  //     const user = await getUserByEmailDb(email);
+  //     const { id_user, email: dbEmail, password: dbPassword } = user;
+  //     if (password != dbPassword || email != dbEmail) {
+  //       throw new ErrorHandler(403, "Email or password incorrect.");
+  //     }
+  //     return {
+  //       user: {
+  //         id_user,
+  //         password,
+  //       },
+  //     };
+  //   } catch (error) {
+  //     throw new ErrorHandler(error.statusCode, error.message);
+  //   }
+  // }
+
   async login(email, password) {
     try {
       const user = await getUserByEmailDb(email);
-      const { id_user, email: dbEmail, password: dbPassword } = user;
-      if (password != dbPassword || email != dbEmail) {
+      const { user_id, full_name, email: dbEmail, password: dbPassword } = user;
+
+      if (password !== dbPassword || email !== dbEmail) {
         throw new ErrorHandler(403, "Email or password incorrect.");
       }
+
+      const token = jwt.sign({ userId: user_id }, SECRET_KEY, {
+        expiresIn: "1h",
+      });
+
       return {
         user: {
-          id_user,
-          password,
+          user_id,
+          full_name,
+          email,
         },
+        token,
       };
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   }
+
   // async forgotPassword(email) {
   //   const user = await getUserByEmailDb(email);
   //   if (user) {
@@ -87,15 +114,14 @@ class AuthService {
         throw new ErrorHandler(403, "Email incorrect.");
       }
       await changeUserPasswordDb(password, email);
-
     } catch (error) {
       if (error instanceof ErrorHandler) {
-        throw error; 
+        throw error;
       } else {
         throw new ErrorHandler(500, "Internal Server Error");
       }
     }
-
   }
 }
+
 module.exports = new AuthService();
