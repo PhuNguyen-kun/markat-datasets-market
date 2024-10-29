@@ -4,7 +4,7 @@ CREATE DATABASE markat_db;
 
 
 CREATE TABLE Status (
-    ID_Status SERIAL PRIMARY KEY,
+    Status_ID SERIAL PRIMARY KEY,
     Status_name VARCHAR(255),
     Time TIMESTAMP
 );
@@ -24,31 +24,32 @@ CREATE TABLE Users (
     Primary_language VARCHAR(255),
     Desired_Payrate NUMERIC(10, 2),
 	Available_time_per_week FLOAT,
-    ID_Status INT REFERENCES Status(ID_Status)
+    Status_ID INT REFERENCES Status(Status_ID)
 );
 
 CREATE TABLE Dataset (
-    ID_Dataset SERIAL PRIMARY KEY,
+    Dataset_ID SERIAL PRIMARY KEY,
     Verified BOOLEAN, --update
     Avatar TEXT,
     Name_dataset VARCHAR(255),
     Voucher FLOAT,
     Data_type INT,
+    Request_type VARCHAR(20),
     Slug TEXT
 );
 
-CREATE TABLE User_Click (
-    User_ID_click SERIAL PRIMARY KEY,
+CREATE TABLE User_click (
+    User_click_ID SERIAL PRIMARY KEY,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	User_ID INT REFERENCES Users(User_ID),
-    ID_Dataset INT REFERENCES Dataset(ID_Dataset)
+    Dataset_ID INT REFERENCES Dataset(Dataset_ID)
 );
 
 
 
 CREATE TABLE Version (
-    ID_Ver SERIAL PRIMARY KEY,
-    ID_Dataset INT REFERENCES Dataset(ID_Dataset),
+    Version_ID SERIAL PRIMARY KEY,
+    Dataset_ID INT REFERENCES Dataset(Dataset_ID),
 	Price NUMERIC(10, 2),
     Number_parts INT,
     Reliability_minimum INT,
@@ -66,15 +67,15 @@ CREATE TABLE Version (
 );
 
 CREATE TABLE User_Version_Participation (
-    ID_user_version_participation SERIAL PRIMARY KEY,
+    User_Version_Participation_ID SERIAL PRIMARY KEY,
     User_ID INT REFERENCES Users(User_ID),
-    ID_Version INT REFERENCES Version(ID_Ver),
+    Version_IDsion INT REFERENCES Version(Version_ID),
     Participation_Type VARCHAR(50),
     Join_date TIMESTAMP
 );
 
 CREATE TABLE Admin (
-    ID_Admin SERIAL PRIMARY KEY,
+    Admin_ID SERIAL PRIMARY KEY,
     Username VARCHAR(255) UNIQUE,
     Password VARCHAR(255),
 	Permission INT
@@ -82,31 +83,31 @@ CREATE TABLE Admin (
 
 
 CREATE TABLE Data_sending_request (
-    ID_data_sending_request SERIAL PRIMARY KEY,
+    Data_sending_request_ID SERIAL PRIMARY KEY,
     User_ID INT REFERENCES Users(User_ID),
     Data_type INT,
-	ID_dataset INT REFERENCES Dataset(ID_Dataset),
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Dataset_ID INT REFERENCES Dataset(Dataset_ID),
     Description TEXT
 );
 
 CREATE TABLE Data_buying_request (
-    ID_buying_request SERIAL PRIMARY KEY,
+    Data_buying_request_ID SERIAL PRIMARY KEY,
     User_ID INT REFERENCES Users(User_ID),
     Public_data BOOLEAN,
-    ID_Dataset INT REFERENCES Dataset(ID_Dataset),
     Description TEXT,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Deposit  NUMERIC(10, 2),
 	Price NUMERIC(10, 2),
 	Due_Date TIMESTAMP,
+    Dataset_ID INT REFERENCES Dataset(Dataset_ID),
     Data_type INT
 );
 
 CREATE TABLE Censorship_DBR (
-    ID_dbr SERIAL PRIMARY KEY,
-    ID_Admin INT REFERENCES Admin(ID_Admin),
-    ID_buying_request INT REFERENCES Data_buying_request(ID_buying_request),
+    Censorship_DBR_ID SERIAL PRIMARY KEY,
+    Admin_ID INT REFERENCES Admin(Admin_ID),
+    Data_buying_request_ID INT REFERENCES Data_buying_request(Data_buying_request_ID),
     Confirm BOOLEAN,
     Reason TEXT,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -115,8 +116,8 @@ CREATE TABLE Censorship_DBR (
 
 CREATE TABLE Censorship_DSR (
     ID_dsr SERIAL PRIMARY KEY,
-    ID_Admin INT REFERENCES Admin(ID_Admin),
-	ID_data_sending_request INT REFERENCES Data_sending_request(ID_data_sending_request),
+    Admin_ID INT REFERENCES Admin(Admin_ID),
+	Data_sending_request_ID INT REFERENCES Data_sending_request(Data_sending_request_ID),
     Confirm BOOlEAN,
 	Reason TEXT,
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -124,8 +125,8 @@ CREATE TABLE Censorship_DSR (
 
 CREATE TABLE Censorship_complete_version(
 	ID_complete_ver SERIAL PRIMARY KEY,
-    ID_Admin INT REFERENCES Admin(ID_Admin),
-	ID_Ver INT REFERENCES Version(ID_Ver),
+    Admin_ID INT REFERENCES Admin(Admin_ID),
+	Version_ID INT REFERENCES Version(Version_ID),
     Confirm BOOlEAN,
 	Reason TEXT,
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -140,7 +141,7 @@ CREATE TABLE Expert_Register (
 
 CREATE TABLE Authen (
     ID_authen SERIAL PRIMARY KEY,
-    ID_Admin INT REFERENCES Admin(ID_Admin),
+    Admin_ID INT REFERENCES Admin(Admin_ID),
 	ID_Expert_register INT REFERENCES Expert_Register(ID_Expert_register),
     Confirm BOOlEAN,
 	Reason TEXT,
@@ -155,10 +156,10 @@ CREATE TABLE Expert (
 );
 
 
-CREATE TABLE Database_Expert (
-    ID_Database_Expert SERIAL PRIMARY KEY,
+CREATE TABLE Dataset_Expert (
+    ID_Dataset_Expert SERIAL PRIMARY KEY,
     ID_Expert INT REFERENCES Expert(ID_Expert),
-	ID_Dataset INT REFERENCES Dataset(ID_Dataset)
+	Dataset_ID INT REFERENCES Dataset(Dataset_ID)
 );
 
 
@@ -173,7 +174,7 @@ CREATE TABLE Valuation (
     ID_valuation SERIAL PRIMARY KEY,
     Time_valuation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     User_ID INT REFERENCES Users(User_ID),
-    ID_ver INT REFERENCES Version(ID_ver),
+    Version_ID INT REFERENCES Version(Version_ID),
     Price NUMERIC(10, 2)
 );
 
@@ -181,7 +182,7 @@ CREATE TABLE Transaction (
     ID_transaction SERIAL PRIMARY KEY,
     Time_transaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     User_ID INT REFERENCES Users(User_ID),
-    ID_ver INT REFERENCES Version(ID_ver)
+    Version_ID INT REFERENCES Version(Version_ID)
 );
 
 -- Database
@@ -197,7 +198,7 @@ VALUES ('Active', '2023-01-01 09:00:00'),
 ('Archived', '2023-01-09 19:00:00'),
 ('Locked', '2023-01-10 20:15:00');
 
-INSERT INTO Users (Full_name, Password, Reliability, Kat, Phone_number, Email, Birth_date, Join_date, Current_location, Current_company, Primary_language, Desired_Payrate, Available_time_per_week, ID_Status)
+INSERT INTO Users (Full_name, Password, Reliability, Kat, Phone_number, Email, Birth_date, Join_date, Current_location, Current_company, Primary_language, Desired_Payrate, Available_time_per_week, Status_ID)
 VALUES
 ('John Doe', 'password123', 85, 20000, '1234567890', 'johndoe@example.com', '1985-01-15', '2023-06-10 10:00:00', 'New York', 'TechCorp', 'English', 25.00, 40, 1),
 ('Jane Smith', 'password456', 90, 351222, '0987654321', 'janesmith@example.com', '1990-04-22', '2023-07-12 15:30:00', 'Los Angeles', 'HealthCare Inc.', 'English', 30.00, 35, 2),
@@ -230,34 +231,34 @@ VALUES
 ('Sebastian Young', 'pass858687', 79, 120, '1594567538', 'sebastianyoung@example.com', '1987-10-11', '2023-03-22 09:55:00', 'Austin', 'FinanceCorp', 'English', 28.00, 35, 2),
 ('Zoe Walker', 'pass888990', 94, 0, '7539513578', 'zoewalker@example.com', '1995-01-07', '2023-08-30 11:30:00', 'Las Vegas', 'RealEstate Pro', 'Spanish', 40.50, 50, 3);
 
-INSERT INTO Dataset (Verified, Avatar, Name_dataset, Voucher, Data_type, Slug)
+INSERT INTO Dataset (Verified, Avatar, Name_dataset, Voucher, Data_type, Request_type, Slug)
 VALUES
-(TRUE, 'avatar1.png', 'Demographic Data Analysis', 10.0, 1, 'demographic-data-analysis'),
-(FALSE, 'avatar2.png', 'Electronics Market Research', 15.5, 2, 'electronics-market-research'),
-(TRUE, 'avatar3.png', 'Financial Transaction Data', 20.0, 3, 'financial-transaction-data'),
-(TRUE, 'avatar4.png', 'Retail Customer Feedback', 8.0, 1, 'retail-customer-feedback'),
-(FALSE, 'avatar5.png', 'Healthcare Insurance Data', 12.5, 4, 'healthcare-insurance-data'),
-(TRUE, 'avatar6.png', 'Social Media Engagement', 9.0, 2, 'social-media-engagement'),
-(FALSE, 'avatar7.png', 'Real Estate Transaction Data', 18.0, 5, 'real-estate-transaction-data'),
-(TRUE, 'avatar8.png', 'E-commerce Product Sales', 7.5, 1, 'e-commerce-product-sales'),
-(FALSE, 'avatar9.png', 'Climate Analysis Weather Data', 14.0, 6, 'climate-analysis-weather-data'),
-(TRUE, 'avatar10.png', 'Mobile App User Behavior', 11.0, 3, 'mobile-app-user-behavior'),
-(FALSE, 'avatar11.png', 'Sending market research dataset for electronics', 11.0, 2, 'sending-market-research-dataset-for-electronics'),
-(TRUE, 'avatar12.png', 'Sending financial transaction dataset for bank analysis', 11.0, 3, 'sending-financial-transaction-dataset-for-bank-analysis'),
-(FALSE, 'avatar13.png', 'Sending customer feedback dataset for retail analysis', 11.0, 1, 'sending-customer-feedback-dataset-for-retail-analysis'),
-(TRUE, 'avatar14.png', 'Sending healthcare dataset for insurance analysis', 11.0, 4, 'sending-healthcare-dataset-for-insurance-analysis'),
-(TRUE, 'avatar15.png', 'Sending social media engagement data', 11.0, 2, 'sending-social-media-engagement-data'),
-(FALSE, 'avatar16.png', 'Sending real estate transaction data', 11.0, 5, 'sending-real-estate-transaction-data'),
-(FALSE, 'avatar17.png', 'Sending e-commerce product sales data', 11.0, 1, 'sending-e-commerce-product-sales-data'),
-(TRUE, 'avatar18.png', 'Sending climate analysis weather data', 11.0, 6, 'sending-climate-analysis-weather-data');
+(TRUE, 'avatar1.png', 'Demographic Data Analysis', 10.0, 1, 'Sending', 'demographic-data-analysis'),
+(FALSE, 'avatar2.png', 'Electronics Market Research', 15.5, 2, 'Buying', 'electronics-market-research'),
+(TRUE, 'avatar3.png', 'Financial Transaction Data', 20.0, 3, 'Buying', 'financial-transaction-data'),
+(TRUE, 'avatar4.png', 'Retail Customer Feedback', 8.0, 1, 'Buying', 'retail-customer-feedback'),
+(FALSE, 'avatar5.png', 'Healthcare Insurance Data', 12.5, 4, 'Buying', 'healthcare-insurance-data'),
+(TRUE, 'avatar6.png', 'Social Media Engagement', 9.0, 2, 'Buying', 'social-media-engagement'),
+(FALSE, 'avatar7.png', 'Real Estate Transaction Data', 18.0, 5, 'Buying', 'real-estate-transaction-data'),
+(TRUE, 'avatar8.png', 'E-commerce Product Sales', 7.5, 1, 'Buying', 'e-commerce-product-sales'),
+(FALSE, 'avatar9.png', 'Climate Analysis Weather Data', 14.0, 6, 'Buying', 'climate-analysis-weather-data'),
+(TRUE, 'avatar10.png', 'Mobile App User Behavior', 11.0, 3, 'Sending', 'mobile-app-user-behavior'),
+(FALSE, 'avatar11.png', 'Sending market research dataset for electronics', 11.0, 2, 'Sending', 'sending-market-research-dataset-for-electronics'),
+(TRUE, 'avatar12.png', 'Sending financial transaction dataset for bank analysis', 11.0, 3, 'Sending', 'sending-financial-transaction-dataset-for-bank-analysis'),
+(FALSE, 'avatar13.png', 'Sending customer feedback dataset for retail analysis', 11.0, 1, 'Sending', 'sending-customer-feedback-dataset-for-retail-analysis'),
+(TRUE, 'avatar14.png', 'Sending healthcare dataset for insurance analysis', 11.0, 4, 'Sending', 'sending-healthcare-dataset-for-insurance-analysis'),
+(TRUE, 'avatar15.png', 'Sending social media engagement data', 11.0, 2, 'Sending', 'sending-social-media-engagement-data'),
+(FALSE, 'avatar16.png', 'Sending real estate transaction data', 11.0, 5, 'Sending', 'sending-real-estate-transaction-data'),
+(FALSE, 'avatar17.png', 'Sending e-commerce product sales data', 11.0, 1, 'Sending', 'sending-e-commerce-product-sales-data'),
+(TRUE, 'avatar18.png', 'Sending climate analysis weather data', 11.0, 6, 'Sending', 'sending-climate-analysis-weather-data');
 
-INSERT INTO User_Click (User_ID, ID_Dataset) VALUES
+INSERT INTO User_click (User_ID, Dataset_ID) VALUES
 (1, 1), (2, 2),(3, 3),(4, 4), (5, 5),(6, 6),(7, 7),(8, 8),
 (9, 9),(10, 10),(1, 4),(2, 3),(3, 4),(4, 5),(15, 1),(16, 2),(17, 3),
 (21, 9),(16, 7),(17, 8),(20, 1),(25, 6),(16, 7),(12, 2),(13, 3);
 
 INSERT INTO Version (
-    ID_Dataset, Price, Number_parts, Reliability_minimum,
+    Dataset_ID, Price, Number_parts, Reliability_minimum,
     Create_Date, Maximum_size, Total_size, Number_of_data,
     Data_sending_time_duration, Labeling_time_duration,
     Valuation_time_duration, Stock_percent, Link_data_mongo,
@@ -280,7 +281,7 @@ INSERT INTO Version (
 (5, 460.25, 2, 64,  '2024-09-15 10:00:00', 65.32145, 60.54321, 1400, '2024-09-15 12:00:00', '2024-09-15 14:00:00', '2024-09-15 16:00:00', 70.0, 'mongodb://link15', 2, 2);
 
 
-INSERT INTO User_Version_Participation (User_ID, ID_Version, Participation_Type, Join_date) VALUES
+INSERT INTO User_Version_Participation (User_ID, Version_IDsion, Participation_Type, Join_date) VALUES
 (1, 1, 'Sending', '2023-08-01 10:00:00'),
 (1, 2, 'Labeling', '2024-08-02 11:00:00'),
 (1, 3, 'Sending', '2024-08-03 12:00:00'),
@@ -322,7 +323,7 @@ INSERT INTO Admin (Username, Password, Permission) VALUES
 ('admin4', 'password4', 2),
 ('admin5', 'password5', 1);
 
-INSERT INTO Data_sending_request (User_ID, Data_type, ID_dataset, Description)
+INSERT INTO Data_sending_request (User_ID, Data_type, Dataset_ID, Description)
 VALUES
 (1, 1, 1, 'Sending demographic data analysis results'),
 (2, 2, 11, 'Sending market research dataset for electronics'),
@@ -335,20 +336,20 @@ VALUES
 (19, 6, 18, 'Sending climate analysis weather data'),
 (20, 3, 10, 'Sending mobile app user behavior dataset');
 
-INSERT INTO Data_buying_request (User_ID, Public_data, ID_Dataset, Description, Time, Deposit, Price, Due_Date, Data_type)
+INSERT INTO Data_buying_request (User_ID, Public_data, Dataset_ID, Description, Time, Deposit, Price, Due_Date, Data_type)
 VALUES
-(1, TRUE, NULL, 'Request for demographic data analysis', NOW(), 500.00, 2500.00, '2024-09-01 12:00:00', 1),
-(2, FALSE, NULL, 'Market research dataset for electronics', NOW(), 1000.00, 4500.00, '2024-09-10 15:30:00', 2),
-(13, TRUE, NULL, 'Financial transaction dataset for bank', NOW(), 750.00, 3500.00, '2024-08-20 09:00:00', 3),
-(14, TRUE, NULL, 'Customer feedback dataset for retail', NOW(), 300.00, 1500.00, '2024-09-05 11:45:00', 1),
-(15, TRUE, NULL, 'Healthcare dataset for insurance analysis', NOW(), 600.00, 3200.00, '2024-08-25 10:00:00', 4),
-(26, FALSE, NULL, 'Social media engagement dataset', NOW(), 400.00, 2000.00, '2024-09-12 13:00:00', 2),
-(17, TRUE, NULL, 'Real estate transaction dataset', NOW(), 900.00, 4200.00, '2024-09-03 16:00:00', 5),
-(8, FALSE, NULL, 'Product sales dataset for e-commerce', NOW(), 350.00, 1800.00, '2024-08-30 14:30:00', 1),
-(9, TRUE, NULL, 'Weather data for climate analysis', NOW(), 700.00, 3800.00, '2024-09-08 12:30:00', 6),
-(10, FALSE, NULL, 'User behavior dataset for mobile app', NOW(), 500.00, 2400.00, '2024-09-15 09:45:00', 3);
+(1, TRUE, 2, 'Request for demographic data analysis', NOW(), 500.00, 2500.00, '2024-09-01 12:00:00', 1),
+(2, FALSE, 3, 'Market research dataset for electronics', NOW(), 1000.00, 4500.00, '2024-09-10 15:30:00', 2),
+(13, TRUE, 4, 'Financial transaction dataset for bank', NOW(), 750.00, 3500.00, '2024-08-20 09:00:00', 3),
+(14, TRUE, 5, 'Customer feedback dataset for retail', NOW(), 300.00, 1500.00, '2024-09-05 11:45:00', 1),
+(15, TRUE, 6, 'Healthcare dataset for insurance analysis', NOW(), 600.00, 3200.00, '2024-08-25 10:00:00', 4),
+(26, FALSE, 7, 'Social media engagement dataset', NOW(), 400.00, 2000.00, '2024-09-12 13:00:00', 2),
+(17, TRUE, 8, 'Real estate transaction dataset', NOW(), 900.00, 4200.00, '2024-09-03 16:00:00', 5),
+(8, FALSE, 9, 'Product sales dataset for e-commerce', NOW(), 350.00, 1800.00, '2024-08-30 14:30:00', 1),
+(9, TRUE, 10, 'Weather data for climate analysis', NOW(), 700.00, 3800.00, '2024-09-08 12:30:00', 6),
+(10, FALSE, 11, 'User behavior dataset for mobile app', NOW(), 500.00, 2400.00, '2024-09-15 09:45:00', 3);
 
-INSERT INTO Censorship_DBR (ID_Admin, ID_buying_request, Confirm, Reason)
+INSERT INTO Censorship_DBR (Admin_ID, Data_buying_request_ID, Confirm, Reason)
 VALUES
 (1, 1, FALSE, 'Approved after review.'),
 (2, 2, FALSE, 'Rejected due to insufficient deposit.'),
@@ -361,7 +362,7 @@ VALUES
 (4, 9, TRUE, 'Approved with no issues.'),
 (5, 10, FALSE, 'Rejected due to high price.');
 
-INSERT INTO Censorship_DSR (ID_Admin, ID_data_sending_request, Confirm, Reason)
+INSERT INTO Censorship_DSR (Admin_ID, Data_sending_request_ID, Confirm, Reason)
 VALUES
 (1, 1, FALSE, 'Approved. The request is complete and correct.'),
 (2, 2, TRUE, 'Rejected. Missing additional documentation.'),
@@ -374,7 +375,7 @@ VALUES
 (4, 9, TRUE, 'Approved. No issues found.'),
 (5, 10, FALSE, 'Rejected. The description lacks details.');
 
-INSERT INTO Censorship_complete_version (ID_Admin, ID_Ver, Confirm, Reason) VALUES
+INSERT INTO Censorship_complete_version (Admin_ID, Version_ID, Confirm, Reason) VALUES
 (1, 1, TRUE, 'Verified and approved for release.'),
 (2, 2, FALSE, 'Incomplete documentation, requires more information.'),
 (3, 3, TRUE, 'Compliant with all required standards.'),
@@ -393,7 +394,7 @@ VALUES (11, 'path/to/cv_john_doe.pdf'),
 (14, 'path/to/cv_emily_davis.docx'),
 (15, 'path/to/cv_david_wilson.pdf');
 
-INSERT INTO Authen (ID_Admin, ID_Expert_register, Confirm, Reason)
+INSERT INTO Authen (Admin_ID, ID_Expert_register, Confirm, Reason)
 VALUES (1, 1, TRUE, 'Approved without issues.'),
 (2, 2, FALSE, 'Missing required documentation.'),
 (3, 3, TRUE, 'Approved after minor corrections.'),
@@ -401,13 +402,13 @@ VALUES (1, 1, TRUE, 'Approved without issues.'),
 (5, 5, TRUE, 'Expert registration approved.');
 
 INSERT INTO Expert (User_ID, Field, Description)
-VALUES (1, 101, 'Expert in Data Science with a focus on machine learning and big data analysis.'),
-(3, 102, 'Specialist in Cybersecurity, with extensive experience in ethical hacking and network security.'),
-(8, 103, 'Software Engineering expert, specialized in full-stack development and cloud computing.'),
-(5, 104, 'Expert in Artificial Intelligence, focusing on natural language processing and computer vision.'),
-(2, 105, 'Renowned in Financial Technology (FinTech), with expertise in blockchain and cryptocurrency.');
+VALUES (1, 101, 'Data Sciencist'),
+(3, 102, 'Cybersecurity'),
+(8, 103, 'Software Engineering'),
+(5, 104, 'Artificial Intelligence'),
+(2, 105, 'FinTech');
 
-INSERT INTO Database_Expert (ID_Expert, ID_Dataset) VALUES
+INSERT INTO Dataset_Expert (ID_Expert, Dataset_ID) VALUES
 (1, 1),(1, 2),(2, 3),(3, 4),
 (4, 5),(5, 6),(1, 7),(2, 8),
 (3, 9),(4, 10),(5, 11),(1, 5),
@@ -427,7 +428,7 @@ VALUES
 ('Climate change impact assessment.', 15),
 ('User behavior analysis in mobile app.', 6);
 
-INSERT INTO Valuation (Time_valuation, User_ID, ID_ver, Price) VALUES
+INSERT INTO Valuation (Time_valuation, User_ID, Version_ID, Price) VALUES
 ('2024-01-01 10:00:00', 1, 1, 5000.00),
 ('2024-01-02 11:00:00', 1, 2, 5200.00),
 ('2024-01-03 12:00:00', 1, 3, 5300.00),
@@ -460,7 +461,7 @@ INSERT INTO Valuation (Time_valuation, User_ID, ID_ver, Price) VALUES
 ('2024-10-03 11:50:00', 20, 7, 7700.50);
 
 
-INSERT INTO Transaction (User_ID, ID_ver) VALUES
+INSERT INTO Transaction (User_ID, Version_ID) VALUES
 (1, 1), -- User 1 (John Doe) transacts with Version 1
 (1, 2), -- User 1 (John Doe) transacts with Version 2
 (2, 1), -- User 2 (Jane Smith) transacts with Version 1
