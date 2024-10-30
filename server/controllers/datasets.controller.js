@@ -38,7 +38,7 @@ const getUserOwnedDatasetById = async (req, res) => {
 const getDatasetbyDatasetId = async (req, res) => {
   const { dataset_id } = req.params;
   const dataset = await datasetService.getDatasetbyDatasetId(dataset_id);
-  return res.status(200).json(datasets);
+  return res.status(200).json(dataset);
 };
 module.exports = {
   createDataset,

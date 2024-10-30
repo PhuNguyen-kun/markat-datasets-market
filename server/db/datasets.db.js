@@ -26,17 +26,34 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
   return { items: datasets.rows };
 };
 
-const getDatasetbyDatasetIdDb = async ({ id }) => {
-  const { rows: datasets } = await client.query(
-    `SELECT products.*, order_item.quantity
-        from orders
-        join order_item
-        on order_item.order_id = orders.order_id
-        join products
-        on products.product_id = order_item.product_id
-        where orders.order_id = $1 AND orders.user_id = $2`,
-    [id]
+const getDatasetbyDatasetIdDb = async (datasetId) => {
+  console.log(datasetId);
+
+  const {rows : datasets} = await client.query(
+    `SELECT
+    d.name_dataset,
+    d.avatar,
+    COALESCE(MAX(ds.Description), MAX(db.Description), 'No description available') AS description,
+    STRING_AGG(DISTINCT e.Description, ', ') AS expert_tags
+    FROM
+        dataset d
+    LEFT JOIN
+        Data_sending_request ds ON ds.Dataset_ID = d.Dataset_ID
+    LEFT JOIN
+        Data_buying_request db ON db.Dataset_ID = d.Dataset_ID
+    LEFT JOIN
+        Dataset_Expert de ON d.Dataset_ID = de.Dataset_ID
+    LEFT JOIN
+        Expert e ON de.ID_Expert = e.ID_Expert
+    WHERE
+        d.Dataset_ID = $1
+    GROUP BY
+        d.name_dataset, d.avatar;
+    `,
+    [datasetId]
   );
+  console.log(datasets);
+
   return datasets[0];
 };
 
