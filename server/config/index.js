@@ -1,4 +1,5 @@
 const { Client } = require("pg");
+const mongoose = require('mongoose');
 require("dotenv").config();
 const client = new Client({
   user: process.env.DB_USER || "postgres",
@@ -7,17 +8,31 @@ const client = new Client({
   password: process.env.DB_PASSWORD || "123456",
   port: process.env.DB_PORT || 5432,
 });
-async function connect() {
+async function connectPostgresDb() {
   try {
     await client.connect();
-    console.log("Connected successfully");
+    console.log("Connected to Postgres database");
   } catch (err) {
-    console.log("Connect DB fail with error:", err);
+    console.log("Connect Postgres database fail with error:", err);
   }
 }
 
+async function connectMongoDb() {
+    try {
+      mongoose.set('strictQuery', true); // Hoặc false tùy theo mục đích
+      mongoose.connect('mongodb+srv://markatfordev:yubvFBYv2Fd4MFX@cluster0.flk0f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', { useNewUrlParser: true });
+      mongoose.connection.on('error', (error) => console.log(error));
+      mongoose.connection.on('open', () => {
+          console.log('Connected to MongoDB database.');
+      });
+    } catch (err) {
+        console.log('Connect MongoDB database fail with error:', err);
+    }
+}
+
 module.exports = {
-  connect,
+  connectPostgresDb,
+  connectMongoDb,
   query: (text, params) => client.query(text, params),
   end: () => client.end(),
 };
