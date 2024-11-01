@@ -21,10 +21,6 @@ const getUserProfile = async (req, res) => {
 const getUserReliability = async (req, res) => {
   try {
     const { id_user } = req.query; // Lấy id_user từ query parameters
-    console.log(req);
-    
-    console.log(id_user);
-
     if (!id_user) {
       return res.status(400).json({ message: "User ID is required" });
     }
@@ -40,8 +36,30 @@ const getUserReliability = async (req, res) => {
     console.error("Error fetching user reliability:", error);
     res.status(500).json({ message: "Server error" });
   }
-}
+};
+
+const getUserKat = async (req, res) => {
+  try {
+    const { id_user } = req.query; // Lấy id_user từ query parameters
+
+    if (!id_user) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Tìm thông tin người dùng dựa trên id_user trong cơ sở dữ liệu
+    const userKat = await userService.getUserKatbyId(id_user);
+    if (!userKat) {
+      return res.status(404).json({ message: "User Kat not found" });
+    }
+
+    res.status(200).json(userKat);
+  } catch (error) {
+    console.error("Error fetching user Kat:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 module.exports = {
   getUserProfile,
   getUserReliability,
+  getUserKat,
 };

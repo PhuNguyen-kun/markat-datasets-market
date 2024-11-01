@@ -4,6 +4,8 @@ const {
   getDatasetbyDatasetIdDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,
+  getVersionDb,
+  versionBuyingTransactionDb,
 } = require("../db/datasets.db.js");
 const { ErrorHandler } = require("../helpers/error");
 class DatasetService {
@@ -23,9 +25,9 @@ class DatasetService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
-  getDatasetbyDatasetId = async (datasetId) => {
+  getDatasetbyDatasetId = async (id_dataset) => {
     try {
-      return await getDatasetbyDatasetIdDb(datasetId);
+      return await getDatasetbyDatasetIdDb(id_dataset);
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }
@@ -44,6 +46,20 @@ class DatasetService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
+  getVersion = async (id_dataset, name_version) => {
+    try {
+      return await getVersionDb(id_dataset, name_version);
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  };
+  versionBuyingTransaction = async (id_user, id_version) => {
+    try {
+      return await versionBuyingTransactionDb(id_user, id_version);
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  }
 }
 
 module.exports = new DatasetService();

@@ -1,3 +1,4 @@
+const e = require("express");
 const datasetService = require("../services/datasets.service.js");
 
 const createDataset = async (req, res) => {
@@ -36,14 +37,27 @@ const getUserOwnedDatasetById = async (req, res) => {
   return res.status(200).json(datasets);
 };
 const getDatasetbyDatasetId = async (req, res) => {
-  const { dataset_id } = req.params;
-  const dataset = await datasetService.getDatasetbyDatasetId(dataset_id);
+  const { id_dataset } = req.params;
+  const dataset = await datasetService.getDatasetbyDatasetId(id_dataset);
   return res.status(200).json(dataset);
 };
+const getVersion = async (req, res) => {
+  const { id_dataset, name_version } = req.params;
+  const version = await datasetService.getVersion(id_dataset, name_version);
+  return res.status(200).json(version);
+};
+const versionBuyingTransaction = async (req, res) => {
+  const { id_version } = req.params;
+  const { id_user } = req.body;
+  const execute = await datasetService.versionBuyingTransaction(id_user, id_version);
+  return res.status(200).json(execute);
+}
 module.exports = {
   createDataset,
   getAllDatasets,
   getUserOwnedDatasets,
   getUserOwnedDatasetById,
   getDatasetbyDatasetId,
+  getVersion,
+  versionBuyingTransaction,
 };

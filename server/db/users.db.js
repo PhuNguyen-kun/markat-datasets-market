@@ -16,7 +16,6 @@ const getUserByEmailDb = async (email) => {
   return users[0];
 };
 
-
 const changeUserPasswordDb = async (password, email) => {
   const { rows: users } = await client.query(
     "UPDATE users SET password = $1 WHERE email = $2",
@@ -43,11 +42,20 @@ const getUserReliabilitybyIdDb = async (ID_user) => {
   return reliability[0];
 };
 
-
+const getKatByIdUserDb = async (ID_user) => {
+  const { rows: kat } = await client.query(
+    `
+    SELECT Kat FROM Users WHERE ID_user = $1
+    `,
+    [ID_user]
+  );
+  return kat;
+}
 module.exports = {
   getUserByIdDb,
   getUserByEmailDb,
   changeUserPasswordDb,
   createUserDb,
   getUserReliabilitybyIdDb,
+  getKatByIdUserDb,
 };

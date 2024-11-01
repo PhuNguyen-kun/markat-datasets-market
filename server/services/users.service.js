@@ -2,6 +2,7 @@ const {
   getUserByIdDb,
   changeUserPasswordDb,
   getUserReliabilitybyIdDb,
+  getKatByIdUserDb,
 } = require("../db/users.db.js");
 const { ErrorHandler } = require("../helpers/error");
 
@@ -26,7 +27,14 @@ class UsersService {
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }
-  }
+  };
+  getUserKatbyId = async (id_user) => {
+    try {
+      return await getKatByIdUserDb(id_user);
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  };
 }
 
 module.exports = new UsersService();
