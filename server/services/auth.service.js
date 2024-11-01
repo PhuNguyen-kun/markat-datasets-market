@@ -25,7 +25,7 @@ class AuthService {
         const newUser = await createUserDb(email, password, full_name);
         return {
           user: {
-            user_id: newUser.user_id,
+            id_user: newUser.id_user,
             full_name: newUser.full_name,
             email: newUser.email,
           },

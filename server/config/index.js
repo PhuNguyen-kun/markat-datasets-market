@@ -20,7 +20,7 @@ async function connectPostgresDb() {
 async function connectMongoDb() {
     try {
       mongoose.set('strictQuery', true); // Hoặc false tùy theo mục đích
-      mongoose.connect('mongodb+srv://markatfordev:yubvFBYv2Fd4MFX@cluster0.flk0f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', { useNewUrlParser: true });
+      mongoose.connect(process.env.MONGOURI, { useNewUrlParser: true });
       mongoose.connection.on('error', (error) => console.log(error));
       mongoose.connection.on('open', () => {
           console.log('Connected to MongoDB database.');

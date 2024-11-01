@@ -4,13 +4,13 @@ CREATE DATABASE markat_db;
 
 
 CREATE TABLE Status (
-    Status_ID SERIAL PRIMARY KEY,
+    ID_status SERIAL PRIMARY KEY,
     Status_name VARCHAR(255),
     Time TIMESTAMP
 );
 
 CREATE TABLE Users (
-    User_ID SERIAL PRIMARY KEY,
+    ID_user SERIAL PRIMARY KEY,
     Full_name VARCHAR(255),
     Password VARCHAR(255),
     Reliability INT,
@@ -24,12 +24,12 @@ CREATE TABLE Users (
     Primary_language VARCHAR(255),
     Desired_Payrate NUMERIC(10, 2),
 	Available_time_per_week FLOAT,
-    Status_ID INT REFERENCES Status(Status_ID)
+    ID_status INT REFERENCES Status(ID_status)
 );
 
 CREATE TABLE Dataset (
-    Dataset_ID SERIAL PRIMARY KEY,
-    Verified BOOLEAN, --update
+    ID_dataset SERIAL PRIMARY KEY,
+    Verified BOOLEAN, 
     Avatar TEXT,
     Name_dataset VARCHAR(255),
     Voucher FLOAT,
@@ -39,17 +39,17 @@ CREATE TABLE Dataset (
 );
 
 CREATE TABLE User_click (
-    User_click_ID SERIAL PRIMARY KEY,
+    ID_user_click SERIAL PRIMARY KEY,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	User_ID INT REFERENCES Users(User_ID),
-    Dataset_ID INT REFERENCES Dataset(Dataset_ID)
+	ID_user INT REFERENCES Users(ID_user),
+    ID_dataset INT REFERENCES Dataset(ID_dataset)
 );
 
 
 
 CREATE TABLE Version (
-    Version_ID SERIAL PRIMARY KEY,
-    Dataset_ID INT REFERENCES Dataset(Dataset_ID),
+    ID_version SERIAL PRIMARY KEY,
+    ID_dataset INT REFERENCES Dataset(ID_dataset),
 	Price NUMERIC(10, 2),
     Number_parts INT,
     Reliability_minimum INT,
@@ -67,15 +67,15 @@ CREATE TABLE Version (
 );
 
 CREATE TABLE User_Version_Participation (
-    User_Version_Participation_ID SERIAL PRIMARY KEY,
-    User_ID INT REFERENCES Users(User_ID),
-    Version_IDsion INT REFERENCES Version(Version_ID),
+    ID_user_version_participation SERIAL PRIMARY KEY,
+    ID_user INT REFERENCES Users(ID_user),
+    ID_versionsion INT REFERENCES Version(ID_version),
     Participation_Type VARCHAR(50),
     Join_date TIMESTAMP
 );
 
 CREATE TABLE Admin (
-    Admin_ID SERIAL PRIMARY KEY,
+    ID_admin SERIAL PRIMARY KEY,
     Username VARCHAR(255) UNIQUE,
     Password VARCHAR(255),
 	Permission INT
@@ -83,31 +83,31 @@ CREATE TABLE Admin (
 
 
 CREATE TABLE Data_sending_request (
-    Data_sending_request_ID SERIAL PRIMARY KEY,
-    User_ID INT REFERENCES Users(User_ID),
+    ID_data_sending_request SERIAL PRIMARY KEY,
+    ID_user INT REFERENCES Users(ID_user),
     Data_type INT,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Dataset_ID INT REFERENCES Dataset(Dataset_ID),
+    ID_dataset INT REFERENCES Dataset(ID_dataset),
     Description TEXT
 );
 
 CREATE TABLE Data_buying_request (
-    Data_buying_request_ID SERIAL PRIMARY KEY,
-    User_ID INT REFERENCES Users(User_ID),
+    ID_data_buying_request SERIAL PRIMARY KEY,
+    ID_user INT REFERENCES Users(ID_user),
     Public_data BOOLEAN,
     Description TEXT,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Deposit  NUMERIC(10, 2),
 	Price NUMERIC(10, 2),
 	Due_Date TIMESTAMP,
-    Dataset_ID INT REFERENCES Dataset(Dataset_ID),
+    ID_dataset INT REFERENCES Dataset(ID_dataset),
     Data_type INT
 );
 
 CREATE TABLE Censorship_DBR (
-    Censorship_DBR_ID SERIAL PRIMARY KEY,
-    Admin_ID INT REFERENCES Admin(Admin_ID),
-    Data_buying_request_ID INT REFERENCES Data_buying_request(Data_buying_request_ID),
+    ID_dbr SERIAL PRIMARY KEY,
+    ID_admin INT REFERENCES Admin(ID_admin),
+    ID_data_buying_request INT REFERENCES Data_buying_request(ID_data_buying_request),
     Confirm BOOLEAN,
     Reason TEXT,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -116,8 +116,8 @@ CREATE TABLE Censorship_DBR (
 
 CREATE TABLE Censorship_DSR (
     ID_dsr SERIAL PRIMARY KEY,
-    Admin_ID INT REFERENCES Admin(Admin_ID),
-	Data_sending_request_ID INT REFERENCES Data_sending_request(Data_sending_request_ID),
+    ID_admin INT REFERENCES Admin(ID_admin),
+	ID_data_sending_request INT REFERENCES Data_sending_request(ID_data_sending_request),
     Confirm BOOlEAN,
 	Reason TEXT,
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -125,8 +125,8 @@ CREATE TABLE Censorship_DSR (
 
 CREATE TABLE Censorship_complete_version(
 	ID_complete_ver SERIAL PRIMARY KEY,
-    Admin_ID INT REFERENCES Admin(Admin_ID),
-	Version_ID INT REFERENCES Version(Version_ID),
+    ID_admin INT REFERENCES Admin(ID_admin),
+	ID_version INT REFERENCES Version(ID_version),
     Confirm BOOlEAN,
 	Reason TEXT,
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -134,23 +134,23 @@ CREATE TABLE Censorship_complete_version(
 
 
 CREATE TABLE Expert_Register (
-    ID_Expert_register SERIAL PRIMARY KEY,
-    User_ID INT REFERENCES Users(User_ID),
+    ID_expert_register SERIAL PRIMARY KEY,
+    ID_user INT REFERENCES Users(ID_user),
     File_CV TEXT
 );
 
 CREATE TABLE Authen (
     ID_authen SERIAL PRIMARY KEY,
-    Admin_ID INT REFERENCES Admin(Admin_ID),
-	ID_Expert_register INT REFERENCES Expert_Register(ID_Expert_register),
+    ID_admin INT REFERENCES Admin(ID_admin),
+	ID_expert_register INT REFERENCES Expert_Register(ID_expert_register),
     Confirm BOOlEAN,
 	Reason TEXT,
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Expert (
-    ID_Expert SERIAL PRIMARY KEY,
-    User_ID INT REFERENCES Users(User_ID),
+    ID_expert SERIAL PRIMARY KEY,
+    ID_user INT REFERENCES Users(ID_user),
     Field INT,
     Description TEXT
 );
@@ -158,31 +158,31 @@ CREATE TABLE Expert (
 
 CREATE TABLE Dataset_Expert (
     ID_Dataset_Expert SERIAL PRIMARY KEY,
-    ID_Expert INT REFERENCES Expert(ID_Expert),
-	Dataset_ID INT REFERENCES Dataset(Dataset_ID)
+    ID_expert INT REFERENCES Expert(ID_expert),
+	ID_dataset INT REFERENCES Dataset(ID_dataset)
 );
 
 
 CREATE TABLE Report (
-    ID_Report SERIAL PRIMARY KEY,
+    ID_report SERIAL PRIMARY KEY,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	Content TEXT,
-	User_ID INT REFERENCES Users(User_ID)
+	ID_user INT REFERENCES Users(ID_user)
 );
 
 CREATE TABLE Valuation (
     ID_valuation SERIAL PRIMARY KEY,
     Time_valuation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    User_ID INT REFERENCES Users(User_ID),
-    Version_ID INT REFERENCES Version(Version_ID),
+    ID_user INT REFERENCES Users(ID_user),
+    ID_version INT REFERENCES Version(ID_version),
     Price NUMERIC(10, 2)
 );
 
 CREATE TABLE Transaction (
     ID_transaction SERIAL PRIMARY KEY,
     Time_transaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    User_ID INT REFERENCES Users(User_ID),
-    Version_ID INT REFERENCES Version(Version_ID)
+    ID_user INT REFERENCES Users(ID_user),
+    ID_version INT REFERENCES Version(ID_version)
 );
 
 -- Database
@@ -198,7 +198,7 @@ VALUES ('Active', '2023-01-01 09:00:00'),
 ('Archived', '2023-01-09 19:00:00'),
 ('Locked', '2023-01-10 20:15:00');
 
-INSERT INTO Users (Full_name, Password, Reliability, Kat, Phone_number, Email, Birth_date, Join_date, Current_location, Current_company, Primary_language, Desired_Payrate, Available_time_per_week, Status_ID)
+INSERT INTO Users (Full_name, Password, Reliability, Kat, Phone_number, Email, Birth_date, Join_date, Current_location, Current_company, Primary_language, Desired_Payrate, Available_time_per_week, ID_status)
 VALUES
 ('John Doe', 'password123', 85, 20000, '1234567890', 'johndoe@example.com', '1985-01-15', '2023-06-10 10:00:00', 'New York', 'TechCorp', 'English', 25.00, 40, 1),
 ('Jane Smith', 'password456', 90, 351222, '0987654321', 'janesmith@example.com', '1990-04-22', '2023-07-12 15:30:00', 'Los Angeles', 'HealthCare Inc.', 'English', 30.00, 35, 2),
@@ -252,13 +252,13 @@ VALUES
 (FALSE, 'avatar17.png', 'Sending e-commerce product sales data', 11.0, 1, 'Sending', 'sending-e-commerce-product-sales-data'),
 (TRUE, 'avatar18.png', 'Sending climate analysis weather data', 11.0, 6, 'Sending', 'sending-climate-analysis-weather-data');
 
-INSERT INTO User_click (User_ID, Dataset_ID) VALUES
+INSERT INTO User_click (ID_user, ID_dataset) VALUES
 (1, 1), (2, 2),(3, 3),(4, 4), (5, 5),(6, 6),(7, 7),(8, 8),
 (9, 9),(10, 10),(1, 4),(2, 3),(3, 4),(4, 5),(15, 1),(16, 2),(17, 3),
 (21, 9),(16, 7),(17, 8),(20, 1),(25, 6),(16, 7),(12, 2),(13, 3);
 
 INSERT INTO Version (
-    Dataset_ID, Price, Number_parts, Reliability_minimum,
+    ID_dataset, Price, Number_parts, Reliability_minimum,
     Create_Date, Maximum_size, Total_size, Number_of_data,
     Data_sending_time_duration, Labeling_time_duration,
     Valuation_time_duration, Stock_percent, Link_data_mongo,
@@ -281,7 +281,7 @@ INSERT INTO Version (
 (5, 460.25, 2, 64,  '2024-09-15 10:00:00', 65.32145, 60.54321, 1400, '2024-09-15 12:00:00', '2024-09-15 14:00:00', '2024-09-15 16:00:00', 70.0, 'mongodb://link15', 2, 2);
 
 
-INSERT INTO User_Version_Participation (User_ID, Version_IDsion, Participation_Type, Join_date) VALUES
+INSERT INTO User_Version_Participation (ID_user, ID_versionsion, Participation_Type, Join_date) VALUES
 (1, 1, 'Sending', '2023-08-01 10:00:00'),
 (1, 2, 'Labeling', '2024-08-02 11:00:00'),
 (1, 3, 'Sending', '2024-08-03 12:00:00'),
@@ -323,7 +323,7 @@ INSERT INTO Admin (Username, Password, Permission) VALUES
 ('admin4', 'password4', 2),
 ('admin5', 'password5', 1);
 
-INSERT INTO Data_sending_request (User_ID, Data_type, Dataset_ID, Description)
+INSERT INTO Data_sending_request (ID_user, Data_type, ID_dataset, Description)
 VALUES
 (1, 1, 1, 'Sending demographic data analysis results'),
 (2, 2, 11, 'Sending market research dataset for electronics'),
@@ -336,7 +336,7 @@ VALUES
 (19, 6, 18, 'Sending climate analysis weather data'),
 (20, 3, 10, 'Sending mobile app user behavior dataset');
 
-INSERT INTO Data_buying_request (User_ID, Public_data, Dataset_ID, Description, Time, Deposit, Price, Due_Date, Data_type)
+INSERT INTO Data_buying_request (ID_user, Public_data, ID_dataset, Description, Time, Deposit, Price, Due_Date, Data_type)
 VALUES
 (1, TRUE, 2, 'Request for demographic data analysis', NOW(), 500.00, 2500.00, '2024-09-01 12:00:00', 1),
 (2, FALSE, 3, 'Market research dataset for electronics', NOW(), 1000.00, 4500.00, '2024-09-10 15:30:00', 2),
@@ -349,7 +349,7 @@ VALUES
 (9, TRUE, 10, 'Weather data for climate analysis', NOW(), 700.00, 3800.00, '2024-09-08 12:30:00', 6),
 (10, FALSE, 11, 'User behavior dataset for mobile app', NOW(), 500.00, 2400.00, '2024-09-15 09:45:00', 3);
 
-INSERT INTO Censorship_DBR (Admin_ID, Data_buying_request_ID, Confirm, Reason)
+INSERT INTO Censorship_DBR (ID_admin, ID_data_buying_request, Confirm, Reason)
 VALUES
 (1, 1, FALSE, 'Approved after review.'),
 (2, 2, FALSE, 'Rejected due to insufficient deposit.'),
@@ -362,7 +362,7 @@ VALUES
 (4, 9, TRUE, 'Approved with no issues.'),
 (5, 10, FALSE, 'Rejected due to high price.');
 
-INSERT INTO Censorship_DSR (Admin_ID, Data_sending_request_ID, Confirm, Reason)
+INSERT INTO Censorship_DSR (ID_admin, ID_data_sending_request, Confirm, Reason)
 VALUES
 (1, 1, FALSE, 'Approved. The request is complete and correct.'),
 (2, 2, TRUE, 'Rejected. Missing additional documentation.'),
@@ -375,7 +375,7 @@ VALUES
 (4, 9, TRUE, 'Approved. No issues found.'),
 (5, 10, FALSE, 'Rejected. The description lacks details.');
 
-INSERT INTO Censorship_complete_version (Admin_ID, Version_ID, Confirm, Reason) VALUES
+INSERT INTO Censorship_complete_version (ID_admin, ID_version, Confirm, Reason) VALUES
 (1, 1, TRUE, 'Verified and approved for release.'),
 (2, 2, FALSE, 'Incomplete documentation, requires more information.'),
 (3, 3, TRUE, 'Compliant with all required standards.'),
@@ -387,35 +387,35 @@ INSERT INTO Censorship_complete_version (Admin_ID, Version_ID, Confirm, Reason) 
 (4, 9, FALSE, 'Issues detected during quality assurance.'),
 (5, 10, TRUE, 'All issues resolved, confirmed for release.');
 
-INSERT INTO Expert_Register (User_ID, File_CV)
+INSERT INTO Expert_Register (ID_user, File_CV)
 VALUES (11, 'path/to/cv_john_doe.pdf'),
 (12, 'path/to/cv_jane_smith.docx'),
 (13, 'path/to/cv_michael_johnson.pdf'),
 (14, 'path/to/cv_emily_davis.docx'),
 (15, 'path/to/cv_david_wilson.pdf');
 
-INSERT INTO Authen (Admin_ID, ID_Expert_register, Confirm, Reason)
+INSERT INTO Authen (ID_admin, ID_expert_register, Confirm, Reason)
 VALUES (1, 1, TRUE, 'Approved without issues.'),
 (2, 2, FALSE, 'Missing required documentation.'),
 (3, 3, TRUE, 'Approved after minor corrections.'),
 (4, 4, FALSE, 'Incomplete CV provided.'),
 (5, 5, TRUE, 'Expert registration approved.');
 
-INSERT INTO Expert (User_ID, Field, Description)
+INSERT INTO Expert (ID_user, Field, Description)
 VALUES (1, 101, 'Data Sciencist'),
 (3, 102, 'Cybersecurity'),
 (8, 103, 'Software Engineering'),
 (5, 104, 'Artificial Intelligence'),
 (2, 105, 'FinTech');
 
-INSERT INTO Dataset_Expert (ID_Expert, Dataset_ID) VALUES
+INSERT INTO Dataset_Expert (ID_expert, ID_dataset) VALUES
 (1, 1),(1, 2),(2, 3),(3, 4),
 (4, 5),(5, 6),(1, 7),(2, 8),
 (3, 9),(4, 10),(5, 11),(1, 5),
 (2, 5),(5, 7),(1, 4),(2, 7),
 (3, 2),(2, 10),(1, 11);
 
-INSERT INTO Report (Content, User_ID)
+INSERT INTO Report (Content, ID_user)
 VALUES
 ('Quarterly report on user engagement.', 1),
 ('Analysis of market trends for Q2.', 2),
@@ -428,7 +428,7 @@ VALUES
 ('Climate change impact assessment.', 15),
 ('User behavior analysis in mobile app.', 6);
 
-INSERT INTO Valuation (Time_valuation, User_ID, Version_ID, Price) VALUES
+INSERT INTO Valuation (Time_valuation, ID_user, ID_version, Price) VALUES
 ('2024-01-01 10:00:00', 1, 1, 5000.00),
 ('2024-01-02 11:00:00', 1, 2, 5200.00),
 ('2024-01-03 12:00:00', 1, 3, 5300.00),
@@ -461,7 +461,7 @@ INSERT INTO Valuation (Time_valuation, User_ID, Version_ID, Price) VALUES
 ('2024-10-03 11:50:00', 20, 7, 7700.50);
 
 
-INSERT INTO Transaction (User_ID, Version_ID) VALUES
+INSERT INTO Transaction (ID_user, ID_version) VALUES
 (1, 1), -- User 1 (John Doe) transacts with Version 1
 (1, 2), -- User 1 (John Doe) transacts with Version 2
 (2, 1), -- User 2 (Jane Smith) transacts with Version 1
