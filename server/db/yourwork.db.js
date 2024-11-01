@@ -1,10 +1,10 @@
 const client = require("../config");
-const getAllYourWorkVersionsByUserIdDb = async (user_id) => {
+const getAllYourWorkVersionsByUserIdDb = async (id_user) => {
   const versions = await client.query(
     `SELECT
     d.Name_dataset AS Dataset_name,
     d.ID_Dataset,
-    v.ID_Ver AS ID_Version,
+    v.ID_version AS ID_version,
     uvp.Participation_Type,
     v.Create_Date,
     v.Data_sending_time_duration,
@@ -14,13 +14,13 @@ const getAllYourWorkVersionsByUserIdDb = async (user_id) => {
     FROM
       User_Version_Participation uvp
     JOIN
-      Version v ON uvp.ID_Version = v.ID_Ver
+      Version v ON uvp.ID_version = v.ID_version
     JOIN
       Dataset d ON v.ID_Dataset = d.ID_Dataset
     WHERE
-      uvp.User_ID = $1
+      uvp.id_user = $1
     `,
-    [user_id]
+    [id_user]
   );
   return { items: versions.rows };
 };

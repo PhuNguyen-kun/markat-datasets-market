@@ -1,13 +1,13 @@
 const YourWorkService = require("../services/yourwork.service");
 const getAllYourWorkVersionsByUserId = async (req, res) => {
   try {
-    const { user_id } = req.query; // Lấy user_id từ query parameters
+    const { id_user } = req.query; // Lấy id_user từ query parameters
 
-    if (!user_id) {
+    if (!id_user) {
       return res.status(400).json({ message: "User ID is required" });
     }
     const yourwork = await YourWorkService.getAllYourWorkVersionsByUserId(
-      user_id
+      id_user
     );
     if (!yourwork) {
       return res.status(404).json({ message: "Your work not found" });

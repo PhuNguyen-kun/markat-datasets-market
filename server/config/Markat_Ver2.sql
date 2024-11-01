@@ -29,7 +29,7 @@ CREATE TABLE Users (
 
 CREATE TABLE Dataset (
     ID_dataset SERIAL PRIMARY KEY,
-    Verified BOOLEAN, 
+    Verified BOOLEAN,
     Avatar TEXT,
     Name_dataset VARCHAR(255),
     Voucher FLOAT,
@@ -69,7 +69,7 @@ CREATE TABLE Version (
 CREATE TABLE User_Version_Participation (
     ID_user_version_participation SERIAL PRIMARY KEY,
     ID_user INT REFERENCES Users(ID_user),
-    ID_versionsion INT REFERENCES Version(ID_version),
+    ID_version INT REFERENCES Version(ID_version),
     Participation_Type VARCHAR(50),
     Join_date TIMESTAMP
 );
@@ -281,7 +281,7 @@ INSERT INTO Version (
 (5, 460.25, 2, 64,  '2024-09-15 10:00:00', 65.32145, 60.54321, 1400, '2024-09-15 12:00:00', '2024-09-15 14:00:00', '2024-09-15 16:00:00', 70.0, 'mongodb://link15', 2, 2);
 
 
-INSERT INTO User_Version_Participation (ID_user, ID_versionsion, Participation_Type, Join_date) VALUES
+INSERT INTO User_Version_Participation (ID_user, ID_version, Participation_Type, Join_date) VALUES
 (1, 1, 'Sending', '2023-08-01 10:00:00'),
 (1, 2, 'Labeling', '2024-08-02 11:00:00'),
 (1, 3, 'Sending', '2024-08-03 12:00:00'),
