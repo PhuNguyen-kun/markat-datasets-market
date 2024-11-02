@@ -233,16 +233,16 @@ VALUES
 
 INSERT INTO Dataset (Verified, Avatar, Name_dataset, Voucher, Data_type, Request_type, Slug)
 VALUES
-(TRUE, 'avatar1.png', 'Demographic Data Analysis', 10.0, 1, 'Sending', 'demographic-data-analysis'),
-(FALSE, 'avatar2.png', 'Electronics Market Research', 15.5, 2, 'Buying', 'electronics-market-research'),
-(TRUE, 'avatar3.png', 'Financial Transaction Data', 20.0, 3, 'Buying', 'financial-transaction-data'),
-(TRUE, 'avatar4.png', 'Retail Customer Feedback', 8.0, 1, 'Buying', 'retail-customer-feedback'),
-(FALSE, 'avatar5.png', 'Healthcare Insurance Data', 12.5, 4, 'Buying', 'healthcare-insurance-data'),
-(TRUE, 'avatar6.png', 'Social Media Engagement', 9.0, 2, 'Buying', 'social-media-engagement'),
-(FALSE, 'avatar7.png', 'Real Estate Transaction Data', 18.0, 5, 'Buying', 'real-estate-transaction-data'),
-(TRUE, 'avatar8.png', 'E-commerce Product Sales', 7.5, 1, 'Buying', 'e-commerce-product-sales'),
-(FALSE, 'avatar9.png', 'Climate Analysis Weather Data', 14.0, 6, 'Buying', 'climate-analysis-weather-data'),
-(TRUE, 'avatar10.png', 'Mobile App User Behavior', 11.0, 3, 'Sending', 'mobile-app-user-behavior'),
+(TRUE, 'avatar1.png', 'Flowers Dataset', 10.0, 1, 'Sending', 'flowers_dataset'),
+(FALSE, 'avatar2.png', 'Hair Type Dataset', 15.5, 2, 'Buying', 'hair_type_dataset'),
+(TRUE, 'avatar3.png', 'Stanford Cars Dataset', 20.0, 3, 'Buying', 'stanford_cars_dataset'),
+(TRUE, 'avatar4.png', 'Brain Tumor MRI Dataset', 8.0, 1, 'Buying', 'brain_tumor_mri_dataset'),
+(FALSE, 'avatar5.png', 'Lung Cancer', 12.5, 4, 'Buying', 'lung_cancer'),
+(TRUE, 'avatar6.png', 'CelebFaces Attributes Dataset', 9.0, 2, 'Buying', 'celebFaces_attributes_dataset'),
+(FALSE, 'avatar7.png', 'Skin Cancer', 18.0, 5, 'Buying', 'skin_cancer'),
+(TRUE, 'avatar8.png', 'Chest X-rays Labeled by 13 Classes - 150 studies', 7.5, 1, 'Buying', 'chest_c-rays_labeled_by_13_classes'),
+(FALSE, 'avatar9.png', 'House Plant Species', 14.0, 6, 'Buying', 'house_plant_species'),
+(TRUE, 'avatar10.png', 'Image Classification - 64 Classes - Animal', 11.0, 3, 'Sending', 'image_classification-64classes-animal'),
 (FALSE, 'avatar11.png', 'Sending market research dataset for electronics', 11.0, 2, 'Sending', 'sending-market-research-dataset-for-electronics'),
 (TRUE, 'avatar12.png', 'Sending financial transaction dataset for bank analysis', 11.0, 3, 'Sending', 'sending-financial-transaction-dataset-for-bank-analysis'),
 (FALSE, 'avatar13.png', 'Sending customer feedback dataset for retail analysis', 11.0, 1, 'Sending', 'sending-customer-feedback-dataset-for-retail-analysis'),
@@ -325,7 +325,7 @@ INSERT INTO Admin (Username, Password, Permission) VALUES
 
 INSERT INTO Data_sending_request (ID_user, Data_type, ID_dataset, Description)
 VALUES
-(1, 1, 1, 'Sending demographic data analysis results'),
+(1, 1, 1, 'This dataset consists of images from five distinct flower species, ideal for tasks like image classification and computer vision projects. It provides a diverse range of floral images, enabling models to learn the subtle differences between species.'),
 (2, 2, 11, 'Sending market research dataset for electronics'),
 (3, 3, 12, 'Sending financial transaction dataset for bank analysis'),
 (4, 1, 13, 'Sending customer feedback dataset for retail analysis'),
@@ -338,15 +338,15 @@ VALUES
 
 INSERT INTO Data_buying_request (ID_user, Public_data, ID_dataset, Description, Time, Deposit, Price, Due_Date, Data_type)
 VALUES
-(1, TRUE, 2, 'Request for demographic data analysis', NOW(), 500.00, 2500.00, '2024-09-01 12:00:00', 1),
-(2, FALSE, 3, 'Market research dataset for electronics', NOW(), 1000.00, 4500.00, '2024-09-10 15:30:00', 2),
-(13, TRUE, 4, 'Financial transaction dataset for bank', NOW(), 750.00, 3500.00, '2024-08-20 09:00:00', 3),
-(14, TRUE, 5, 'Customer feedback dataset for retail', NOW(), 300.00, 1500.00, '2024-09-05 11:45:00', 1),
-(15, TRUE, 6, 'Healthcare dataset for insurance analysis', NOW(), 600.00, 3200.00, '2024-08-25 10:00:00', 4),
-(26, FALSE, 7, 'Social media engagement dataset', NOW(), 400.00, 2000.00, '2024-09-12 13:00:00', 2),
-(17, TRUE, 8, 'Real estate transaction dataset', NOW(), 900.00, 4200.00, '2024-09-03 16:00:00', 5),
-(8, FALSE, 9, 'Product sales dataset for e-commerce', NOW(), 350.00, 1800.00, '2024-08-30 14:30:00', 1),
-(9, TRUE, 10, 'Weather data for climate analysis', NOW(), 700.00, 3800.00, '2024-09-08 12:30:00', 6),
+(1, TRUE, 2, 'The Hair Type Dataset is an image dataset designed to classify various hair types. It includes high-quality images of individuals with diverse hair types. The dataset is helpful for training machine learning models to recognize and classify hair types.', NOW(), 500.00, 2500.00, '2024-09-01 12:00:00', 1),
+(2, FALSE, 3, 'The Cars dataset contains 16,185 images of 196 classes of cars. The data is split into 8,144 training images and 8,041 testing images, where each class has been split roughly in a 50-50 split. Classes are typically at the level of Make, Model, Year, ex. 2012 Tesla Model S or 2012 BMW M3 coupe.', NOW(), 1000.00, 4500.00, '2024-09-10 15:30:00', 2),
+(13, TRUE, 4, 'The dataset is divided into two separate parts. The first part is a dataset created for classification. Here, brain tumors are divided into 4 different classes. These are: glioma, meningioma, pituitarity and no tumor. Training and test separation is made in the folder. cThe second part is created for segmentation. Here, two different classes are created only to detect the presence or absence of the tumor, and only for cases where the tumor is present, the coordinates of the tumor are in the labels folder. Training-validation-test split is made in the folder', NOW(), 750.00, 3500.00, '2024-08-20 09:00:00', 3),
+(14, TRUE, 5, 'The original dataset was published by https://arxiv.org/abs/1912.12142v1 at https://github.com/tampapath/lung_colon_image_set. To cite this dataset, write "Borkowski AA, Bui MM, Thomas LB, Wilson CP, DeLand LA, Mastorides SM. Lung and Colon Cancer Histopathological Image Dataset (LC25000). arXiv:1912.12142v1 [eess.IV], 2019"', NOW(), 300.00, 1500.00, '2024-09-05 11:45:00', 1),
+(15, TRUE, 6, 'A popular component of computer vision and deep learning revolves around identifying faces for various applications from logging into your phone with your face or searching through surveillance images for a particular suspect. This dataset is great for training and testing models for face detection, particularly for recognising facial attributes such as finding people with brown hair, are smiling, or wearing glasses. Images cover large pose variations, background clutter, diverse people, supported by a large quantity of images and rich annotations. This data was originally collected by researchers at MMLAB, The Chinese University of Hong Kong (specific reference in Acknowledgment section).', NOW(), 600.00, 3200.00, '2024-08-25 10:00:00', 4),
+(26, FALSE, 7, 'This is a balanced dataset of benign (healthy) and malignant (infected) skin spots. Transfer learning and CNNs can be used to classify the images into these two categories. The rules for using the data are detailed at https://www.isic-archive.com/#!/topWithHeader/wideContentTop/main.', NOW(), 400.00, 2000.00, '2024-09-12 13:00:00', 2),
+(17, TRUE, 8, 'This dataset consists of 150 medical studies with chest X-ray (CXR) images primarily focused on the detection of lung diseases, including COVID-19 cases and pneumonias. The collection includes frontal chest radiographs and chest radiography scans in DICOM format. The dataset is ideal for medical research, disease detection, and classification tasks, particularly for developing computer-aided diagnosis and machine learning models', NOW(), 900.00, 4200.00, '2024-09-03 16:00:00', 5),
+(8, FALSE, 9, 'This plant image dataset consists of 14,790 images categorized into 47 distinct plant species classes. The dataset was compiled by collecting images from Bing Images and manually curating them, although not by professional biologist. I collected this images for a project aimed at classifying plant species as either toxic or safe for cats.', NOW(), 350.00, 1800.00, '2024-08-30 14:30:00', 1),
+(9, TRUE, 10, 'This dataset contains 64 animal image classes for multi-class image classification tasks. Each folder corresponds to a distinct class, and the images in each folder represent different types of animals.', NOW(), 700.00, 3800.00, '2024-09-08 12:30:00', 6),
 (10, FALSE, 11, 'User behavior dataset for mobile app', NOW(), 500.00, 2400.00, '2024-09-15 09:45:00', 3);
 
 INSERT INTO Censorship_DBR (ID_admin, ID_data_buying_request, Confirm, Reason)

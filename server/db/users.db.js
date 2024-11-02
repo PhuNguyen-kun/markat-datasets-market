@@ -49,7 +49,7 @@ const getKatByIdUserDb = async (ID_user) => {
     `,
     [ID_user]
   );
-  return kat;
+  return kat[0];
 }
 module.exports = {
   getUserByIdDb,

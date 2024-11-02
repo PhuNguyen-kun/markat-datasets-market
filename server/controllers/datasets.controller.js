@@ -17,8 +17,7 @@ const createDataset = async (req, res) => {
 };
 
 const getAllDatasets = async (req, res) => {
-  const { page = 1 } = req.query;
-
+  const { page } = req.body;
   const datasets = await datasetService.getAllDatasets(page);
   res.json(datasets);
 };
