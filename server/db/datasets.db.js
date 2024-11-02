@@ -26,10 +26,8 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
   return { items: datasets.rows };
 };
 
-const getDatasetbyDatasetIdDb = async (datasetId) => {
-  console.log(datasetId);
-
-  const {rows : datasets} = await client.query(
+const getDatasetbyDatasetIdDb = async (id_dataset) => {
+  const { rows: datasets } = await client.query(
     `SELECT
     d.name_dataset,
     d.avatar,
@@ -38,19 +36,19 @@ const getDatasetbyDatasetIdDb = async (datasetId) => {
     FROM
         dataset d
     LEFT JOIN
-        Data_sending_request ds ON ds.Dataset_ID = d.Dataset_ID
+        Data_sending_request ds ON ds.ID_dataset = d.ID_dataset
     LEFT JOIN
-        Data_buying_request db ON db.Dataset_ID = d.Dataset_ID
+        Data_buying_request db ON db.ID_dataset = d.ID_dataset
     LEFT JOIN
-        Dataset_Expert de ON d.Dataset_ID = de.Dataset_ID
+        Dataset_Expert de ON d.ID_dataset = de.ID_dataset
     LEFT JOIN
-        Expert e ON de.ID_Expert = e.ID_Expert
+        Expert e ON de.ID_expert = e.ID_expert
     WHERE
-        d.Dataset_ID = $1
+        d.ID_dataset = $1
     GROUP BY
         d.name_dataset, d.avatar;
     `,
-    [datasetId]
+    [id_dataset]
   );
   console.log(datasets);
 
@@ -123,10 +121,77 @@ const getUserOwnedDatasetByIdDb = async (datasetId) => {
   );
   return dataset;
 };
+const getVersionDb = async (id_dataset, name_version) => {
+
+  const { rows: version } = await client.query(
+    `SELECT
+      v.Price,
+      v.Total_size,
+      v.Number_of_data,
+      v.Create_Date AS day_updated
+      FROM
+          Version v
+      WHERE
+          v.ID_dataset = $1
+      ORDER BY
+          v.ID_version ASC
+      LIMIT 1 OFFSET ($2 - 1)
+    `,
+    [id_dataset, name_version]
+  );
+  return version;
+};
+
+const versionBuyingTransactionDb = async (id_user, id_version) => {
+  try {
+    await client.query('BEGIN');
+    // Get the price of the specified version and user's current Kat balance
+    const { rows: versionRows } = await client.query(
+      `SELECT Price FROM Version WHERE ID_version = $1`,
+      [id_version]
+    );
+    const price = versionRows[0]?.price;
+
+    const { rows: userRows } = await client.query(
+      `SELECT Kat FROM Users WHERE ID_user = $1`,
+      [id_user]
+    );
+    const currentKat = userRows[0]?.kat;
+
+    // Check if the user has enough Kat
+    if (currentKat >= price) {
+      // Insert transaction and update user's Kat balance
+      await client.query(
+        `INSERT INTO Transaction (ID_user, ID_version) VALUES ($1, $2)`,
+        [id_user, id_version]
+      );
+
+      const remainingKat = currentKat - price;
+
+      await client.query(
+        `UPDATE Users SET Kat = $1 WHERE ID_user = $2`,
+        [remainingKat, id_user]
+      );
+
+      await client.query('COMMIT');
+      return { success: true, remainingKat };
+    } else {
+      await client.query('ROLLBACK');
+      throw new Error('Insufficient balance to make transaction.');
+    }
+  } catch (error) {
+    await client.query('ROLLBACK');
+    return { success: false, error: error.message };
+  }
+};
+
+
 module.exports = {
   getAllDatasetsDb,
   getDatasetbyDatasetIdDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,
   getUserOwnedDatasetByIdDb,
+  getVersionDb,
+  versionBuyingTransactionDb,
 };
