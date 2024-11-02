@@ -23,8 +23,8 @@ const getAllDatasets = async (req, res) => {
 };
 
 const getUserOwnedDatasets = async (req, res) => {
-  const { id, page = 1 } = req.body;
-  const datasets = await datasetService.getUserOwnedDatasets(id, page);
+  const { id_user, page = 1 } = req.params;
+  const datasets = await datasetService.getUserOwnedDatasets(id_user, page);
 
   return res.status(200).json(datasets);
 };

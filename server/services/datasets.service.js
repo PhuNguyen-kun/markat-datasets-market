@@ -32,9 +32,9 @@ class DatasetService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
-  getUserOwnedDatasets = async (userId) => {
+  getUserOwnedDatasets = async (id_user) => {
     try {
-      return await getUserOwnedDatasetsDb(userId);
+      return await getUserOwnedDatasetsDb(id_user);
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }

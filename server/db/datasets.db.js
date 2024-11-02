@@ -2,7 +2,7 @@ const client = require("../config");
 
 const getAllDatasetsDb = async ({ limit, offset }) => {
   const datasets = await client.query(
-    `SELECT d.Avatar, d.Name_dataset,(SELECT COUNT(*) FROM User_Click uc WHERE uc.ID_Dataset = d.ID_Dataset) AS Views, d.Voucher,
+    `SELECT d.ID_dataset, d.Avatar, d.Name_dataset,(SELECT COUNT(*) FROM User_Click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views, d.Voucher,
         CASE
             WHEN v.Data_format = 1 THEN 'CSV'
             WHEN v.Data_format = 2 THEN 'Excel'
@@ -71,7 +71,7 @@ const createDatasetDb = async ({
   return datasets[0];
 };
 
-const getUserOwnedDatasetsDb = async (id) => {
+const getUserOwnedDatasetsDb = async (id_user) => {
   const { rows: datasets } = await client.query(
     `SELECT
       d.ID_Dataset,
@@ -83,7 +83,7 @@ const getUserOwnedDatasetsDb = async (id) => {
     JOIN
         Version v ON d.ID_Dataset = v.ID_Dataset
     JOIN
-        Database_Expert de ON d.ID_Dataset = de.ID_Dataset
+        Dataset_Expert de ON d.ID_Dataset = de.ID_Dataset
     JOIN
         Expert e ON de.ID_Expert = e.ID_Expert
     WHERE
@@ -91,7 +91,7 @@ const getUserOwnedDatasetsDb = async (id) => {
     GROUP BY
         d.ID_Dataset, d.Name_dataset, v.Stock_percent
     `,
-    [id]
+    [id_user]
   );
   return datasets;
 };

@@ -9,7 +9,7 @@ const {
   versionBuyingTransaction,
 } = require("../controllers/datasets.controller.js");
 
-router.route("/owned").get(getUserOwnedDatasets);
+router.route("/owned/:id_user/:page").get(getUserOwnedDatasets);
 router.route("/owned/:id").get(getUserOwnedDatasetById);
 router.route("/create").post(createDataset);
 //router.version("/version").get(getVersion);
