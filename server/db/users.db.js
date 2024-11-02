@@ -10,12 +10,11 @@ const getUserByIdDb = async (id) => {
 
 const getUserByEmailDb = async (email) => {
   const { rows: users } = await client.query(
-    "SELECT User_ID,Password,Email FROM Users WHERE email = $1",
+    "SELECT ID_user,Password,Email FROM Users WHERE email = $1",
     [email]
   );
   return users[0];
 };
-
 
 const changeUserPasswordDb = async (password, email) => {
   const { rows: users } = await client.query(
@@ -28,8 +27,7 @@ const changeUserPasswordDb = async (password, email) => {
 const createUserDb = async (email, password, full_name) => {
   const { rows: users } = await client.query(
     `INSERT INTO Users (Full_name, Password, Reliability, Kat, Email, Join_date, ID_Status)
-      VALUES ($1, $2, $3, $4, $5, NOW(), 1)
-      RETURNING User_ID, Full_name, Email`,
+     VALUES ($1, $2, $3, $4, $5, NOW(), 1) RETURNING User_ID, Full_name, Email`,
     [full_name, password, 100, 0, email]
   );
   return users[0];
@@ -42,7 +40,6 @@ const getUserReliabilitybyIdDb = async (user_id) => {
   );
   return reliability[0];
 };
-
 
 module.exports = {
   getUserByIdDb,

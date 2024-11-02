@@ -27,5 +27,5 @@ app.use(unknownEndpoint);
 app.use(handleError);
 // database.connect();
 database.connectPostgresDb(),
-database.connectMongoDb(),
-module.exports = app;
+  // database.connectMongoDb(),
+  (module.exports = app);

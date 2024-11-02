@@ -21,7 +21,9 @@
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^1.7.7",
     "element-plus": "^2.8.6",
+    "lottie-web": "^5.12.2",
     "pinia": "^2.2.4",
+    "typed.js": "^2.1.0",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },

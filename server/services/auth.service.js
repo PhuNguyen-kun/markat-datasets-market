@@ -25,7 +25,7 @@ class AuthService {
         const newUser = await createUserDb(email, password, full_name);
         return {
           user: {
-            user_id: newUser.user_id,
+            id_user: newUser.id_user,
             full_name: newUser.full_name,
             email: newUser.email,
           },
@@ -59,19 +59,19 @@ class AuthService {
   async login(email, password) {
     try {
       const user = await getUserByEmailDb(email);
-      const { user_id, full_name, email: dbEmail, password: dbPassword } = user;
+      const { id_user, full_name, email: dbEmail, password: dbPassword } = user;
 
       if (password !== dbPassword || email !== dbEmail) {
         throw new ErrorHandler(403, "Email or password incorrect.");
       }
 
-      const token = jwt.sign({ userId: user_id }, SECRET_KEY, {
+      const token = jwt.sign({ userId: id_user }, SECRET_KEY, {
         expiresIn: "1h",
       });
 
       return {
         user: {
-          user_id,
+          id_user,
           full_name,
           email,
         },
@@ -122,6 +122,10 @@ class AuthService {
       }
     }
   }
+
+  // async logout() {
+  //   return { message: "Logout successful" };
+  // }
 }
 
 module.exports = new AuthService();

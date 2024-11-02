@@ -1,0 +1,11 @@
+.common {
+  &__title {
+    font-size: 28px;
+    font-weight: 600;
+
+    &--container {
+      height: 200px;
+      //background-color: #ccc;
+    }
+  }
+}
