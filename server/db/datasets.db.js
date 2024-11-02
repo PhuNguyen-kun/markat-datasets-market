@@ -50,8 +50,6 @@ const getDatasetbyDatasetIdDb = async (id_dataset) => {
     `,
     [id_dataset]
   );
-  console.log(datasets);
-
   return datasets[0];
 };
 
