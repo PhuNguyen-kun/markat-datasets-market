@@ -9,7 +9,10 @@
           <Header />
         </el-header>
         <div class="content">
-          <el-main :class="['main', { 'main-collapsed': isCollapsed }]">
+          <el-main
+            :class="['main', { 'main-collapsed': isCollapsed }]"
+            style="background-color: #f8f8f8; padding: 0"
+          >
             <RouterView></RouterView>
           </el-main>
           <el-footer class="footer">

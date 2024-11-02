@@ -53,12 +53,12 @@
   padding: 0 15px;
   border-radius: 6px;
 
-  background: #f8f8fb;
+  //background: #f8f8fb;
 
   font-size: 15px;
   font-weight: 500;
   white-space: nowrap;
-  user-select: none;
+  //user-select: none;
 
   &--small {
     height: 40px;
@@ -88,8 +88,8 @@
 
   &--black {
     background-color: #000;
+    color: #fff;
   }
-
 
   &--outline {
     background: transparent;

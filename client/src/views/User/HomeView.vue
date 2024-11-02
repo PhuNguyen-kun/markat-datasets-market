@@ -80,6 +80,7 @@ onMounted(() => {
 <style scoped lang="scss">
 .homepage {
   &__container {
+    padding: 20px;
     display: flex;
     //height: 60vh;
     //align-items: center;
