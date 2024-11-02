@@ -23,9 +23,62 @@
 
     <div class="header-action">
       <template v-if="isLoggedIn">
-        <el-avatar
-          src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-        />
+        <el-dropdown>
+          <!--          <el-avatar-->
+          <!--            src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"-->
+          <!--          />-->
+
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              width="32"
+              height="32"
+              rx="16"
+              fill="#FF4500"
+              fill-opacity="0.780392"
+            />
+            <path
+              d="M21 23V21.3333C21 20.4493 20.691 19.6014 20.1408 18.9763C19.5907 18.3512 18.8446 18 18.0667 18H12.9333C12.1554 18 11.4093 18.3512 10.8592 18.9763C10.309 19.6014 10 20.4493 10 21.3333V23"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M16 15C17.6569 15 19 13.6569 19 12C19 10.3431 17.6569 9 16 9C14.3431 9 13 10.3431 13 12C13 13.6569 14.3431 15 16 15Z"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+
+          <span class="el-dropdown-link">
+            <el-icon class="el-icon--right">
+              <arrow-down />
+            </el-icon>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item>Your profile</el-dropdown-item>
+              <el-dropdown-item>
+                <router-link to="/your-work">Your work</router-link>
+              </el-dropdown-item>
+              <el-dropdown-item>Transaction History</el-dropdown-item>
+              <el-dropdown-item>Settings</el-dropdown-item>
+              <!--              <el-dropdown-item disabled>Action 4</el-dropdown-item>-->
+              <!--              <el-dropdown-item divided>Action 5</el-dropdown-item>-->
+              <el-dropdown-item divided @click="logout"
+                >Log out
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </template>
       <template v-else>
         <RouterLink to="/login" class="filter-btn">Sign in</RouterLink>
@@ -39,6 +92,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { ArrowDown } from '@element-plus/icons-vue'
+import { logout as logoutService } from '@/services/auth'
+import { useRouter } from 'vue-router'
 
 const isLoggedIn = ref(false)
 // const userAvatarUrl = ref('')
@@ -52,6 +108,17 @@ onMounted(() => {
     //   localStorage.getItem('user_avatar') || 'default-avatar-url'
   }
 })
+
+const logout = async () => {
+  try {
+    await logoutService()
+    localStorage.removeItem('access_token')
+    isLoggedIn.value = false
+    await route.push('/auth/login')
+  } catch (error) {
+    console.error('Failed to logout:', error)
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -90,5 +157,18 @@ input::placeholder {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+</style>
+
+<style lang="scss">
+.el-dropdown-menu__item:last-of-type:not(.is-disabled):hover {
+  background-color: #ffd9d9;
+  color: red;
+}
+
+.el-dropdown-menu__item:not(.is-disabled) {
+  font-size: 15px;
+  height: 40px;
+  width: 180px;
 }
 </style>

@@ -21,15 +21,17 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const { user } = await authService.login(email, password);
+    console.log("User data:", user); // Kiểm tra thông tin user
+
     const access_token = jwt.sign(
-      { user_id: user.user_id, full_name: user.full_name, email: user.email },
+      { id_user: user.id_user, full_name: user.full_name, email: user.email },
       process.env.SECRET_KEY,
       { expiresIn: "1h" }
     );
 
     res.status(200).json({
       user: {
-        user_id: user.user_id,
+        id_user: user.id_user,
         full_name: user.full_name,
         email: user.email,
       },
@@ -59,9 +61,20 @@ const resetPassword = async (req, res) => {
   });
 };
 
+const logoutUser = async (req, res) => {
+  try {
+    const result = await authService.logout();
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createAccount,
   loginUser,
   //forgotPassword,
   resetPassword,
+  logoutUser,
 };

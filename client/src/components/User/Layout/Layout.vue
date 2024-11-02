@@ -9,7 +9,10 @@
           <Header />
         </el-header>
         <div class="content">
-          <el-main :class="['main', { 'main-collapsed': isCollapsed }]">
+          <el-main
+            :class="['main', { 'main-collapsed': isCollapsed }]"
+            style="background-color: #f8f8f8; padding: 0"
+          >
             <RouterView></RouterView>
           </el-main>
           <el-footer class="footer">
@@ -54,6 +57,7 @@ const toggleSidebar = () => {
   border-bottom: 2px solid #ccc;
   //position: fixed;
   background-color: #fff;
+  width: 100%;
 }
 
 .content {
@@ -65,9 +69,19 @@ const toggleSidebar = () => {
 
 .main {
   //margin-top: 60px;
-  //flex: 1;
+  //flex: 1.8;
 }
 
 .footer {
+  //height: 170px;
+  min-height: calc(100vh - 500px);
+  background-color: var(--markat-theme-dark);
+  background-image: url('/background_in_space.webp');
+  //background-repeat: no-repeat, repeat;
+}
+</style>
+
+<style lang="scss">
+.el-footer {
 }
 </style>

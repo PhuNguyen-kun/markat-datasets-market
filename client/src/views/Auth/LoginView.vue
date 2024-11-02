@@ -51,7 +51,12 @@
       </label>
 
       <div class="btn-group">
-        <button type="submit" class="signin-btn" @click="loginAccount">
+        <button
+          type="submit"
+          class="signin-btn"
+          @click="loginAccount"
+          v-loading.fullscreen.lock="fullscreenLoading"
+        >
           Sign in
         </button>
         <div class="link-to-signup">
@@ -69,8 +74,30 @@
 import { login } from '@/services/auth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElLoading } from 'element-plus'
 
 const route = useRouter()
+const isLoading = ref(false)
+const fullscreenLoading = ref(false)
+// const openFullScreen1 = () => {
+//   fullscreenLoading.value = true
+//   setTimeout(() => {
+//     fullscreenLoading.value = false
+//     route.push('/')
+//   }, 2000)
+// }
+
+const openFullScreen1 = () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Markat is loading 🗿⌛',
+    background: 'rgba(0, 0, 0, 0.7)',
+  })
+  setTimeout(() => {
+    loading.close()
+    route.push('/')
+  }, 1500)
+}
 
 const email = ref<string>('')
 const password = ref<string>('')
@@ -86,17 +113,22 @@ const handleSubmit = () => {
   }
 }
 const loginAccount = async () => {
-  const loginForm = {
-    email: email.value,
-    password: password.value,
-  }
-  const response = await login(loginForm)
-  console.log(response)
-  //
-  const access_token = response.data.access_token
-  localStorage.setItem('access_token', access_token)
+  console.log('Loading started', isLoading.value)
+  try {
+    const loginForm = {
+      email: email.value,
+      password: password.value,
+    }
+    const response = await login(loginForm)
+    console.log(response)
 
-  route.push('/')
+    const access_token = response.data.access_token
+    localStorage.setItem('access_token', access_token)
+    openFullScreen1()
+  } catch (error) {
+    console.error('Login failed', error)
+  } finally {
+  }
 }
 
 const checkValidation = (): boolean => {

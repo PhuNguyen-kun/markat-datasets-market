@@ -45,6 +45,12 @@ const routes: RouteRecordRaw[] = [
         name: 'help',
         component: () => import('../views/User/Help.vue'),
       },
+      // Dropdown action
+      {
+        path: '/your-work',
+        name: 'your-work',
+        component: () => import('../views/User/YourWork.vue'),
+      },
     ],
   },
 ]

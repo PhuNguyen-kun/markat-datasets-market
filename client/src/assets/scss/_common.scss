@@ -1,0 +1,51 @@
+.common {
+  &__title-black {
+    font-size: 30px;
+    font-weight: 600;
+    color: #000;
+
+    &--container {
+      padding: 20px;
+      height: 180px;
+      //background-color: #ccc;
+    }
+  }
+
+  &__title-white {
+    font-size: 30px;
+    font-weight: 600;
+    color: #fff;
+
+    &--container {
+      padding: 20px;
+      height: 180px;
+      //background-color: #ccc;
+    }
+  }
+
+
+  &__desc-black {
+    margin-top: 15px;
+    font-size: 17px;
+    width: 600px;
+    color: #000;
+  }
+
+  &__desc-white {
+    margin-top: 15px;
+    font-size: 17px;
+    width: 600px;
+    color: #fff;
+  }
+
+}
+
+//Heading container for each page
+.your-work-page {
+  background-image: linear-gradient(140deg, #fff 10%, #f0dfeb 40%, #eeece2 75%);
+}
+
+.datasets-page {
+  background-image: url("@/assets/img/datasets-page_bgr.png");
+}
+
