@@ -7,6 +7,10 @@
     font-weight: normal;
 }
 
+.page-link, .page-link:visited, .page-link:hover, .page-link:active, .page-link:focus {
+    outline: unset;
+    border: unset;
+}
 
 /*a,*/
 /*.green {*/

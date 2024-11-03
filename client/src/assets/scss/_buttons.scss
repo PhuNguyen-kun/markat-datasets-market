@@ -97,6 +97,7 @@
   }
 
   &--rounded {
+    border: 1px solid #ccc;
     border-radius: 99px;
   }
 
@@ -113,5 +114,6 @@
 
   &:hover {
     opacity: 0.9;
+    border: 1px solid #000;
   }
 }

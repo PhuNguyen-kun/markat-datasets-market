@@ -66,9 +66,9 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item>Your profile</el-dropdown-item>
-              <el-dropdown-item>
-                <router-link to="/your-work">Your work</router-link>
-              </el-dropdown-item>
+              <router-link to="/your-work" class="page-link">
+                <el-dropdown-item> Your work</el-dropdown-item>
+              </router-link>
               <el-dropdown-item>Transaction History</el-dropdown-item>
               <el-dropdown-item>Settings</el-dropdown-item>
               <!--              <el-dropdown-item disabled>Action 4</el-dropdown-item>-->
@@ -161,7 +161,7 @@ input::placeholder {
 </style>
 
 <style lang="scss">
-.el-dropdown-menu__item:last-of-type:not(.is-disabled):hover {
+.el-dropdown-menu__item:nth-of-type(4):not(.is-disabled):hover {
   background-color: #ffd9d9;
   color: red;
 }

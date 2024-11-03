@@ -30,6 +30,7 @@ import lottie from 'lottie-web'
 const lottieContainer = ref(null)
 const lottieContainer1 = ref(null)
 import { ref, onMounted } from 'vue'
+import { ElLoading } from 'element-plus'
 
 const typedElement = ref(null)
 

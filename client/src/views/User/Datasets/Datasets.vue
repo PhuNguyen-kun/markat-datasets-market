@@ -11,7 +11,12 @@
     class="dataset-page__container"
     v-loading.fullscreen.lock="fullscreenLoading"
   >
-    <div class="card" v-for="(item, index) in items" :key="index">
+    <div
+      class="card"
+      v-for="(item, index) in items"
+      :key="index"
+      @click="goToDetail(item.id_dataset)"
+    >
       <img :src="`/${item.avatar}`" alt="Card image" class="card-image" />
       <div class="card-content">
         <h2 class="card-title">{{ item.name_dataset }}</h2>
@@ -21,7 +26,7 @@
         <div class="card-footer">
           <div class="views">
             <img
-              src="@/assets/icon/eye.svg"
+              src="../../../assets/icon/eye.svg"
               alt="Views"
               style="width: 15px; height: 20px; margin-right: 4px"
             />
@@ -39,7 +44,9 @@
 import { ref, onMounted } from 'vue'
 import { fetchDatasets } from '@/services/datasets'
 import { ElLoading } from 'element-plus'
+import { useRouter } from 'vue-router'
 
+const route = useRouter()
 const items = ref<any[]>([])
 const isLoading = ref(true)
 const fullscreenLoading = ref(false)
@@ -48,12 +55,11 @@ const openFullScreen1 = () => {
   const loading = ElLoading.service({
     lock: true,
     text: 'Markat is loading 🗿⌛',
-    background: 'rgba(0, 0, 0, 0.7)',
+    background: 'rgba(0, 0, 0, 0.2)',
   })
   setTimeout(() => {
     loading.close()
-    route.push('/')
-  }, 500)
+  }, 300)
 }
 
 const loadDatasets = async () => {
@@ -65,6 +71,10 @@ const loadDatasets = async () => {
   }
 }
 
+const goToDetail = (id: number) => {
+  route.push({ name: 'dataset-detail', params: { id } })
+}
+
 onMounted(() => {
   loadDatasets()
 })
@@ -73,7 +83,7 @@ onMounted(() => {
 <style scoped lang="scss">
 .dataset-page__container {
   margin-top: 20px;
-  padding: 20px;
+  padding: 20px 40px;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;

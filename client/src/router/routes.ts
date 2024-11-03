@@ -20,7 +20,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/datasets',
         name: 'datasets',
-        component: () => import('../views/User/Datasets.vue'),
+        component: () => import('../views/User/Datasets/Datasets.vue'),
       },
       {
         path: '/new-dataset',
@@ -49,7 +49,22 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/your-work',
         name: 'your-work',
-        component: () => import('../views/User/YourWork.vue'),
+        component: () => import('../views/User/YourWork/YourWork.vue'),
+      },
+      {
+        path: '/your-work-detail',
+        name: 'your-work-detail',
+        component: () => import('../views/User/YourWork/YourWorkDetail.vue'),
+      },
+      {
+        path: '/labeling',
+        name: 'labeling',
+        component: () => import('../views/User/Labeling/Labeling.vue'),
+      },
+      {
+        path: '/datasets/:id',
+        name: 'dataset-detail',
+        component: () => import('../views/User/Datasets/DatasetDetail.vue'),
       },
     ],
   },
