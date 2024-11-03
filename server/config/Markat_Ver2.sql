@@ -243,14 +243,14 @@ VALUES
 (TRUE, 'avatar8.png', 'Chest X-rays Labeled by 13 Classes - 150 studies', 7.5, 1, 'Buying', 'chest_c-rays_labeled_by_13_classes'),
 (FALSE, 'avatar9.png', 'House Plant Species', 14.0, 6, 'Buying', 'house_plant_species'),
 (TRUE, 'avatar10.png', 'Image Classification - 64 Classes - Animal', 11.0, 3, 'Sending', 'image_classification-64classes-animal'),
-(FALSE, 'avatar11.png', 'Sending market research dataset for electronics', 11.0, 2, 'Sending', 'sending-market-research-dataset-for-electronics'),
-(TRUE, 'avatar12.png', 'Sending financial transaction dataset for bank analysis', 11.0, 3, 'Sending', 'sending-financial-transaction-dataset-for-bank-analysis'),
-(FALSE, 'avatar13.png', 'Sending customer feedback dataset for retail analysis', 11.0, 1, 'Sending', 'sending-customer-feedback-dataset-for-retail-analysis'),
-(TRUE, 'avatar14.png', 'Sending healthcare dataset for insurance analysis', 11.0, 4, 'Sending', 'sending-healthcare-dataset-for-insurance-analysis'),
-(TRUE, 'avatar15.png', 'Sending social media engagement data', 11.0, 2, 'Sending', 'sending-social-media-engagement-data'),
-(FALSE, 'avatar16.png', 'Sending real estate transaction data', 11.0, 5, 'Sending', 'sending-real-estate-transaction-data'),
-(FALSE, 'avatar17.png', 'Sending e-commerce product sales data', 11.0, 1, 'Sending', 'sending-e-commerce-product-sales-data'),
-(TRUE, 'avatar18.png', 'Sending climate analysis weather data', 11.0, 6, 'Sending', 'sending-climate-analysis-weather-data');
+(FALSE, 'avatar11.png', 'Cat Dataset', 11.0, 2, 'Sending', 'cat_dataset'),
+(TRUE, 'avatar12.png', 'Animal Faces', 11.0, 3, 'Sending', 'animal_faces'),
+(FALSE, 'avatar13.png', 'Sea Animals Image Dataset', 11.0, 1, 'Sending', 'sea_animals_image_dataset'),
+(TRUE, 'avatar14.png', 'Celebrity Face Image Dataset', 11.0, 4, 'Sending', 'celebrity_face_image_dataset'),
+(TRUE, 'avatar15.png', 'Drone Dataset', 11.0, 2, 'Sending', 'drone_dataset'),
+(FALSE, 'avatar16.png', 'Date Fruit Datasets', 11.0, 5, 'Sending', 'date_fruit_datasets'),
+(FALSE, 'avatar17.png', 'Yoga Posture Dataset', 11.0, 1, 'Sending', 'yoga_posture_dataset'),
+(TRUE, 'avatar18.png', 'Dog vs Cat', 11.0, 6, 'Sending', 'dog_vs_cat');
 
 INSERT INTO User_click (ID_user, ID_dataset) VALUES
 (1, 1), (2, 2),(3, 3),(4, 4), (5, 5),(6, 6),(7, 7),(8, 8),
@@ -326,15 +326,15 @@ INSERT INTO Admin (Username, Password, Permission) VALUES
 INSERT INTO Data_sending_request (ID_user, Data_type, ID_dataset, Description)
 VALUES
 (1, 1, 1, 'This dataset consists of images from five distinct flower species, ideal for tasks like image classification and computer vision projects. It provides a diverse range of floral images, enabling models to learn the subtle differences between species.'),
-(2, 2, 11, 'Sending market research dataset for electronics'),
-(3, 3, 12, 'Sending financial transaction dataset for bank analysis'),
-(4, 1, 13, 'Sending customer feedback dataset for retail analysis'),
-(10, 4, 14, 'Sending healthcare dataset for insurance analysis'),
-(16, 2, 15, 'Sending social media engagement data'),
-(17, 5, 16, 'Sending real estate transaction data'),
-(28, 1, 17, 'Sending e-commerce product sales data'),
-(19, 6, 18, 'Sending climate analysis weather data'),
-(20, 3, 10, 'Sending mobile app user behavior dataset');
+(2, 2, 11, 'The CAT dataset includes over 9,000 cat images. For each image, there are annotations of the head of cat with nine points, two for eyes, one for mouth, and six for ears.'),
+(3, 3, 12, 'This dataset, also known as Animal Faces-HQ (AFHQ), consists of 16,130 high-quality images at 512×512 resolution.'),
+(4, 1, 13, 'Most life forms began their evolution in aquatic environments. About 90% of the worlds living space is provided by the oceans in terms of volume. Fish, which are only found in water, are the first known vertebrates. Some of these transformed into amphibians, which dwell both on land and in water for parts of the day'),
+(10, 4, 14, 'This dataset contains images of 18 Hollywood celebrities with 100 images of each celebrity'),
+(16, 2, 15, 'This dataset collected by me Mehdi Özel for a UAV Competition. When I search about "Drone (UAV) Dataset", I realized that the datasets only contain photos taken by UAVs(drone-to earth view mostly).'),
+(17, 5, 16, 'A great number of fruits are grown around the world, each of which has various types. The factors that determine the type of fruit are the external appearance features such as color, length, diameter, and shape. '),
+(28, 1, 17, 'Yoga is a group of physical, mental, and spiritual practices or disciplines that originated in ancient India and aim to control and still the mind, recognizing a detached witness-consciousness untouched by the mind and mundane suffering. There is a wide variety of schools of yoga, practices, and goals in Hinduism, Buddhism, and Jainism, and traditional and modern yoga is practiced worldwide.'),
+(19, 6, 18, 'This dataset contains a total of 1000 images, with an equal distribution of 500 images of dog and 500 images of cat. The images are standardized to a resolution of 512x512 pixels.'),
+(20, 3, 10, 'This dataset contains 64 animal image classes for multi-class image classification tasks. Each folder corresponds to a distinct class, and the images in each folder represent different types of animals.');
 
 INSERT INTO Data_buying_request (ID_user, Public_data, ID_dataset, Description, Time, Deposit, Price, Due_Date, Data_type)
 VALUES
@@ -345,9 +345,7 @@ VALUES
 (15, TRUE, 6, 'A popular component of computer vision and deep learning revolves around identifying faces for various applications from logging into your phone with your face or searching through surveillance images for a particular suspect. This dataset is great for training and testing models for face detection, particularly for recognising facial attributes such as finding people with brown hair, are smiling, or wearing glasses. Images cover large pose variations, background clutter, diverse people, supported by a large quantity of images and rich annotations. This data was originally collected by researchers at MMLAB, The Chinese University of Hong Kong (specific reference in Acknowledgment section).', NOW(), 600.00, 3200.00, '2024-08-25 10:00:00', 4),
 (26, FALSE, 7, 'This is a balanced dataset of benign (healthy) and malignant (infected) skin spots. Transfer learning and CNNs can be used to classify the images into these two categories. The rules for using the data are detailed at https://www.isic-archive.com/#!/topWithHeader/wideContentTop/main.', NOW(), 400.00, 2000.00, '2024-09-12 13:00:00', 2),
 (17, TRUE, 8, 'This dataset consists of 150 medical studies with chest X-ray (CXR) images primarily focused on the detection of lung diseases, including COVID-19 cases and pneumonias. The collection includes frontal chest radiographs and chest radiography scans in DICOM format. The dataset is ideal for medical research, disease detection, and classification tasks, particularly for developing computer-aided diagnosis and machine learning models', NOW(), 900.00, 4200.00, '2024-09-03 16:00:00', 5),
-(8, FALSE, 9, 'This plant image dataset consists of 14,790 images categorized into 47 distinct plant species classes. The dataset was compiled by collecting images from Bing Images and manually curating them, although not by professional biologist. I collected this images for a project aimed at classifying plant species as either toxic or safe for cats.', NOW(), 350.00, 1800.00, '2024-08-30 14:30:00', 1),
-(9, TRUE, 10, 'This dataset contains 64 animal image classes for multi-class image classification tasks. Each folder corresponds to a distinct class, and the images in each folder represent different types of animals.', NOW(), 700.00, 3800.00, '2024-09-08 12:30:00', 6),
-(10, FALSE, 11, 'User behavior dataset for mobile app', NOW(), 500.00, 2400.00, '2024-09-15 09:45:00', 3);
+(8, FALSE, 9, 'This plant image dataset consists of 14,790 images categorized into 47 distinct plant species classes. The dataset was compiled by collecting images from Bing Images and manually curating them, although not by professional biologist. I collected this images for a project aimed at classifying plant species as either toxic or safe for cats.', NOW(), 350.00, 1800.00, '2024-08-30 14:30:00', 1);
 
 INSERT INTO Censorship_DBR (ID_admin, ID_data_buying_request, Confirm, Reason)
 VALUES
@@ -358,9 +356,7 @@ VALUES
 (5, 5, TRUE, 'Approved. Deposit and price are correct.'),
 (1, 6, TRUE, 'Approved. All conditions met.'),
 (2, 7, FALSE, 'Rejected. The dataset does not meet the requirements.'),
-(3, 8, TRUE, 'Approved after verifying the data type.'),
-(4, 9, TRUE, 'Approved with no issues.'),
-(5, 10, FALSE, 'Rejected due to high price.');
+(3, 8, TRUE, 'Approved after verifying the data type.');
 
 INSERT INTO Censorship_DSR (ID_admin, ID_data_sending_request, Confirm, Reason)
 VALUES

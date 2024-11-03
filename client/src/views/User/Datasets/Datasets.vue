@@ -17,7 +17,7 @@
       :key="index"
       @click="goToDetail(item.id_dataset)"
     >
-      <img :src="`/${item.avatar}`" alt="Card image" class="card-image" />
+      <img :src="item.avatar" alt="Card image" class="card-image" />
       <div class="card-content">
         <h2 class="card-title">{{ item.name_dataset }}</h2>
         <p class="card-info">{{ item.views }} views</p>
@@ -64,12 +64,13 @@ const openFullScreen1 = () => {
 
 const loadDatasets = async () => {
   try {
-    await openFullScreen1()
-    items.value = await fetchDatasets()
+    await openFullScreen1();
+    items.value = await fetchDatasets();
   } catch (error) {
-    console.error('Failed to load datasets:', error)
+    console.error('Failed to load datasets:', error);
   }
-}
+};
+
 
 const goToDetail = (id: number) => {
   route.push({ name: 'dataset-detail', params: { id } })

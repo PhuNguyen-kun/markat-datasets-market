@@ -1,4 +1,6 @@
 const client = require("../config");
+const fs = require('fs').promises;
+const path = require('path');
 
 const getAllDatasetsDb = async ({ limit, offset }) => {
   const datasets = await client.query(
@@ -10,22 +12,28 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
             CASE
                 WHEN v.Data_format = 1 THEN 'CSV'
                 WHEN v.Data_format = 2 THEN 'Excel'
-                -- Thêm các định dạng khác nếu cần
                 ELSE 'Unknown'
-                END                                                                 AS Data_Format,
-            (SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset)      AS Version_Count
+            END AS Data_Format,
+            (SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS Version_Count
      FROM Dataset d
-              LEFT JOIN
-          Version v ON d.ID_Dataset = v.ID_Dataset
+     LEFT JOIN Version v ON d.ID_Dataset = v.ID_Dataset
      GROUP BY d.ID_Dataset, d.Avatar, d.Name_dataset, d.Voucher, v.Data_format
      ORDER BY d.ID_Dataset ASC
-     OFFSET $1 LIMIT $2
-    `,
+     OFFSET $1 LIMIT $2`,
     [offset, limit]
   );
-  return { items: datasets.rows };
-};
 
+  const datasetsWithAvatar = await Promise.all(datasets.rows.map(async (dataset) => {
+    if (dataset.avatar) {
+      const imagePath = path.join(__dirname, '..','Package/Datasets/Avatar', dataset.avatar);
+      const imageBuffer = await fs.readFile(imagePath);
+      dataset.avatar = imageBuffer.toString('base64');
+    }
+    return dataset;
+  }));
+
+  return { items: datasetsWithAvatar };
+};
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
   const { rows: datasets } = await client.query(
     `SELECT d.name_dataset,

@@ -3,13 +3,20 @@ import { notifyError } from '@/services/notification'
 
 export const fetchDatasets = async () => {
   try {
-    const response = await axiosInstance.get('/datasets')
-    return response.data.items
+    const response = await axiosInstance.get('/datasets');
+    return response.data.items.map((item: any) => {
+      if (item.avatar) {
+        item.avatar = `data:image/jpeg;base64,${item.avatar}`; 
+      }
+      return item;
+    });
   } catch (error) {
-    notifyError('Fail to get datasets!')
-    console.error('Failed to fetch data:', error)
+    notifyError('Fail to get datasets!');
+    console.error('Failed to fetch data:', error);
+    return [];
   }
-}
+};
+
 
 export const fetchDatasetsDetail = async (datasetId: number) => {
   try {

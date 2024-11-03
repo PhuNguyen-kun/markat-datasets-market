@@ -1,4 +1,4 @@
-const e = require("express");
+const path = require('path');
 const datasetService = require("../services/datasets.service.js");
 
 const createDataset = async (req, res) => {
@@ -17,7 +17,7 @@ const createDataset = async (req, res) => {
 };
 
 const getAllDatasets = async (req, res) => {
-  const { page = 1} = req.query;
+  const { page = 1 } = req.query;
   const datasets = await datasetService.getAllDatasets(page);
   res.json(datasets);
 };
