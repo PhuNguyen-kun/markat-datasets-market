@@ -47,6 +47,7 @@
     "swagger-ui-express": "^4.6.0"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.3",
     "babel-eslint": "^10.1.0",
     "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
