@@ -2,7 +2,7 @@ DROP DATABASE markat_db;
 CREATE DATABASE markat_db;
 \c markat_db
 
-
+--create table
 CREATE TABLE Status (
     ID_status SERIAL PRIMARY KEY,
     Status_name VARCHAR(255),
@@ -61,7 +61,6 @@ CREATE TABLE Version (
     Labeling_time_duration TIMESTAMP,
 	Valuation_time_duration TIMESTAMP,
     Stock_percent FLOAT,
-    Link_data_mongo TEXT,
     Data_format INT,
     Status INT
 );
@@ -185,7 +184,76 @@ CREATE TABLE Transaction (
     ID_version INT REFERENCES Version(ID_version)
 );
 
--- Database
+--trigger
+
+-- Function: check_time_durations
+-- This function checks the constraints for the fields Data_sending_time_duration,
+-- Labeling_time_duration, and Valuation_time_duration in the Version table.
+-- It ensures that Data_sending_time_duration <= Labeling_time_duration <= Valuation_time_duration.
+-- If this condition is violated, the function raises an exception to prevent the operation.
+CREATE OR REPLACE FUNCTION check_time_durations()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.Data_sending_time_duration > NEW.Labeling_time_duration OR
+       NEW.Labeling_time_duration > NEW.Valuation_time_duration THEN
+        RAISE EXCEPTION 'Constraint violation: Ensure that Data_sending_time_duration <= Labeling_time_duration <= Valuation_time_duration';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger: check_time_durations_trigger
+-- This trigger is set to execute before every INSERT or UPDATE operation on the Version table.
+-- It calls the check_time_durations function to validate that the time durations meet the required constraint.
+-- If the constraint is violated, the trigger prevents the operation by raising an exception.
+CREATE TRIGGER check_time_durations_trigger
+BEFORE INSERT OR UPDATE ON Version
+FOR EACH ROW
+EXECUTE FUNCTION check_time_durations();
+
+-- Function: check_participation_time
+-- This function ensures that the Join_date of a user in the User_Version_Participation table
+-- is earlier than the end time of the respective activity in the Version table.
+-- It checks the Join_date based on the Participation_Type (either 'Sending' or 'Labeling').
+-- If Join_date is later than or equal to the end time of the activity, the function raises an exception.
+CREATE OR REPLACE FUNCTION check_participation_time()
+RETURNS TRIGGER AS $$
+DECLARE
+    end_time TIMESTAMP;
+BEGIN
+    -- Determine the end time based on Participation_Type
+    IF NEW.Participation_Type = 'Sending' THEN
+        SELECT Data_sending_time_duration INTO end_time
+        FROM Version
+        WHERE ID_version = NEW.ID_version;
+        IF NEW.Join_date >= end_time THEN
+            RAISE EXCEPTION 'Participation time constraint violation: Join_date must be earlier than Data_sending_time_duration for Sending activity';
+        END IF;
+    ELSIF NEW.Participation_Type = 'Labeling' THEN
+        SELECT Labeling_time_duration INTO end_time
+        FROM Version
+        WHERE ID_version = NEW.ID_version;
+        IF NEW.Join_date >= end_time OR NEW.Join_date <= (SELECT Data_sending_time_duration FROM Version WHERE ID_version = NEW.ID_version) THEN
+            RAISE EXCEPTION 'Participation time constraint violation: Join_date for Labeling must be between Data_sending_time_duration and Labeling_time_duration';
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger: check_user_participation_time
+-- This trigger executes before every INSERT or UPDATE operation on the User_Version_Participation table.
+-- It calls the check_participation_time function to validate that the Join_date of the user
+-- is earlier than the end time of the relevant activity (Sending or Labeling) in the Version table.
+-- If the condition is violated, the trigger prevents the operation by raising an exception.
+CREATE TRIGGER check_user_participation_time
+BEFORE INSERT OR UPDATE ON User_Version_Participation
+FOR EACH ROW
+EXECUTE FUNCTION check_participation_time();
+
+
+--insert
 INSERT INTO Status (Status_name, Time)
 VALUES ('Active', '2023-01-01 09:00:00'),
 ('Inactive', '2023-01-02 10:15:00'),
@@ -261,59 +329,58 @@ INSERT INTO Version (
     ID_dataset, Price, Number_parts, Reliability_minimum,
     Create_Date, Maximum_size, Total_size, Number_of_data,
     Data_sending_time_duration, Labeling_time_duration,
-    Valuation_time_duration, Stock_percent, Link_data_mongo,
+    Valuation_time_duration, Stock_percent,
     Data_format, Status
 ) VALUES
-(1, 500.00, 1, 85,  '2024-09-01 10:00:00', 50.12345, 45.54321, 1000, '2024-09-01 12:00:00', '2024-09-01 14:00:00', '2024-09-01 16:00:00', 75.0, 'mongodb://link1', 1, 1),
-(2, 450.50, 1, 92, '2024-09-02 10:00:00', 60.54321, 55.32145, 1500, '2024-09-02 12:00:00', '2024-09-02 14:00:00', '2024-09-02 16:00:00', 80.0, 'mongodb://link2', 2, 2),
-(3, 600.00, 1, 78,  '2024-09-03 10:00:00', 45.54321, 40.12345, 1200, '2024-09-03 12:00:00', '2024-09-03 14:00:00', '2024-09-03 16:00:00', 65.0, 'mongodb://link3', 1, 3),
-(4, 520.75, 1, 95, '2024-09-04 10:00:00', 55.12345, 50.32145, 1100, '2024-09-04 12:00:00', '2024-09-04 14:00:00', '2024-09-04 16:00:00', 85.0, 'mongodb://link4', 3, 1),
-(5, 480.25, 1, 60,  '2024-09-05 10:00:00', 65.32145, 60.54321, 1400, '2024-09-05 12:00:00', '2024-09-05 14:00:00', '2024-09-05 16:00:00', 70.0, 'mongodb://link5', 2, 2),
-(6, 540.50, 1, 88,  '2024-09-06 10:00:00', 70.54321, 65.12345, 1300, '2024-09-06 12:00:00', '2024-09-06 14:00:00', '2024-09-06 16:00:00', 60.0, 'mongodb://link6', 1, 3),
-(7, 510.00, 1, 45, '2024-09-07 10:00:00', 75.54321, 70.32145, 1700, '2024-09-07 12:00:00', '2024-09-07 14:00:00', '2024-09-07 16:00:00', 55.0, 'mongodb://link7', 3, 1),
-(8, 495.00, 1, 99, '2024-09-08 10:00:00', 85.12345, 80.54321, 900, '2024-09-08 12:00:00', '2024-09-08 14:00:00', '2024-09-08 16:00:00', 90.0, 'mongodb://link8', 2, 2),
-(9, 525.50, 1, 82,  '2024-09-09 10:00:00', 90.54321, 85.12345, 1600, '2024-09-09 12:00:00', '2024-09-09 14:00:00', '2024-09-09 16:00:00', 78.0, 'mongodb://link9', 1, 3),
-(10, 470.75, 1, 55,  '2024-09-10 10:00:00', 95.54321, 90.32145, 1050, '2024-09-10 12:00:00', '2024-09-10 14:00:00', '2024-09-10 16:00:00', 72.0, 'mongodb://link10', 3, 1),
-(1, 505.00, 2, 73,  '2024-09-11 10:00:00', 50.12345, 45.54321, 1000, '2024-09-11 12:00:00', '2024-09-11 14:00:00', '2024-09-11 16:00:00', 75.0, 'mongodb://link11', 1, 1),
-(2, 425.50, 2, 80,  '2024-09-12 10:00:00', 60.54321, 55.32145, 1500, '2024-09-12 12:00:00', '2024-09-12 14:00:00', '2024-09-12 16:00:00', 80.0, 'mongodb://link12', 2, 2),
-(3, 585.00, 2, 68,  '2024-09-13 10:00:00', 45.54321, 40.12345, 1200, '2024-09-13 12:00:00', '2024-09-13 14:00:00', '2024-09-13 16:00:00', 65.0, 'mongodb://link13', 1, 3),
-(4, 510.75, 2, 92, '2024-09-14 10:00:00', 55.12345, 50.32145, 1100, '2024-09-14 12:00:00', '2024-09-14 14:00:00', '2024-09-14 16:00:00', 85.0, 'mongodb://link14', 3, 1),
-(5, 460.25, 2, 64,  '2024-09-15 10:00:00', 65.32145, 60.54321, 1400, '2024-09-15 12:00:00', '2024-09-15 14:00:00', '2024-09-15 16:00:00', 70.0, 'mongodb://link15', 2, 2);
-
+(1, 500.00, 10, 85, '2024-01-01 10:00:00', 50.12345, 45.54321, 1000, '2024-01-05 01:04:11', '2024-07-11 21:37:19', '2024-12-19 01:39:10', 75.0, 1, 1),
+(2, 450.50, 10, 92, '2024-01-01 10:00:00', 60.54321, 55.32145, 1500, '2024-05-12 12:20:30', '2024-12-26 16:39:59', '2024-12-29 11:16:51', 80.0, 2, 2),
+(3, 600.00, 10, 78, '2024-01-01 10:00:00', 45.54321, 40.12345, 1200, '2024-08-17 17:20:04', '2024-11-12 04:30:49', '2024-12-01 13:55:40', 65.0, 1, 3),
+(4, 520.75, 10, 95, '2024-01-01 10:00:00', 55.12345, 50.32145, 1100, '2024-03-09 09:26:32', '2024-09-12 15:57:20', '2024-12-09 12:02:55', 85.0, 3, 1),
+(5, 480.25, 10, 60, '2024-01-01 10:00:00', 65.32145, 60.54321, 1400, '2024-01-30 19:25:57', '2024-07-24 11:27:05', '2024-12-02 18:37:14', 70.0, 2, 2),
+(6, 540.50, 10, 88, '2024-01-01 10:00:00', 70.54321, 65.12345, 1300, '2024-06-17 02:11:36', '2024-10-28 04:13:01', '2024-12-08 16:56:49', 60.0, 1, 3),
+(7, 510.00, 10, 45, '2024-01-01 10:00:00', 75.54321, 70.32145, 1700, '2024-08-10 01:26:04', '2024-12-14 22:03:59', '2024-12-16 16:21:16', 55.0, 3, 1),
+(8, 495.00, 10, 99, '2024-01-01 10:00:00', 85.12345, 80.54321, 900, '2024-05-05 02:41:05', '2024-09-04 05:37:35', '2024-10-25 02:27:18', 90.0, 2, 2),
+(9, 525.50, 10, 82, '2024-01-01 10:00:00', 90.54321, 85.12345, 1600, '2024-12-10 04:22:36', '2024-12-12 02:40:09', '2024-12-26 04:24:26', 78.0, 1, 3),
+(10, 470.75, 10, 55, '2024-01-01 10:00:00', 95.54321, 90.32145, 1050, '2024-11-28 06:08:28', '2024-12-18 17:14:10', '2024-12-29 08:07:14', 72.0, 3, 1),
+(1, 505.00, 12, 73, '2024-01-01 10:00:00', 50.12345, 45.54321, 1000, '2024-12-04 07:27:30', '2024-12-07 17:18:42', '2024-12-21 19:37:43', 75.0, 1, 1),
+(2, 425.50, 12, 80, '2024-01-01 10:00:00', 60.54321, 55.32145, 1500, '2024-09-22 10:04:16', '2024-10-29 20:47:02', '2024-12-25 09:37:18', 80.0, 2, 2),
+(3, 585.00, 12, 68, '2024-01-01 10:00:00', 45.54321, 40.12345, 1200, '2024-02-08 17:43:01', '2024-03-30 10:57:59', '2024-12-31 04:50:52', 65.0, 1, 3),
+(4, 510.75, 12, 92, '2024-01-01 10:00:00', 55.12345, 50.32145, 1100, '2024-03-18 08:06:41', '2024-12-23 20:49:48', '2024-12-31 06:59:40', 85.0, 3, 1),
+(5, 460.25, 12, 64, '2024-01-01 10:00:00', 65.32145, 60.54321, 1400, '2024-12-11 16:22:33', '2024-12-28 06:39:54', '2024-12-31 02:41:49', 70.0, 2, 2);
 
 INSERT INTO User_Version_Participation (ID_user, ID_version, Participation_Type, Join_date) VALUES
-(1, 1, 'Sending', '2023-08-01 10:00:00'),
-(1, 2, 'Labeling', '2024-08-02 11:00:00'),
-(1, 3, 'Sending', '2024-08-03 12:00:00'),
-(1, 4, 'Labeling', '2024-08-03 12:00:00'),
-(1, 11, 'Sending', '2024-08-03 11:00:00'),
-(2, 1, 'Labeling', '2024-08-01 09:30:00'),
-(2, 4, 'Sending', '2024-09-02 10:30:00'),
-(2, 5, 'Labeling', '2024-09-03 11:30:00'),
-(13, 2, 'Sending', '2024-10-01 08:15:00'),
-(23, 6, 'Labeling', '2024-10-02 09:15:00'),
-(13, 7, 'Sending', '2024-10-03 10:15:00'),
-(14, 1, 'Labeling', '2024-10-01 07:45:00'),
-(24, 8, 'Sending', '2024-10-02 08:45:00'),
-(24, 9, 'Labeling', '2024-10-03 09:45:00'),
-(15, 5, 'Sending', '2024-10-01 07:00:00'),
-(15, 10, 'Labeling', '2024-11-02 08:00:00'),
-(15, 3, 'Sending', '2024-11-03 09:00:00'),
-(26, 6, 'Labeling', '2024-11-01 08:00:00'),
-(26, 4, 'Sending', '2024-11-02 09:00:00'),
-(26, 1, 'Labeling', '2024-11-03 10:00:00'),
-(17, 7, 'Sending', '2024-11-01 11:00:00'),
-(17, 2, 'Labeling', '2024-11-02 12:00:00'),
-(17, 5, 'Sending', '2024-12-03 13:00:00'),
-(28, 8, 'Labeling', '2024-12-01 06:45:00'),
-(28, 9, 'Sending', '2024-12-02 07:45:00'),
-(28, 10, 'Labeling', '2024-12-03 08:45:00'),
-(19, 1, 'Sending', '2024-12-01 07:15:00'),
-(19, 3, 'Labeling', '2024-12-02 08:15:00'),
-(19, 6, 'Sending', '2024-12-03 09:15:00'),
-(20, 4, 'Labeling', '2024-12-01 09:50:00'),
-(20, 5, 'Sending', '2024-12-02 10:50:00'),
-(20, 7, 'Labeling', '2024-12-03 11:50:00');
+(1, 1, 'Sending', '2024-01-03 12:00:00'),
+(1, 2, 'Labeling', '2024-12-20 12:00:00'),
+(1, 3, 'Sending', '2024-08-16 12:00:00'),
+(1, 4, 'Labeling', '2024-06-15 15:00:00'),
+(1, 11, 'Sending', '2024-12-03 10:00:00'),
+(2, 1, 'Labeling', '2024-06-15 10:30:00'),
+(2, 4, 'Sending', '2024-02-20 10:00:00'),
+(2, 5, 'Labeling', '2024-06-20 13:30:00'),
+(13, 2, 'Sending', '2024-03-01 09:30:00'),
+(23, 6, 'Labeling', '2024-07-25 10:00:00'),
+(13, 7, 'Sending', '2024-07-01 11:00:00'),
+(14, 1, 'Labeling', '2024-06-10 12:45:00'),
+(24, 8, 'Sending', '2024-04-01 09:00:00'),
+(24, 9, 'Labeling', '2024-12-11 14:00:00'),
+(15, 5, 'Sending', '2024-01-15 08:00:00'),
+(15, 10, 'Labeling', '2024-12-10 09:30:00'),
+(15, 3, 'Sending', '2024-08-17 10:00:00'),
+(26, 6, 'Labeling', '2024-08-10 10:30:00'),
+(26, 4, 'Sending', '2024-02-25 10:30:00'),
+(26, 1, 'Labeling', '2024-06-05 10:30:00'),
+(17, 7, 'Sending', '2024-06-10 11:30:00'),
+(17, 2, 'Labeling', '2024-10-25 13:00:00'),
+(17, 5, 'Sending', '2024-01-10 10:00:00'),
+(28, 8, 'Labeling', '2024-07-10 11:00:00'),
+(28, 9, 'Sending', '2024-06-20 09:30:00'),
+(28, 10, 'Labeling', '2024-11-29 08:45:00'),
+(19, 1, 'Sending', '2024-01-03 09:15:00'), --
+(19, 3, 'Labeling', '2024-08-20 09:30:00'),
+(19, 6, 'Sending', '2024-05-20 09:30:00'),
+(20, 4, 'Labeling', '2024-07-10 11:30:00'),
+(20, 5, 'Sending', '2024-01-10 09:50:00'),
+(20, 7, 'Labeling', '2024-11-30 11:00:00');
 
 
 INSERT INTO Admin (Username, Password, Permission) VALUES
