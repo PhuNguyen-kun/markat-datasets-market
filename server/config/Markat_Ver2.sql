@@ -45,8 +45,6 @@ CREATE TABLE User_click (
     ID_dataset INT REFERENCES Dataset(ID_dataset)
 );
 
-
-
 CREATE TABLE Version (
     ID_version SERIAL PRIMARY KEY,
     ID_dataset INT REFERENCES Dataset(ID_dataset),
@@ -63,6 +61,12 @@ CREATE TABLE Version (
     Stock_percent FLOAT,
     Data_format INT,
     Status INT
+);
+
+CREATE TABLE Part (
+    ID_part SERIAL PRIMARY KEY,
+    ID_version INT REFERENCES Version(ID_version),
+    Number_of_record Int
 );
 
 CREATE TABLE User_Version_Participation (
@@ -184,19 +188,30 @@ CREATE TABLE Transaction (
     ID_version INT REFERENCES Version(ID_version)
 );
 
+CREATE TABLE TransactionDetails (
+    ID_detail SERIAL PRIMARY KEY,
+    ID_transaction INT REFERENCES Transaction(ID_transaction),
+    ID_user INT REFERENCES Users(ID_user),
+    ID_version INT REFERENCES Version(ID_version),
+    Amount_earned DECIMAL(10, 2) NOT NULL,
+    Role VARCHAR(50) CHECK (Role IN ('requester','labeler', 'sender')),
+    Transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 --trigger
 
 -- Function: check_time_durations
 -- This function checks the constraints for the fields Data_sending_time_duration,
 -- Labeling_time_duration, and Valuation_time_duration in the Version table.
--- It ensures that Data_sending_time_duration <= Labeling_time_duration <= Valuation_time_duration.
+-- It ensures that Data_sending_time_duration < Labeling_time_duration < Valuation_time_duration.
 -- If this condition is violated, the function raises an exception to prevent the operation.
 CREATE OR REPLACE FUNCTION check_time_durations()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.Data_sending_time_duration > NEW.Labeling_time_duration OR
        NEW.Labeling_time_duration > NEW.Valuation_time_duration THEN
-        RAISE EXCEPTION 'Constraint violation: Ensure that Data_sending_time_duration <= Labeling_time_duration <= Valuation_time_duration';
+        RAISE EXCEPTION 'Constraint violation: Ensure that Data_sending_time_duration < Labeling_time_duration < Valuation_time_duration';
     END IF;
     RETURN NEW;
 END;
@@ -221,7 +236,6 @@ RETURNS TRIGGER AS $$
 DECLARE
     end_time TIMESTAMP;
 BEGIN
-    -- Determine the end time based on Participation_Type
     IF NEW.Participation_Type = 'Sending' THEN
         SELECT Data_sending_time_duration INTO end_time
         FROM Version
@@ -242,16 +256,51 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger: check_user_participation_time
+-- Trigger: trigger_check_participation_time
 -- This trigger executes before every INSERT or UPDATE operation on the User_Version_Participation table.
--- It calls the check_participation_time function to validate that the Join_date of the user
--- is earlier than the end time of the relevant activity (Sending or Labeling) in the Version table.
--- If the condition is violated, the trigger prevents the operation by raising an exception.
-CREATE TRIGGER check_user_participation_time
+-- It calls the check_participation_time function to ensure that the Join_date for Sending or Labeling
+-- meets the constraints defined in the Version table.
+-- If the condition is violated, the trigger raises an exception to prevent the operation.
+
+CREATE TRIGGER trigger_check_participation_time
 BEFORE INSERT OR UPDATE ON User_Version_Participation
 FOR EACH ROW
 EXECUTE FUNCTION check_participation_time();
 
+CREATE OR REPLACE FUNCTION check_time_valuation()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.time_valuation <= (SELECT Labeling_time_duration
+                              FROM version
+                              WHERE version.ID_version = NEW.ID_version)
+       OR NEW.time_valuation >= (SELECT Valuation_time_duration
+                                 FROM version
+                                 WHERE version.ID_version = NEW.ID_version) THEN
+        RAISE EXCEPTION 'Validation error: time_valuation must be between Labeling_time_duration and Valuation_time_duration in the version table';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM valuation
+        WHERE ID_user = NEW.ID_user AND ID_version = NEW.ID_version
+    ) THEN
+        RAISE EXCEPTION 'Validation error: Each user can only have one valuation per version';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger: trigger_check_time_valuation
+-- This trigger executes before every INSERT or UPDATE operation on the valuation table.
+-- It calls the check_time_valuation function to validate that the time_valuation of the new
+-- or updated record is between Labeling_time_duration and Valuation_time_duration in the associated Version record.
+-- It also checks that each user can only have one valuation per version.
+-- If the condition is violated, the trigger raises an exception to prevent the operation.
+CREATE TRIGGER trigger_check_time_valuation
+BEFORE INSERT OR UPDATE ON valuation
+FOR EACH ROW
+EXECUTE FUNCTION check_time_valuation();
 
 --insert
 INSERT INTO Status (Status_name, Time)
@@ -342,18 +391,29 @@ INSERT INTO Version (
 (8, 495.00, 10, 99, '2024-01-01 10:00:00', 85.12345, 80.54321, 900, '2024-05-05 02:41:05', '2024-09-04 05:37:35', '2024-10-25 02:27:18', 90.0, 2, 2),
 (9, 525.50, 10, 82, '2024-01-01 10:00:00', 90.54321, 85.12345, 1600, '2024-12-10 04:22:36', '2024-12-12 02:40:09', '2024-12-26 04:24:26', 78.0, 1, 3),
 (10, 470.75, 10, 55, '2024-01-01 10:00:00', 95.54321, 90.32145, 1050, '2024-11-28 06:08:28', '2024-12-18 17:14:10', '2024-12-29 08:07:14', 72.0, 3, 1),
-(1, 505.00, 12, 73, '2024-01-01 10:00:00', 50.12345, 45.54321, 1000, '2024-12-04 07:27:30', '2024-12-07 17:18:42', '2024-12-21 19:37:43', 75.0, 1, 1),
-(2, 425.50, 12, 80, '2024-01-01 10:00:00', 60.54321, 55.32145, 1500, '2024-09-22 10:04:16', '2024-10-29 20:47:02', '2024-12-25 09:37:18', 80.0, 2, 2),
-(3, 585.00, 12, 68, '2024-01-01 10:00:00', 45.54321, 40.12345, 1200, '2024-02-08 17:43:01', '2024-03-30 10:57:59', '2024-12-31 04:50:52', 65.0, 1, 3),
-(4, 510.75, 12, 92, '2024-01-01 10:00:00', 55.12345, 50.32145, 1100, '2024-03-18 08:06:41', '2024-12-23 20:49:48', '2024-12-31 06:59:40', 85.0, 3, 1),
-(5, 460.25, 12, 64, '2024-01-01 10:00:00', 65.32145, 60.54321, 1400, '2024-12-11 16:22:33', '2024-12-28 06:39:54', '2024-12-31 02:41:49', 70.0, 2, 2);
+(1, 505.00, 12, 73, '2025-01-01 10:00:00', 50.12345, 45.54321, 1000, '2025-12-04 07:27:30', '2025-12-07 17:18:42', '2025-12-21 19:37:43', 75.0, 1, 1),
+(2, 425.50, 12, 80, '2025-01-01 10:00:00', 60.54321, 55.32145, 1500, '2025-09-22 10:04:16', '2025-10-29 20:47:02', '2025-12-25 09:37:18', 80.0, 2, 2),
+(3, 585.00, 12, 68, '2025-01-01 10:00:00', 45.54321, 40.12345, 1200, '2025-02-08 17:43:01', '2025-03-30 10:57:59', '2025-12-31 04:50:52', 65.0, 1, 3),
+(4, 510.75, 12, 92, '2025-01-01 10:00:00', 55.12345, 50.32145, 1100, '2025-03-18 08:06:41', '2025-12-23 20:49:48', '2025-12-31 06:59:40', 85.0, 3, 1),
+(5, 460.25, 12, 64, '2025-01-01 10:00:00', 65.32145, 60.54321, 1400, '2025-12-11 16:22:33', '2025-12-28 06:39:54', '2025-12-31 02:41:49', 70.0, 2, 2);
+
+INSERT INTO Part (ID_version, Number_of_record) VALUES
+(1, 8), (1, 13), (1, 10), (1, 8), (1, 7),
+(1, 5), (1, 8), (1, 8), (1, 3), (1, 10),
+(11, 6), (11, 8), (11, 12), (11, 7), (11, 7),
+(11, 9), (11, 10), (11, 9), (11, 5), (11, 7),
+(2, 7), (2, 7), (2, 6), (2, 11), (2, 13),
+(2, 8), (2, 5), (2, 11), (2, 8), (2, 5);
+
+
 
 INSERT INTO User_Version_Participation (ID_user, ID_version, Participation_Type, Join_date) VALUES
 (1, 1, 'Sending', '2024-01-03 12:00:00'),
 (1, 2, 'Labeling', '2024-12-20 12:00:00'),
 (1, 3, 'Sending', '2024-08-16 12:00:00'),
 (1, 4, 'Labeling', '2024-06-15 15:00:00'),
-(1, 11, 'Sending', '2024-12-03 10:00:00'),
+(1, 11, 'Sending', '2025-12-03 10:00:00'),
+(1, 11, 'Labeling', '2025-12-05 10:00:00'),
 (2, 1, 'Labeling', '2024-06-15 10:30:00'),
 (2, 4, 'Sending', '2024-02-20 10:00:00'),
 (2, 5, 'Labeling', '2024-06-20 13:30:00'),
@@ -492,67 +552,36 @@ VALUES
 ('User behavior analysis in mobile app.', 6);
 
 INSERT INTO Valuation (Time_valuation, ID_user, ID_version, Price) VALUES
-('2024-01-01 10:00:00', 1, 1, 5000.00),
-('2024-01-02 11:00:00', 1, 2, 5200.00),
-('2024-01-03 12:00:00', 1, 3, 5300.00),
-('2024-02-01 09:30:00', 2, 1, 6500.50),
-('2024-02-02 10:30:00', 2, 4, 6600.50),
-('2024-02-03 11:30:00', 2, 5, 6700.50),
-('2024-03-01 08:15:00', 13, 2, 7200.75),
-('2024-03-02 09:15:00', 23, 6, 7300.75),
-('2024-03-03 10:15:00', 13, 7, 7400.75),
-('2024-04-01 07:45:00', 14, 1, 4800.00),
-('2024-04-02 08:45:00', 24, 8, 4900.00),
-('2024-04-03 09:45:00', 24, 9, 5000.00),
-('2024-05-01 07:00:00', 15, 5, 5300.25),
-('2024-05-02 08:00:00', 15, 10, 5400.25),
-('2024-05-03 09:00:00', 15, 3, 5500.25),
-('2024-06-01 08:00:00', 26, 6, 6000.50),
-('2024-06-02 09:00:00', 26, 4, 6100.50),
-('2024-06-03 10:00:00', 26, 1, 6200.50),
-('2024-07-01 11:00:00', 17, 7, 5600.75),
-('2024-07-02 12:00:00', 17, 2, 5700.75),
-('2024-07-03 13:00:00', 17, 5, 5800.75),
-('2024-08-01 06:45:00', 28, 8, 7000.00),
-('2024-08-02 07:45:00', 28, 9, 7100.00),
-('2024-08-03 08:45:00', 28, 10, 7200.00),
-('2024-09-01 07:15:00', 19, 1, 6300.25),
-('2024-09-02 08:15:00', 19, 3, 6400.25),
-('2024-09-03 09:15:00', 19, 6, 6500.25),
-('2024-10-01 09:50:00', 20, 4, 7500.50),
-('2024-10-02 10:50:00', 20, 5, 7600.50),
-('2024-10-03 11:50:00', 20, 7, 7700.50);
+('2024-07-12 10:00:00', 1, 1, 5000.00),
+('2024-12-27 12:00:00', 1, 2, 5200.00),
+('2024-11-20 14:00:00', 1, 3, 5300.00),
+('2024-09-15 11:30:00', 1, 4, 5000.00),
+('2024-07-15 21:37:19', 2, 1, 6500.50),
+('2024-09-15 11:30:00', 2, 4, 6600.50),
+('2024-08-01 12:00:00', 2, 5, 6700.50),
+('2024-12-27 09:00:00', 13, 2, 7200.75),
+('2024-11-01 08:00:00', 23, 6, 7300.75),
+('2024-12-15 22:03:59', 13, 7, 7400.75),
+('2024-08-16 21:37:19', 14, 1, 4800.00),
+('2024-10-15 09:45:00', 24, 8, 4900.00),
+('2024-12-15 09:30:00', 24, 9, 5000.00),
+('2024-09-15 10:00:00', 15, 5, 5300.25),
+('2024-12-20 08:00:00', 15, 10, 5400.25),
+('2024-11-15 09:00:00', 15, 3, 5500.25),
+('2024-11-15 09:30:00', 26, 6, 6000.50),
+('2024-10-10 10:30:00', 26, 4, 6100.50),
+('2024-08-10 10:15:00', 26, 1, 6200.50),
+('2024-12-15 11:00:00', 17, 7, 5600.75),
+('2024-12-27 11:00:00', 17, 2, 5700.75),
+('2024-09-20 08:30:00', 17, 5, 5800.75),
+('2024-09-15 07:30:00', 28, 8, 7000.00),
+('2024-12-20 08:00:00', 28, 9, 7100.00),
+('2024-12-24 08:30:00', 28, 10, 7200.00),
+('2024-09-15 08:15:00', 19, 1, 6300.25),
+('2024-11-20 08:45:00', 19, 3, 6400.25),
+('2024-12-01 09:30:00', 19, 6, 6500.25),
+('2024-11-15 10:15:00', 20, 4, 7500.50),
+('2024-10-15 09:45:00', 20, 5, 7600.50),
+('2024-12-15 12:00:00', 20, 7, 7700.50);
 
 
-INSERT INTO Transaction (ID_user, ID_version) VALUES
-(1, 1), -- User 1 (John Doe) transacts with Version 1
-(1, 2), -- User 1 (John Doe) transacts with Version 2
-(2, 1), -- User 2 (Jane Smith) transacts with Version 1
-(3, 3), -- User 3 (Michael Johnson) transacts with Version 3
-(4, 2), -- User 4 (Emily Davis) transacts with Version 2
-(5, 1), -- User 5 (David Wilson) transacts with Version 1
-(6, 3), -- User 6 (Sophia Martinez) transacts with Version 3
-(7, 2), -- User 7 (James Brown) transacts with Version 2
-(8, 1), -- User 8 (Olivia Garcia) transacts with Version 1
-(9, 3), -- User 9 (William Miller) transacts with Version 3
-(10, 4), -- User 10 (Isabella Lopez) transacts with Version 2
-(11, 7), -- User 11 (Alice Anderson) transacts with Version 1
-(12, 2), -- User 12 (Bob Brown) transacts with Version 2
-(13, 9), -- User 13 (Charlie Clark) transacts with Version 1
-(14, 10), -- User 14 (Diana Davis) transacts with Version 3
-(15, 4), -- User 15 (Eve Evans) transacts with Version 2
-(16, 7), -- User 16 (Frank Foster) transacts with Version 1
-(17, 5), -- User 17 (Grace Green) transacts with Version 2
-(18, 3), -- User 18 (Henry Hill) transacts with Version 3
-(19, 1), -- User 19 (Isabel Irvine) transacts with Version 1
-(20, 2), -- User 20 (Jack Johnson) transacts with Version 2
-(21, 3), -- User 21 (Karen King) transacts with Version 3
-(22, 1), -- User 22 (Leo Lewis) transacts with Version 1
-(23, 6), -- User 23 (Mia Moore) transacts with Version 2
-(24, 3), -- User 24 (Nick Nelson) transacts with Version 3
-(25, 1), -- User 25 (Olivia Owen) transacts with Version 1
-(26, 6), -- User 26 (Paul Parker) transacts with Version 2
-(27, 3), -- User 27 (Quinn Quincy) transacts with Version 3
-(28, 1), -- User 28 (Rose Roberts) transacts with Version 1
-(29, 6), -- User 29 (Sam Smith) transacts with Version 2
-(30, 3); -- User 30 (Tina Taylor) transacts with Version 3

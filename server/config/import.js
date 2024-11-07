@@ -5,7 +5,6 @@ const database = require("./index.js");
 database.connectMongoDb();
 
 const ImageSchema = new mongoose.Schema({
-  //ID_dataset: String,
   ID_version: String,
   ID_part: String,
   base64Image: String,
@@ -31,11 +30,15 @@ const DatasetSchema = new mongoose.Schema({
 
 const labels = ["curly", "dreadlocks", "kinky", "straight", "wavy"];
 const senders = ["13"];
-const labelers = ["1"];
+const labelers = ["1","17"];
 const getRandomSender = () => senders[Math.floor(Math.random() * senders.length)];
 const getRandomLabeler = () => labelers[Math.floor(Math.random() * labelers.length)];
 const getRandomLabel = () => labels[Math.floor(Math.random() * labels.length)];
 const getRandomValue = (number) => (Math.floor(Math.random() * number) + 1).toString();
+const getRandomValueBetween = (min, max) => {
+    return (Math.floor(Math.random() * (max - min + 1)) + min).toString();
+};
+
 // select id_user from user_version_participation where id_version = 1 and participation_type = 'Labeling';
 // select id_user from user_version_participation where id_version = 1 and participation_type = 'Sending';
 const Dataset = mongoose.model('Dataset', DatasetSchema);
@@ -45,6 +48,7 @@ const getRandomLabeledForUsers = (number) => {
   return Array.from({ length: labelCount }, () => ({
     labeler: getRandomLabeler(),
     label: getRandomLabel(),
+    labeling_time : getRandomTimeBetween('2024-12-20 12:00:00','2024-12-26 16:39:59'),
   }));
 };
 
@@ -69,10 +73,11 @@ const uploadImagesToMongo = async () => {
           ID_dataset: '2',
           labels: labels,
           image: {
-            ID_version: '11',
-            ID_part: getRandomValue(10),
+            ID_version: '2',
+            ID_part: getRandomValueBetween(21,30),
             base64Image: base64Image,
             sender: getRandomSender(),
+            sent_time : getRandomTimeBetween('2024-03-01 09:30:00','2024-05-12 12:20:30'),
             labeled: getRandomLabeledForUsers(5)
           }
         });
@@ -125,8 +130,25 @@ const random = async () => {
   //}
 };
 
+// Hàm query đếm số bản ghi có ID_part = 1
+const countRecordsWithIDPart = async () => {
+  try {
+    // Thực hiện query đếm số bản ghi
+   for (let index = 1; index <= 30; index++) {
+    const Number_of_record = await Dataset.countDocuments({ 'image.ID_part': `${index}` });
+    const ID_version = await Dataset.findOne({ "image.ID_part": `${index}` }, { "image.ID_version": 1, _id: 0 });
+    console.log('(', ID_version.image.ID_version, ',', Number_of_record, '),');
+  }
+
+    // Đóng kết nối sau khi hoàn thành
+    await mongoose.connection.close();
+  } catch (error) {
+    console.error('Error querying the database:', error);
+  }
+};
+
 // Gọi hàm uploadImagesToMongo
-//uploadImagesToMongo();
+// uploadImagesToMongo();
 // Gọi hàm để đếm tổng số datasets
 //countDatasets();
 // Gọi hàm in tất cả datasets
@@ -134,4 +156,5 @@ const random = async () => {
 // Thêm một nhãn mới
 // addLabelToImage("data_1", { labeler: "user_03", label: "2" });
 //sinh ngẫu nhiên ngày
-random();
+// random();
+countRecordsWithIDPart();

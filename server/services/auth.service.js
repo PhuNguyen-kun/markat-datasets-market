@@ -97,7 +97,6 @@ class AuthService {
   async resetPassword(password, password2, email) {
     const isValidPassword =
       typeof password === "string" && password.trim().length >= 6;
-
     if (password !== password2) {
       throw new ErrorHandler(400, "Password do not match.");
     }

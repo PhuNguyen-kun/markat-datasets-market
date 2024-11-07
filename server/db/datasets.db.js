@@ -1,20 +1,23 @@
 const client = require("../config");
+const mongoose = require('mongoose');
+const Dataset = require('../models/dataset');
 const fs = require('fs').promises;
 const path = require('path');
+const { query } = require("express");
 
 const getAllDatasetsDb = async ({ limit, offset }) => {
   const datasets = await client.query(
     `SELECT d.ID_dataset,
-            d.Avatar,
-            d.Name_dataset,
-            (SELECT COUNT(*) FROM User_Click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
-            d.Voucher,
-            CASE
-                WHEN v.Data_format = 1 THEN 'CSV'
-                WHEN v.Data_format = 2 THEN 'Excel'
-                ELSE 'Unknown'
-            END AS Data_Format,
-            (SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS Version_Count
+    d.Avatar,
+    d.Name_dataset,
+    (SELECT COUNT(*) FROM User_Click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
+    d.Voucher,
+    CASE
+        WHEN v.Data_format = 1 THEN 'CSV'
+        WHEN v.Data_format = 2 THEN 'Excel'
+        ELSE 'Unknown'
+    END AS Data_Format,
+    (SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS Version_Count
      FROM Dataset d
      LEFT JOIN Version v ON d.ID_Dataset = v.ID_Dataset
      GROUP BY d.ID_Dataset, d.Avatar, d.Name_dataset, d.Voucher, v.Data_format
@@ -37,16 +40,16 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
   const { rows: datasets } = await client.query(
     `SELECT d.name_dataset,
-            d.avatar,
-            COALESCE(MAX(ds.Description), MAX(db.Description), 'No description available') AS description,
-            STRING_AGG(DISTINCT e.Description, ', ')                                       AS expert_tags,
-            COUNT(v.ID_Dataset)                                                            AS version_count
+      d.avatar,
+      COALESCE(MAX(ds.Description), MAX(db.Description), 'No description available') AS description,
+      STRING_AGG(DISTINCT e.Description, ', ')                                       AS expert_tags,
+      COUNT(v.ID_Dataset)                                                            AS version_count
      FROM dataset d
-              LEFT JOIN Data_sending_request ds ON ds.ID_dataset = d.ID_dataset
-              LEFT JOIN Data_buying_request db ON db.ID_dataset = d.ID_dataset
-              LEFT JOIN Dataset_Expert de ON d.ID_dataset = de.ID_dataset
-              LEFT JOIN Expert e ON de.ID_expert = e.ID_expert
-              LEFT JOIN Version v ON d.ID_Dataset = v.ID_Dataset
+      LEFT JOIN Data_sending_request ds ON ds.ID_dataset = d.ID_dataset
+      LEFT JOIN Data_buying_request db ON db.ID_dataset = d.ID_dataset
+      LEFT JOIN Dataset_Expert de ON d.ID_dataset = de.ID_dataset
+      LEFT JOIN Expert e ON de.ID_expert = e.ID_expert
+      LEFT JOIN Version v ON d.ID_Dataset = v.ID_Dataset
      WHERE d.ID_dataset = $1
      GROUP BY d.name_dataset, d.avatar, d.id_dataset;
     `,
@@ -131,40 +134,122 @@ const getVersionDb = async (id_dataset, name_version) => {
 const versionBuyingTransactionDb = async (id_user, id_version) => {
   try {
     await client.query("BEGIN");
-    // Get the price of the specified version and user's current Kat balance
     const { rows: versionRows } = await client.query(
-      `SELECT Price
+      `SELECT Price, Stock_percent,
+              COALESCE((SELECT ID_user FROM Data_sending_request WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1) LIMIT 1),
+                       (SELECT ID_user FROM Data_buying_request WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1) LIMIT 1)) AS Requester_ID,
+              (SELECT Voucher FROM Dataset WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1)) AS Voucher
        FROM Version
        WHERE ID_version = $1`,
       [id_version]
     );
-    const price = versionRows[0]?.price;
+    let price = versionRows[0]?.price;
+    let stockPercent = versionRows[0]?.stock_percent;
+    let requesterId = versionRows[0]?.requester_id;
+    let voucher = versionRows[0]?.voucher;
 
+    if (price === undefined || stockPercent === undefined || requesterId === undefined) {
+      throw new Error("Version not found or necessary data not defined.");
+    }
+
+    price *= (1 - voucher / 100);
     const { rows: userRows } = await client.query(
       `SELECT Kat
        FROM Users
        WHERE ID_user = $1`,
       [id_user]
     );
-    const currentKat = userRows[0]?.kat;
+    let currentKat = userRows[0]?.kat;
 
-    // Check if the user has enough Kat
-    if (currentKat >= price) {
-      // Insert transaction and update user's Kat balance
-      await client.query(
+    if (currentKat === undefined) {
+      throw new Error("User not found.");
+    }
+
+     if (currentKat >= price) {
+      const { rows: transactionRows } = await client.query(
         `INSERT INTO Transaction (ID_user, ID_version)
-         VALUES ($1, $2)`,
+         VALUES ($1, $2) RETURNING ID_transaction`,
         [id_user, id_version]
       );
 
-      const remainingKat = currentKat - price;
+      const transactionId = transactionRows[0].id_transaction;
 
+      let remainingKat = currentKat - price;
       await client.query(
         `UPDATE Users
          SET Kat = $1
          WHERE ID_user = $2`,
         [remainingKat, id_user]
       );
+      // Markat get 20%
+      price *= 0.8;
+      // requester get 5%
+      let requesterReward = price * 0.05;
+      let distributableAmount = price - requesterReward;
+
+      await client.query(
+        `UPDATE Users
+         SET Kat = Kat + $1
+         WHERE ID_user = $2`,
+        [requesterReward, requesterId]
+      );
+
+      await client.query(
+        `INSERT INTO TransactionDetails (ID_transaction, ID_user, ID_version, amount_earned, role)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [transactionId, requesterId, id_version, requesterReward, 'requester']
+       );
+
+      const labeledData = await Dataset.aggregate([
+        { $match: { 'image.ID_version': id_version } },
+        { $unwind: '$image.labeled' },
+        { $group: {
+            _id: '$image.labeled.labeler',
+            labelCount: { $sum: 1 }
+          }
+        }
+      ]);
+
+      const totalLabels = labeledData.reduce((sum, user) => sum + user.labelCount, 0);
+
+      const sendData = await Dataset.aggregate([
+        { $match: { 'image.ID_version': id_version } },
+        { $group: {
+            _id: '$image.sender',
+            sendCount: { $sum: 1 }
+          }
+        }
+      ]);
+
+      const totalImagesSent = sendData.reduce((sum, sender) => sum + sender.sendCount, 0);
+      for (const user of labeledData) {
+        let rewardForLabeler = (distributableAmount * stockPercent) * (user.labelCount / totalLabels);
+        await client.query(
+          `UPDATE Users
+           SET Kat = Kat + $1
+           WHERE ID_user = $2`,
+          [rewardForLabeler, user._id]
+        );
+        await client.query(
+          `INSERT INTO TransactionDetails (ID_transaction, ID_user, ID_version, amount_earned, role)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [transactionId, user._id, id_version, rewardForLabeler, 'labeler']
+        );
+      }
+      for (const sender of sendData) {
+        let rewardForSender = (distributableAmount * (1 - stockPercent)) * (sender.sendCount / totalImagesSent);
+        await client.query(
+          `UPDATE Users
+           SET Kat = Kat + $1
+           WHERE ID_user = $2`,
+          [rewardForSender, sender._id]
+        );
+        await client.query(
+          `INSERT INTO TransactionDetails (ID_transaction, ID_user, ID_version, amount_earned, role)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [transactionId, sender._id, id_version, rewardForSender, 'sender']
+        );
+      }
 
       await client.query("COMMIT");
       return { success: true, remainingKat };
