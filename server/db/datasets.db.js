@@ -1,9 +1,7 @@
 const client = require("../config");
-const mongoose = require('mongoose');
 const Dataset = require('../models/dataset');
 const fs = require('fs').promises;
 const path = require('path');
-const { query } = require("express");
 
 const getAllDatasetsDb = async ({ limit, offset }) => {
   const datasets = await client.query(
@@ -26,14 +24,14 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
     [offset, limit]
   );
 
-  const datasetsWithAvatar = await Promise.all(datasets.rows.map(async (dataset) => {
-    if (dataset.avatar) {
-      const imagePath = path.join(__dirname, '..','Package/Datasets/Avatar', dataset.avatar);
-      const imageBuffer = await fs.readFile(imagePath);
-      dataset.avatar = imageBuffer.toString('base64');
-    }
-    return dataset;
-  }));
+const datasetsWithAvatar = await Promise.all(datasets.rows.map(async (dataset) => {
+  if (dataset.avatar) {
+    const imagePath = path.join(__dirname, '..','Package/Datasets/Avatar', dataset.avatar);
+    const imageBuffer = await fs.readFile(imagePath);
+    dataset.avatar = imageBuffer.toString('base64');
+  }
+  return dataset;
+}));
 
   return { items: datasetsWithAvatar };
 };
@@ -131,6 +129,9 @@ const getVersionDb = async (id_dataset, name_version) => {
   return version;
 };
 
+const roundDownToTwoDecimals = (value) => {
+  return Math.floor(value * 100) / 100;
+};
 const versionBuyingTransactionDb = async (id_user, id_version) => {
   try {
     await client.query("BEGIN");
@@ -144,14 +145,14 @@ const versionBuyingTransactionDb = async (id_user, id_version) => {
       [id_version]
     );
     let price = versionRows[0]?.price;
-    let stockPercent = versionRows[0]?.stock_percent;
+    let stockPercent = versionRows[0]?.stock_percent / 100;
     let requesterId = versionRows[0]?.requester_id;
     let voucher = versionRows[0]?.voucher;
 
     if (price === undefined || stockPercent === undefined || requesterId === undefined) {
       throw new Error("Version not found or necessary data not defined.");
     }
-
+    // voucher
     price *= (1 - voucher / 100);
     const { rows: userRows } = await client.query(
       `SELECT Kat
@@ -167,7 +168,7 @@ const versionBuyingTransactionDb = async (id_user, id_version) => {
 
      if (currentKat >= price) {
       const { rows: transactionRows } = await client.query(
-        `INSERT INTO Transaction (ID_user, ID_version)
+        `INSERT INTO Transaction (ID_buyer, ID_version)
          VALUES ($1, $2) RETURNING ID_transaction`,
         [id_user, id_version]
       );
@@ -182,10 +183,10 @@ const versionBuyingTransactionDb = async (id_user, id_version) => {
         [remainingKat, id_user]
       );
       // Markat get 20%
-      price *= 0.8;
+      price *= 0.8
       // requester get 5%
-      let requesterReward = price * 0.05;
-      let distributableAmount = price - requesterReward;
+      let requesterReward = price * 0.05
+      let distributableAmount = price - requesterReward
 
       await client.query(
         `UPDATE Users
@@ -222,22 +223,22 @@ const versionBuyingTransactionDb = async (id_user, id_version) => {
       ]);
 
       const totalImagesSent = sendData.reduce((sum, sender) => sum + sender.sendCount, 0);
-      for (const user of labeledData) {
-        let rewardForLabeler = (distributableAmount * stockPercent) * (user.labelCount / totalLabels);
-        await client.query(
+       for (const labeler of labeledData) {
+        let rewardForLabeler = roundDownToTwoDecimals((distributableAmount * stockPercent) * (labeler.labelCount / totalLabels));
+         await client.query(
           `UPDATE Users
            SET Kat = Kat + $1
            WHERE ID_user = $2`,
-          [rewardForLabeler, user._id]
+          [rewardForLabeler, labeler._id]
         );
         await client.query(
           `INSERT INTO TransactionDetails (ID_transaction, ID_user, ID_version, amount_earned, role)
            VALUES ($1, $2, $3, $4, $5)`,
-          [transactionId, user._id, id_version, rewardForLabeler, 'labeler']
+          [transactionId, labeler._id, id_version, rewardForLabeler, 'labeler']
         );
       }
-      for (const sender of sendData) {
-        let rewardForSender = (distributableAmount * (1 - stockPercent)) * (sender.sendCount / totalImagesSent);
+       for (const sender of sendData) {
+        let rewardForSender = roundDownToTwoDecimals((distributableAmount * (1 - stockPercent)) * (sender.sendCount / totalImagesSent));
         await client.query(
           `UPDATE Users
            SET Kat = Kat + $1

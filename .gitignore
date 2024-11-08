@@ -7,3 +7,4 @@ client/.eslintcache
 .netlify
 dist
 client/public/sitemap.xml
+server/config/import.js

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const database = require("./index.js");
+const { log } = require('console');
 database.connectMongoDb();
 
 const ImageSchema = new mongoose.Schema({
@@ -27,10 +28,21 @@ const DatasetSchema = new mongoose.Schema({
     required: false,
   }
 }, { collection: 'Dataset' });
+// id_version = 1
+// const labels = ["daisy", "dandelion", "roses", "sunflowers", "tulips"];
+// const senders = ["1","19"];
+// const labelers = ["2", "14", "26"];
 
-const labels = ["curly", "dreadlocks", "kinky", "straight", "wavy"];
-const senders = ["13"];
-const labelers = ["1","17"];
+// id_version = 2
+// const labels = ["curly", "dreadlocks", "kinky", "straight", "wavy"];
+// const senders = ["13"];
+// const labelers = ["1", "17"];
+
+// id_version = 11
+const labels = ["daisy", "dandelion", "roses", "sunflowers", "tulips"];
+const senders = ["1"];
+const labelers = ["1"];
+
 const getRandomSender = () => senders[Math.floor(Math.random() * senders.length)];
 const getRandomLabeler = () => labelers[Math.floor(Math.random() * labelers.length)];
 const getRandomLabel = () => labels[Math.floor(Math.random() * labels.length)];
@@ -41,16 +53,30 @@ const getRandomValueBetween = (min, max) => {
 
 // select id_user from user_version_participation where id_version = 1 and participation_type = 'Labeling';
 // select id_user from user_version_participation where id_version = 1 and participation_type = 'Sending';
-const Dataset = mongoose.model('Dataset', DatasetSchema);
 
+const Dataset = mongoose.model('Dataset', DatasetSchema);
 const getRandomLabeledForUsers = (number) => {
   const labelCount = Math.floor(Math.random() * number) + 1;
-  return Array.from({ length: labelCount }, () => ({
-    labeler: getRandomLabeler(),
+  const uniqueLabelers = new Set();
+
+  while (uniqueLabelers.size < labelCount) {
+    if (uniqueLabelers.size === labelers.length) break;
+    uniqueLabelers.add(getRandomLabeler());
+  }
+
+  return Array.from(uniqueLabelers).map(labeler => ({
+    labeler: labeler,
     label: getRandomLabel(),
-    labeling_time : getRandomTimeBetween('2024-12-20 12:00:00','2024-12-26 16:39:59'),
+    // id_version = 1
+    // labeling_time: getRandomTimeBetween('2024-06-15 10:30:00', '2024-07-11 21:37:19'),
+    // id_version =2
+    // labeling_time: getRandomTimeBetween('2024-12-20 12:00:00', '2024-12-26 16:39:59'),
+    // id_version = 11
+    labeling_time: getRandomTimeBetween('2025-12-05 10:00:00', '2025-12-07 17:18:42'),
   }));
 };
+
+
 
 const getRandomTimeBetween = (start, end) => {
   const startDate = new Date(start).getTime();
@@ -61,7 +87,7 @@ const getRandomTimeBetween = (start, end) => {
 
 const uploadImagesToMongo = async () => {
   try {
-    for (let index = 2; index <= 2; index++) {
+    for (let index = 1; index <= 1; index++) {
       const imageDirectory = path.join(__dirname, '..', 'package/Datasets/Collections', index.toString());
       const files = fs.readdirSync(imageDirectory);
       for (const [fileIndex, fileName] of files.entries()) {
@@ -70,14 +96,19 @@ const uploadImagesToMongo = async () => {
         const base64Image = `data:image/jpeg;base64,${fileBuffer.toString('base64')}`;
 
         const newDataset = new Dataset({
-          ID_dataset: '2',
+          ID_dataset: '1',
           labels: labels,
           image: {
-            ID_version: '2',
+            ID_version: '11',
             ID_part: getRandomValueBetween(21,30),
             base64Image: base64Image,
             sender: getRandomSender(),
-            sent_time : getRandomTimeBetween('2024-03-01 09:30:00','2024-05-12 12:20:30'),
+            // id_version = 1
+            // sent_time: getRandomTimeBetween('2024-01-03 12:00:00', '2024-01-05 01:04:11'),
+            // id_version = 2
+            // sent_time : getRandomTimeBetween('2024-03-01 09:30:00','2024-05-12 12:20:30'),
+            // id_version = 11
+            sent_time : getRandomTimeBetween('2025-12-03 10:00:00','2025-12-04 07:27:30'),
             labeled: getRandomLabeledForUsers(5)
           }
         });
@@ -146,7 +177,11 @@ const countRecordsWithIDPart = async () => {
     console.error('Error querying the database:', error);
   }
 };
-
+const roundDownToTwoDecimals = (value) => {
+  console.log(value);
+  console.log(Math.floor(value * 100) / 100);
+  return Math.floor(value * 100) / 100;
+};
 // Gọi hàm uploadImagesToMongo
 // uploadImagesToMongo();
 // Gọi hàm để đếm tổng số datasets
@@ -157,4 +192,5 @@ const countRecordsWithIDPart = async () => {
 // addLabelToImage("data_1", { labeler: "user_03", label: "2" });
 //sinh ngẫu nhiên ngày
 // random();
-countRecordsWithIDPart();
+// countRecordsWithIDPart();
+// roundDownToTwoDecimals(15/36);

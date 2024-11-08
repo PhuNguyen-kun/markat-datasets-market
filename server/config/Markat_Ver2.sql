@@ -18,7 +18,7 @@ CREATE TABLE Users (
     Phone_number VARCHAR(15),
     Email VARCHAR(255) UNIQUE,
     Birth_date DATE,
-    Join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
     Current_location VARCHAR(255),
     Current_company VARCHAR(255),
     Primary_language VARCHAR(255),
@@ -40,7 +40,7 @@ CREATE TABLE Dataset (
 
 CREATE TABLE User_click (
     ID_user_click SERIAL PRIMARY KEY,
-    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
 	ID_user INT REFERENCES Users(ID_user),
     ID_dataset INT REFERENCES Dataset(ID_dataset)
 );
@@ -89,7 +89,7 @@ CREATE TABLE Data_sending_request (
     ID_data_sending_request SERIAL PRIMARY KEY,
     ID_user INT REFERENCES Users(ID_user),
     Data_type INT,
-    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
     ID_dataset INT REFERENCES Dataset(ID_dataset),
     Description TEXT
 );
@@ -99,7 +99,7 @@ CREATE TABLE Data_buying_request (
     ID_user INT REFERENCES Users(ID_user),
     Public_data BOOLEAN,
     Description TEXT,
-    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
     Deposit  NUMERIC(10, 2),
 	Price NUMERIC(10, 2),
 	Due_Date TIMESTAMP,
@@ -113,7 +113,7 @@ CREATE TABLE Censorship_DBR (
     ID_data_buying_request INT REFERENCES Data_buying_request(ID_data_buying_request),
     Confirm BOOLEAN,
     Reason TEXT,
-    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
 
 
@@ -123,7 +123,7 @@ CREATE TABLE Censorship_DSR (
 	ID_data_sending_request INT REFERENCES Data_sending_request(ID_data_sending_request),
     Confirm BOOlEAN,
 	Reason TEXT,
-	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
 
 CREATE TABLE Censorship_complete_version(
@@ -132,7 +132,7 @@ CREATE TABLE Censorship_complete_version(
 	ID_version INT REFERENCES Version(ID_version),
     Confirm BOOlEAN,
 	Reason TEXT,
-	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
 
 
@@ -148,7 +148,7 @@ CREATE TABLE Authen (
 	ID_expert_register INT REFERENCES Expert_Register(ID_expert_register),
     Confirm BOOlEAN,
 	Reason TEXT,
-	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
 
 CREATE TABLE Expert (
@@ -168,14 +168,14 @@ CREATE TABLE Dataset_Expert (
 
 CREATE TABLE Report (
     ID_report SERIAL PRIMARY KEY,
-    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
 	Content TEXT,
 	ID_user INT REFERENCES Users(ID_user)
 );
 
 CREATE TABLE Valuation (
     ID_valuation SERIAL PRIMARY KEY,
-    Time_valuation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Time_valuation TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
     ID_user INT REFERENCES Users(ID_user),
     ID_version INT REFERENCES Version(ID_version),
     Price NUMERIC(10, 2)
@@ -183,8 +183,8 @@ CREATE TABLE Valuation (
 
 CREATE TABLE Transaction (
     ID_transaction SERIAL PRIMARY KEY,
-    Time_transaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ID_user INT REFERENCES Users(ID_user),
+    Time_transaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
+    ID_buyer INT REFERENCES Users(ID_user),
     ID_version INT REFERENCES Version(ID_version)
 );
 
@@ -195,7 +195,7 @@ CREATE TABLE TransactionDetails (
     ID_version INT REFERENCES Version(ID_version),
     Amount_earned DECIMAL(10, 2) NOT NULL,
     Role VARCHAR(50) CHECK (Role IN ('requester','labeler', 'sender')),
-    Transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
 
 
