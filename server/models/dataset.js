@@ -17,14 +17,14 @@ const ImageSchema = new mongoose.Schema({
   ]
 }, { _id: false });
 
-const DatasetSchema = new mongoose.Schema({
+const DataSchema = new mongoose.Schema({
   ID_dataset: String,
   labels: [String],
   image: {
     type: ImageSchema,
     required: false,
   }
-}, { collection: 'Dataset' });
+}, { collection: 'Data' });
 
-const Dataset = mongoose.model('Dataset', DatasetSchema);
-module.exports = Dataset;
+const Data = mongoose.model('Data', DataSchema);
+module.exports = Data;

@@ -1,5 +1,5 @@
 const client = require("../config");
-const Dataset = require('../models/dataset');
+const Data = require('../models/dataset');
 const fs = require('fs').promises;
 const path = require('path');
 const getAllYourWorkVersionsByUserIdDb = async (id_user) => {
@@ -31,7 +31,7 @@ const getAllYourWorkVersionsByUserIdDb = async (id_user) => {
     );
 
     for (let version of versions) {
-      const recentActivity = await Dataset.aggregate([
+      const recentActivity = await Data.aggregate([
         {
           $match: {
             'image.ID_version': version.id_version.toString(),
@@ -88,6 +88,73 @@ const getAllYourWorkVersionsByUserIdDb = async (id_user) => {
     throw error;
   }
 };
+
+const getYourWorkDetailDb = async (id_user, id_version) => {
+  try {
+    const versionStats = await Data.aggregate([
+      {
+        $match: {
+          'image.ID_version': id_version.toString()
+        }
+      },
+      {
+        $group: {
+          _id: '$image.ID_version',
+          senders: { $addToSet: '$image.sender' },
+          labelers: {
+            $addToSet: {
+              $reduce: {
+                input: '$image.labeled.labeler',
+                initialValue: [],
+                in: { $setUnion: ['$$value', ['$$this']] }
+              }
+            }
+          },
+          totalImageSizeMB: {
+            $sum: {
+              $divide: [{ $multiply: [{ $strLenBytes: '$image.base64Image' }, 3 / 4] }, (1024 * 1024)]
+            }
+          },
+          userLabeledCount: {
+            $sum: {
+              $size: {
+                $filter: {
+                  input: '$image.labeled',
+                  as: 'label',
+                  cond: { $eq: ['$$label.labeler', id_user.toString()] }
+                }
+              }
+            }
+          },
+          userSentCount: {
+            $sum: {
+              $cond: { if: { $eq: ['$image.sender', id_user.toString()] }, then: 1, else: 0 }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          // senders: 1,
+          // labelers: { $reduce: { input: '$labelers', initialValue: [], in: { $setUnion: ['$$value', '$$this'] } } },
+          totalImageSizeMB: 1,
+          userLabeledCount: 1,
+          userSentCount: 1,
+          totalSenders: { $size: '$senders' },
+          totalLabelers: { $size: { $reduce: { input: '$labelers', initialValue: [], in: { $setUnion: ['$$value', '$$this'] } } } }
+        }
+      }
+    ]);
+
+    return { items: versionStats };
+  } catch (error) {
+    console.error('Error retrieving version statistics from MongoDB:', error);
+    throw error;
+  }
+};
+
+
+
 
 const getAllCollectionsByUserIdDb = async (id_user) => {
   try {
@@ -167,7 +234,6 @@ const getAllCollectionsByUserIdDb = async (id_user) => {
 
 const getCollectionDetailDb = async (id_user, id_dataset) => {
   try {
-    // Query to get transaction details and version information for the specified user and dataset
     const { rows: versionDetails } = await client.query(
       `WITH VersionOrder AS (
          SELECT
@@ -195,8 +261,6 @@ const getCollectionDetailDb = async (id_user, id_dataset) => {
          vo.version_number ASC, td.transaction_date ASC`,
       [id_user, id_dataset]
     );
-
-    // Return the formatted version details with each individual transaction
     return { items: versionDetails };
   } catch (error) {
     console.error('Error retrieving collection details:', error);
@@ -206,6 +270,7 @@ const getCollectionDetailDb = async (id_user, id_dataset) => {
 
 module.exports = {
   getAllYourWorkVersionsByUserIdDb,
+  getYourWorkDetailDb,
   getAllCollectionsByUserIdDb,
   getCollectionDetailDb,
 };

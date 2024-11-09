@@ -94,26 +94,30 @@ const uploadImagesToMongo = async () => {
         const filePath = path.join(imageDirectory, fileName);
         const fileBuffer = fs.readFileSync(filePath);
         const base64Image = `data:image/jpeg;base64,${fileBuffer.toString('base64')}`;
+        const sizeInBytes = (base64Image.length * (3 / 4)) - ((base64Image.endsWith('==') ? 2 : base64Image.endsWith('=') ? 1 : 0));
+        // Convert bytes to megabytes (KB)
+        const sizeInMB = sizeInBytes / (1024);
+        console.log(sizeInMB);
 
-        const newDataset = new Dataset({
-          ID_dataset: '1',
-          labels: labels,
-          image: {
-            ID_version: '11',
-            ID_part: getRandomValueBetween(21,30),
-            base64Image: base64Image,
-            sender: getRandomSender(),
-            // id_version = 1
-            // sent_time: getRandomTimeBetween('2024-01-03 12:00:00', '2024-01-05 01:04:11'),
-            // id_version = 2
-            // sent_time : getRandomTimeBetween('2024-03-01 09:30:00','2024-05-12 12:20:30'),
-            // id_version = 11
-            sent_time : getRandomTimeBetween('2025-12-03 10:00:00','2025-12-04 07:27:30'),
-            labeled: getRandomLabeledForUsers(5)
-          }
-        });
+        // const newDataset = new Dataset({
+        //   ID_dataset: '1',
+        //   labels: labels,
+        //   image: {
+        //     ID_version: '11',
+        //     ID_part: getRandomValueBetween(21,30),
+        //     base64Image: base64Image,
+        //     sender: getRandomSender(),
+        //     // id_version = 1
+        //     // sent_time: getRandomTimeBetween('2024-01-03 12:00:00', '2024-01-05 01:04:11'),
+        //     // id_version = 2
+        //     // sent_time : getRandomTimeBetween('2024-03-01 09:30:00','2024-05-12 12:20:30'),
+        //     // id_version = 11
+        //     sent_time : getRandomTimeBetween('2025-12-03 10:00:00','2025-12-04 07:27:30'),
+        //     labeled: getRandomLabeledForUsers(5)
+        //   }
+        // });
 
-        await newDataset.save();
+        //await newDataset.save();
         console.log(`Document for ${fileName} saved successfully!`);
       }
     }
@@ -183,7 +187,7 @@ const roundDownToTwoDecimals = (value) => {
   return Math.floor(value * 100) / 100;
 };
 // Gọi hàm uploadImagesToMongo
-// uploadImagesToMongo();
+uploadImagesToMongo();
 // Gọi hàm để đếm tổng số datasets
 //countDatasets();
 // Gọi hàm in tất cả datasets

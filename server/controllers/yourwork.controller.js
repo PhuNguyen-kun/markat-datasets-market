@@ -19,6 +19,27 @@ const getAllYourWorkVersionsByUserId = async (req, res) => {
   }
 };
 
+const getYourWorkDetail = async (req, res) => {
+  try {
+    const { id_user, id_dataset } = req.query;
+
+    if (!id_user || !id_dataset) {
+      return res.status(400).json({ message: "User ID or Dataset ID is required" });
+    }
+    const yourworkdetail = await YourWorkService.getYourWorkDetail(
+      id_user,
+      id_dataset,
+    );
+    if (!yourworkdetail) {
+      return res.status(404).json({ message: "Your work detail not found" });
+    }
+    return res.status(200).json(yourworkdetail);
+  } catch (error) {
+    console.error("Error fetching your work detail:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 const getAllCollectionsByUserId = async (req, res) => {
   try {
     const { id_user } = req.query;
@@ -44,7 +65,7 @@ const getCollection = async (req, res) => {
     const { id_user, id_dataset } = req.query;
 
     if (!id_user || !id_dataset) {
-      return res.status(400).json({ message: "User ID is required" });
+      return res.status(400).json({ message: "User ID or Dataset ID is required" });
     }
     const collectiondetail = await YourWorkService.getCollectionDetail(
       id_user,
@@ -61,6 +82,7 @@ const getCollection = async (req, res) => {
 };
 module.exports = {
   getAllYourWorkVersionsByUserId,
+  getYourWorkDetail,
   getAllCollectionsByUserId,
   getCollection,
 };
