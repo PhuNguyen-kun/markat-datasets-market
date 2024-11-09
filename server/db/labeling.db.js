@@ -68,6 +68,43 @@ const getDatasDb = async (id_user, id_part) => {
         $project: {
           base64Image: '$image.base64Image',
           labels: '$labels',
+          label: {
+            $cond: {
+              if: {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: '$image.labeled',
+                        as: 'label',
+                        cond: { $eq: ['$$label.labeler', id_user.toString()] }
+                      }
+                    }
+                  },
+                  0
+                ]
+              },
+              then: {
+                $arrayElemAt: [
+                  {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: '$image.labeled',
+                          as: 'label',
+                          cond: { $eq: ['$$label.labeler', id_user.toString()] }
+                        }
+                      },
+                      as: 'userLabel',
+                      in: '$$userLabel.label' // Get the specific label assigned by the user
+                    }
+                  },
+                  -1
+                ]
+              },
+              else: null // Return null if no labels have been assigned by the user
+            }
+          },
           labelingTime: {
             $cond: {
               if: {
@@ -122,6 +159,7 @@ const getDatasDb = async (id_user, id_part) => {
         $project: {
           base64Image: 1,
           labels: 1,
+          label: 1, // Include the label field in the final output
           labelingTime: 1 // Exclude isNullLabelingTime from the final output
         }
       }
@@ -133,9 +171,6 @@ const getDatasDb = async (id_user, id_part) => {
     throw error;
   }
 };
-
-
-
 
 module.exports = {
     getVersionPartsDetailDb,
