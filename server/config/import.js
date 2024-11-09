@@ -20,14 +20,14 @@ const ImageSchema = new mongoose.Schema({
   ]
 }, { _id: false });
 
-const DatasetSchema = new mongoose.Schema({
+const DataSchema = new mongoose.Schema({
   ID_dataset: String,
   labels: [String],
   image: {
     type: ImageSchema,
     required: false,
   }
-}, { collection: 'Dataset' });
+}, { collection: 'Data' });
 // id_version = 1
 // const labels = ["daisy", "dandelion", "roses", "sunflowers", "tulips"];
 // const senders = ["1","19"];
@@ -54,7 +54,7 @@ const getRandomValueBetween = (min, max) => {
 // select id_user from user_version_participation where id_version = 1 and participation_type = 'Labeling';
 // select id_user from user_version_participation where id_version = 1 and participation_type = 'Sending';
 
-const Dataset = mongoose.model('Dataset', DatasetSchema);
+const Data = mongoose.model('Data', DataSchema);
 const getRandomLabeledForUsers = (number) => {
   const labelCount = Math.floor(Math.random() * number) + 1;
   const uniqueLabelers = new Set();
@@ -130,7 +130,7 @@ const uploadImagesToMongo = async () => {
 
 const printAllDatasets = async () => {
   try {
-    const datasets = await Dataset.find();
+    const datasets = await Data.find();
     console.log("All datasets in MongoDB:");
     console.log(datasets);
   } catch (error) {
@@ -142,7 +142,7 @@ const printAllDatasets = async () => {
 
 const countDatasets = async () => {
   try {
-    const count = await Dataset.countDocuments();
+    const count = await Data.countDocuments();
     console.log("Total number of datasets:", count);
   } catch (error) {
     console.error("Error counting datasets:", error);
@@ -152,7 +152,7 @@ const countDatasets = async () => {
 };
 
 const addLabelToImage = async (datasetId, newLabel) => {
-  await Dataset.updateOne(
+  await Data.updateOne(
     { ID_dataset: datasetId },
     { $push: { "image.labeled": newLabel } }
   );
@@ -170,9 +170,9 @@ const countRecordsWithIDPart = async () => {
   try {
     // Thực hiện query đếm số bản ghi
    for (let index = 1; index <= 30; index++) {
-    const Number_of_record = await Dataset.countDocuments({ 'image.ID_part': `${index}` });
-    const ID_version = await Dataset.findOne({ "image.ID_part": `${index}` }, { "image.ID_version": 1, _id: 0 });
-    console.log('(', ID_version.image.ID_version, ',', Number_of_record, '),');
+    const Number_of_record = await Data.countDocuments({ 'image.ID_part': `${index}` });
+    const ID_version = await Data.findOne({ "image.ID_part": `${index}` }, { "image.ID_version": 1, _id: 0 });
+    console.log('(', ID_version.image.ID_version, ',' , index, ',', Number_of_record, '),');
   }
 
     // Đóng kết nối sau khi hoàn thành
@@ -187,7 +187,7 @@ const roundDownToTwoDecimals = (value) => {
   return Math.floor(value * 100) / 100;
 };
 // Gọi hàm uploadImagesToMongo
-uploadImagesToMongo();
+// uploadImagesToMongo();
 // Gọi hàm để đếm tổng số datasets
 //countDatasets();
 // Gọi hàm in tất cả datasets
@@ -196,5 +196,5 @@ uploadImagesToMongo();
 // addLabelToImage("data_1", { labeler: "user_03", label: "2" });
 //sinh ngẫu nhiên ngày
 // random();
-// countRecordsWithIDPart();
+countRecordsWithIDPart();
 // roundDownToTwoDecimals(15/36);

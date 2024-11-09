@@ -61,29 +61,68 @@ const getDatasDb = async (id_user, id_part) => {
     const labeledData = await Data.aggregate([
       {
         $match: {
-          'image.ID_part': id_part.toString(),
-          $or: [
-            { 'image.labeled.labeler': id_user.toString() }, // Data labeled by the user
-            { 'image.labeled': { $size: 0 } } // Data not yet labeled
-          ]
+          'image.ID_part': id_part.toString() // Filter by part ID
         }
       },
       {
         $project: {
           base64Image: '$image.base64Image',
           labels: '$labels',
-          latestLabelingTime: {
+          labelingTime: {
             $cond: {
-              if: { $gt: [{ $size: '$image.labeled' }, 0] },
-              then: { $arrayElemAt: ['$image.labeled.labeling_time', -1] }, // Get the latest labeling time
-              else: null
+              if: {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: '$image.labeled',
+                        as: 'label',
+                        cond: { $eq: ['$$label.labeler', id_user.toString()] }
+                      }
+                    }
+                  },
+                  0
+                ]
+              },
+              then: {
+                $arrayElemAt: [
+                  {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: '$image.labeled',
+                          as: 'label',
+                          cond: { $eq: ['$$label.labeler', id_user.toString()] }
+                        }
+                      },
+                      as: 'userLabel',
+                      in: '$$userLabel.labeling_time'
+                    }
+                  },
+                  -1
+                ]
+              },
+              else: null // Return null for unlabeled images
             }
           }
         }
       },
       {
+        $addFields: {
+          isNullLabelingTime: { $cond: { if: { $eq: ['$labelingTime', null] }, then: 1, else: 0 } } // Add field to indicate null labelingTime
+        }
+      },
+      {
         $sort: {
-          latestLabelingTime: 1 // Sort by labeling time in ascending order; nulls will be sorted last (for not yet labeled)
+          isNullLabelingTime: 1, // Sort by whether labelingTime is null (non-null first)
+          labelingTime: 1 // Sort by labeling time in ascending order
+        }
+      },
+      {
+        $project: {
+          base64Image: 1,
+          labels: 1,
+          labelingTime: 1 // Exclude isNullLabelingTime from the final output
         }
       }
     ]);
@@ -94,6 +133,9 @@ const getDatasDb = async (id_user, id_part) => {
     throw error;
   }
 };
+
+
+
 
 module.exports = {
     getVersionPartsDetailDb,
