@@ -1,4 +1,5 @@
 const client = require("../config");
+const mongoose = require('mongoose');
 const Data = require('../models/dataset');
 const getVersionPartsDetailDb = async (id_user, id_version) => {
   try {
@@ -96,13 +97,13 @@ const getDatasDb = async (id_user, id_part) => {
                         }
                       },
                       as: 'userLabel',
-                      in: '$$userLabel.label' // Get the specific label assigned by the user
+                      in: '$$userLabel.label'
                     }
                   },
                   -1
                 ]
               },
-              else: null // Return null if no labels have been assigned by the user
+              else: null
             }
           },
           labelingTime: {
@@ -139,28 +140,28 @@ const getDatasDb = async (id_user, id_part) => {
                   -1
                 ]
               },
-              else: null // Return null for unlabeled images
+              else: null
             }
           }
         }
       },
       {
         $addFields: {
-          isNullLabelingTime: { $cond: { if: { $eq: ['$labelingTime', null] }, then: 1, else: 0 } } // Add field to indicate null labelingTime
+          isNullLabelingTime: { $cond: { if: { $eq: ['$labelingTime', null] }, then: 1, else: 0 } }
         }
       },
       {
         $sort: {
-          isNullLabelingTime: 1, // Sort by whether labelingTime is null (non-null first)
-          labelingTime: 1 // Sort by labeling time in ascending order
+          isNullLabelingTime: 1,
+          labelingTime: 1
         }
       },
       {
         $project: {
           base64Image: 1,
           labels: 1,
-          label: 1, // Include the label field in the final output
-          labelingTime: 1 // Exclude isNullLabelingTime from the final output
+          label: 1,
+          labelingTime: 1
         }
       }
     ]);
@@ -172,7 +173,38 @@ const getDatasDb = async (id_user, id_part) => {
   }
 };
 
+const getRandomTimeBetween = (start, end) => {
+  const startDate = new Date(start).getTime();
+  const endDate = new Date(end).getTime();
+  const randomTime = new Date(startDate + Math.random() * (endDate - startDate));
+  return randomTime.toISOString().replace('T', ' ').substring(0, 19);
+};
+
+async function labelDataDb(id_data, id_labeler, label) {
+  try {
+    const objectId = mongoose.Types.ObjectId(id_data);
+    const data = await Data.findOne({ _id: objectId });
+
+    if (data && data.image) {
+      data.image.labeled.push({
+        labeler : id_labeler,
+        label : label,
+        labeling_time: getRandomTimeBetween('2024-07-10 01:56:57', '2024-07-11 21:37:19'),
+        // labeling_time: new Date().toISOString(), // Lấy thời gian hiện tại
+      });
+      //console.log(data);
+
+      await data.save();
+      return { message: 'Label added successfully' };
+    }
+  } catch (error) {
+    console.error('Error', error);
+    throw error;
+  }
+}
+
 module.exports = {
-    getVersionPartsDetailDb,
-    getDatasDb,
+  getVersionPartsDetailDb,
+  getDatasDb,
+  labelDataDb
 }

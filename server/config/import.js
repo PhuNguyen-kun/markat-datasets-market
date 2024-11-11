@@ -76,8 +76,6 @@ const getRandomLabeledForUsers = (number) => {
   }));
 };
 
-
-
 const getRandomTimeBetween = (start, end) => {
   const startDate = new Date(start).getTime();
   const endDate = new Date(end).getTime();
