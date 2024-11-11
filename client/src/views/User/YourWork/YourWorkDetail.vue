@@ -2,8 +2,18 @@
   <div class="your-work-detail__container">
     <div class="heading">
       <div class="heading--title">
-        <img src="/avatar1.png" alt="" class="heading--img" />
-        <h1 class="small-title">Demographic Data Analysis</h1>
+        <router-link to="/your-work" class="page-link">
+          <button class="btn btn--rounded" style="margin-bottom: 30px">
+            <el-icon size="20">
+              <Back />
+            </el-icon>
+            <span>Back</span>
+          </button>
+        </router-link>
+
+        <!--        <img src="/avatar1.png" alt="" class="heading&#45;&#45;img" />-->
+        <h1 class="small-title">{{ datasetName }}</h1>
+        <h2 class="small-sub-title">Version {{ versionNumber }}</h2>
       </div>
       <!-- Clock -->
       <p id="demo" class="count-down">
@@ -47,9 +57,9 @@
         <img src="/your-work-sending.png" alt="Card image" class="card-image" />
         <div class="card-content" style="background-color: #e3e3e3">
           <h2 class="card-title">Sending</h2>
-          <p class="card-info">Compelete ✅</p>
-          <p class="card-info">Number of participants: 35</p>
-          <p class="card-info">Uploaded: 350 MB</p>
+          <p class="card-info">User sent count: {{ userSentCount }}</p>
+          <p class="card-info">Number of participants: {{ totalSenders }}</p>
+          <p class="card-info">Uploaded: {{ totalImageSizeMB }} MB</p>
           <p class="card-footer">
             <button class="btn btn--rounded">Upload more images</button>
           </p>
@@ -75,8 +85,8 @@
                 striped-flow
               />
             </p>
-            <p class="card-info">Number of participants: 35</p>
-            <p class="card-info">Labeled: 123/234</p>
+            <p class="card-info">Number of participants: {{ totalLabelers }}</p>
+            <p class="card-info">Labeled: {{ userLabeledCount }}</p>
             <p class="card-footer">
               <button class="btn btn--rounded">Continue</button>
             </p>
@@ -127,9 +137,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import { Calendar } from '@element-plus/icons-vue'
+import { fetchYourWorkData, fetchYourWorkDetailData } from '@/services/yourWork'
+import { useRoute } from 'vue-router'
+import { jwtDecode } from 'jwt-decode'
+import { notifyError } from '@/services/notification'
+
+const route = useRoute()
+const id_user = Number(route.query.id_user)
+const id_dataset = Number(route.query.id_dataset)
+const id_version = Number(route.query.id_version)
+const datasetName = ref('')
+const versionNumber = ref('')
+const totalSenders = ref(0)
+const userSentCount = ref(0)
+const totalImageSizeMB = ref(0)
+const totalLabelers = ref(0)
+const userLabeledCount = ref(0)
 
 const value = ref(Date.now() + 1000 * 60 * 60 * 7)
 const value1 = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
@@ -138,6 +164,58 @@ const value2 = ref(dayjs().add(1, 'month').startOf('month'))
 function reset() {
   value1.value = Date.now() + 1000 * 60 * 60 * 24 * 2
 }
+
+const loadYourWorkData = async () => {
+  try {
+    const data = await fetchYourWorkData(id_user)
+    console.log(data.items)
+
+    const selectedWork = data.items.find((item: any) => {
+      return (
+        item.id_dataset === id_dataset &&
+        (!id_version || item.id_version === id_version)
+      )
+    })
+
+    if (selectedWork) {
+      datasetName.value = selectedWork.dataset_name
+      versionNumber.value = selectedWork.version_number
+    } else {
+      console.error(
+        'No matching work found for the provided dataset and version IDs',
+      )
+    }
+  } catch (error) {
+    console.error('Failed to load your work data:', error)
+  }
+}
+
+const loadYourWorkDetailData = async () => {
+  try {
+    const data = await fetchYourWorkDetailData(id_user, id_dataset)
+    console.log(data)
+
+    if (data.items && data.items.length > 0) {
+      const item = data.items[0]
+      totalSenders.value = item.totalSenders
+      userSentCount.value = item.userSentCount
+      totalImageSizeMB.value = parseFloat(item.totalImageSizeMB.toFixed(2))
+      totalLabelers.value = item.totalLabelers
+      userLabeledCount.value = item.userLabeledCount
+
+      console.log(totalSenders.value)
+    } else {
+      console.error('No items found in the response')
+    }
+  } catch (error) {
+    console.error('Failed to load your work detail data:', error)
+  }
+}
+
+onMounted(() => {
+  loadYourWorkData()
+  loadYourWorkDetailData()
+})
 </script>
 
 <style scoped lang="scss">
@@ -263,6 +341,13 @@ function reset() {
 .small-title {
   font-size: 20px;
   font-weight: 600;
+  margin-left: 20px;
+}
+
+.small-sub-title {
+  font-size: 16px;
+  font-weight: 400;
+  margin-left: 20px;
 }
 
 .count-down {

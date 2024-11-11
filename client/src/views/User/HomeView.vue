@@ -9,7 +9,12 @@
         </span>
       </h1>
       <div style="min-height: 100px">
-        <p class="homepage__desc" ref="typedElement"></p>
+        <p class="homepage__desc" ref="">
+          The easy and straightforward way to find, compare, and access data
+          products from over 500 top data providers around the world, allowing
+          you to make quick, accurate, and well-informed decisions, and helping
+          you manage your data needs effectively and efficiently
+        </p>
       </div>
       <div
         ref="lottieContainer1"
@@ -81,11 +86,11 @@ onMounted(() => {
 <style scoped lang="scss">
 .homepage {
   &__container {
+    margin-top: 80px;
     padding: 20px;
     display: flex;
     //height: 60vh;
     //align-items: center;
-    margin-bottom: 40px;
   }
 
   &__right {
@@ -94,8 +99,8 @@ onMounted(() => {
     align-items: center;
 
     .lottie-container1 {
-      width: 550px;
-      margin-top: 5px;
+      //width: 550px;
+      margin-top: 25px;
     }
   }
 
@@ -103,7 +108,7 @@ onMounted(() => {
     flex: 1;
 
     .lottie-container {
-      height: 500px;
+      height: 580px;
       margin-left: 50px;
     }
   }
@@ -111,7 +116,7 @@ onMounted(() => {
   &__title {
     font-size: 45px;
     font-weight: 700;
-    margin-bottom: 30px;
+    margin-bottom: 50px;
     color: var(--markat-theme-dark);
   }
 

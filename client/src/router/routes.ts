@@ -50,16 +50,25 @@ const routes: RouteRecordRaw[] = [
         path: '/your-work',
         name: 'your-work',
         component: () => import('../views/User/YourWork/YourWork.vue'),
+        meta: {
+          requiresAuth: true,
+        },
       },
       {
         path: '/your-work-detail',
         name: 'your-work-detail',
         component: () => import('../views/User/YourWork/YourWorkDetail.vue'),
+        meta: {
+          requiresAuth: true,
+        },
       },
       {
         path: '/labeling',
         name: 'labeling',
         component: () => import('../views/User/Labeling/Labeling.vue'),
+        meta: {
+          requiresAuth: true,
+        },
       },
       {
         path: '/datasets/:id',

@@ -17,31 +17,38 @@
             fixed
             prop="dataset_name"
             label="Dataset name"
-            width="350"
+            width="270"
           />
           <el-table-column prop="id_dataset" label="ID" width="120" />
           <!--    <el-table-column prop="id_version" label="Version ID" width="120" />-->
-          <el-table-column
-            prop="participation_type"
-            label="Participation"
-            width="230"
-          />
+          <el-table-column prop="version_number" label="Version" width="150" />
           <el-table-column
             prop="create_date"
             label="Created date"
-            width="310"
+            width="280"
           />
-          <!--    <el-table-column-->
-          <!--      prop="data_sending_time_duration"-->
-          <!--      label="Data "-->
-          <!--      width="120"-->
-          <!--    />-->
-          <!--    <el-table-column prop="labeling_time_duration" label="Zip" width="120" />-->
-          <!--    <el-table-column prop="valuation_time_duration" label="Zip" width="120" />-->
-          <el-table-column prop="version_number" label="Version" width="150" />
+          <el-table-column
+            prop="data_sending_due_date"
+            label="Data sending due date"
+            width="280"
+          />
+          <el-table-column
+            prop="data_labeling_due_date"
+            label="Data labeling due date"
+            width="280"
+          />
+          <el-table-column
+            prop="recently_updated"
+            label="Latest updated date"
+            width="280"
+          />
           <el-table-column fixed="right" label="Operations" min-width="120">
-            <template #default>
-              <el-button link type="primary" @click="handleClick">
+            <template #default="scope">
+              <el-button
+                link
+                type="primary"
+                @click="handleClick(scope.row.id_dataset)"
+              >
                 Detail
               </el-button>
               <el-button link type="primary">Edit</el-button>
@@ -62,12 +69,7 @@
               <p class="card-footer">1.200.000 🪙</p>
             </div>
           </div>
-          <el-dialog
-            v-model="dialogVisible"
-            title="History"
-            width="700"
-            :before-close="handleClose"
-          >
+          <el-dialog v-model="dialogVisible" title="History" width="700">
             <el-table :data="tableData" stripe style="width: 100%">
               <el-table-column prop="version" label="No." width="150" />
               <el-table-column
@@ -131,21 +133,22 @@ import { notifyError } from '@/services/notification'
 // import yourWorkService from '@/services/yourWork'
 import { ElLoading, type TabsPaneContext } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { jwtDecode } from 'jwt-decode'
 
 const route = useRouter()
 
 const dialogVisible = ref(false)
 import { ElMessageBox } from 'element-plus'
 
-// const handleClose = (done: () => void) => {
-//   ElMessageBox.confirm('Are you sure to close this dialog?')
-//     .then(() => {
-//       done()
-//     })
-//     .catch(() => {
-//       // catch error
-//     })
-// }
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm('Are you sure to close this dialog?')
+    .then(() => {
+      done()
+    })
+    .catch(() => {
+      // catch error
+    })
+}
 
 const tableData = [
   {
@@ -193,19 +196,38 @@ const openFullScreen1 = () => {
 
 import { fetchYourWorkData } from '@/services/yourWork'
 
-const handleClick = () => {
-  console.log('click')
-  route.push('/your-work-detail')
+const handleClick = (id_dataset: number) => {
+  console.log('click', id_dataset)
+
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    const decoded = jwtDecode<{ id_user: number }>(token)
+    const id_user = decoded.id_user
+
+    route.push({
+      path: '/your-work-detail',
+      query: { id_user: id_user.toString(), id_dataset: id_dataset.toString() },
+    })
+  } else {
+    console.error('No access token found.')
+  }
 }
 
 const yourWorkData = ref<any[]>([])
 
 const loadData = async () => {
   try {
-    await openFullScreen1()
+    openFullScreen1()
     loading.value = true
-    const response = await fetchYourWorkData(1) // Gọi API và truyền id_user là 1
-    yourWorkData.value = response.items
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      const decoded = jwtDecode<{ id_user: number }>(token)
+      const id_user = decoded.id_user
+      const response = await fetchYourWorkData(id_user)
+      yourWorkData.value = response.items
+    } else {
+      throw new Error('No access token found.')
+    }
   } catch (error) {
     notifyError('Cannot get your work data!')
     console.error('Failed to load your work data:', error)
@@ -230,7 +252,7 @@ onMounted(() => {
 
 <style lang="scss">
 .el-table__header {
-  font-size: 19px;
+  font-size: 18px;
   color: #000;
   font-weight: 600;
   height: 70px;
@@ -241,7 +263,7 @@ onMounted(() => {
 }
 
 .el-table__body {
-  min-height: 300px;
+  min-height: 400px;
   font-size: 15px;
   font-weight: 600;
 }
@@ -258,7 +280,6 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: space-around;
   justify-content: start;
 }
 
