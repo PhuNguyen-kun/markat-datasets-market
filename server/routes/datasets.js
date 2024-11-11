@@ -16,7 +16,7 @@ router.route("/create").post(createDataset);
 router.route("/").get(getAllDatasets);
 router.route("/:id_dataset/").get(getDatasetbyDatasetId);
 router.route("/:id_dataset/:name_version").get(getVersion);
-router.route("/:id_version").post(versionBuyingTransaction);
+router.route("/buying/:id_version").post(versionBuyingTransaction);
 //router.route("/:slug").get(getDatasetbySlug);
 // router.route("/version").get(getAllVersion);
 // router.route("/version/:slug").get(getVersionBySlug);

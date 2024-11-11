@@ -12,9 +12,9 @@ const getAllYourWorkVersionsByUserIdDb = async (id_user) => {
            d.ID_Dataset,
            v.ID_version AS ID_version,
            v.Create_Date,
-           v.Data_sending_time_duration,
-           v.Labeling_time_duration,
-           v.Valuation_time_duration,
+           v.Data_sending_due_date,
+           v.Data_labeling_due_date,
+           v.Valuation_due_date,
            ROW_NUMBER() OVER (PARTITION BY d.ID_Dataset ORDER BY v.Create_Date) AS Version_number
          FROM
            User_Version_Participation uvp
@@ -185,7 +185,7 @@ const getAllCollectionsByUserIdDb = async (id_user) => {
     );
 
     // Query MongoDB for collections owned by the user through sending or labeling
-    const mongoCollections = await Dataset.aggregate([
+    const mongoCollections = await Data.aggregate([
       {
         $match: {
           $or: [

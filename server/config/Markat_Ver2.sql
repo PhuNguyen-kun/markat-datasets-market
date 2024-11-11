@@ -27,15 +27,31 @@ CREATE TABLE Users (
     ID_status INT REFERENCES Status(ID_status)
 );
 
+CREATE TABLE Tag(
+    ID_tag SERIAL PRIMARY KEY,
+    Tag_name VARCHAR(255)
+);
+
+CREATE TABLE Data_format (
+    ID_data_format SERIAL PRIMARY KEY,
+    Data_format TEXT
+);
+
 CREATE TABLE Dataset (
     ID_dataset SERIAL PRIMARY KEY,
+    ID_data_format INT REFERENCES Data_format(ID_data_format),
     Verified BOOLEAN,
     Avatar TEXT,
     Name_dataset VARCHAR(255),
     Voucher FLOAT,
-    Data_type INT,
     Request_type VARCHAR(20),
     Slug TEXT
+);
+
+CREATE TABLE Dataset_tag(
+    ID_dataset_tag SERIAL PRIMARY KEY,
+    ID_dataset INT REFERENCES Dataset(ID_dataset),
+    ID_tag INT REFERENCES Tag(ID_tag)
 );
 
 CREATE TABLE User_click (
@@ -45,9 +61,29 @@ CREATE TABLE User_click (
     ID_dataset INT REFERENCES Dataset(ID_dataset)
 );
 
+CREATE TABLE Expert_Tag (
+    ID_expert_tag SERIAL PRIMARY KEY,
+    Expertise VARCHAR(255)
+);
+
+CREATE TABLE Expert (
+    ID_expert SERIAL PRIMARY KEY,
+    ID_user INT REFERENCES Users(ID_user),
+    ID_expert_tag INT REFERENCES Expert_Tag(ID_expert_tag)
+);
+
+CREATE TABLE Expert_Register (
+    ID_expert_register SERIAL PRIMARY KEY,
+    ID_user INT REFERENCES Users(ID_user),
+    ID_expert_tag INT REFERENCES Expert_Tag(ID_expert_tag),
+    File_CV TEXT,
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
+);
+
 CREATE TABLE Version (
     ID_version SERIAL PRIMARY KEY,
     ID_dataset INT REFERENCES Dataset(ID_dataset),
+    ID_expert_tag INT REFERENCES Expert_Tag (ID_expert_tag),
 	Price NUMERIC(10, 2),
     Number_parts INT,
     Reliability_minimum INT,
@@ -55,9 +91,9 @@ CREATE TABLE Version (
 	Maximum_size NUMERIC(10, 5),
 	Total_size NUMERIC(10, 5),
 	Number_of_data INT,
-    Data_sending_time_duration TIMESTAMP,
-    Labeling_time_duration TIMESTAMP,
-	Valuation_time_duration TIMESTAMP,
+    Data_sending_due_date TIMESTAMP,
+    Data_labeling_due_date TIMESTAMP,
+	Valuation_due_date TIMESTAMP,
     Stock_percent FLOAT,
     Data_format INT,
     Status INT
@@ -69,7 +105,7 @@ CREATE TABLE Part (
     Number_of_record Int
 );
 
-CREATE TABLE User_Version_Participation (
+CREATE TABLE User_version_participation (
     ID_user_version_participation SERIAL PRIMARY KEY,
     ID_user INT REFERENCES Users(ID_user),
     ID_version INT REFERENCES Version(ID_version),
@@ -84,27 +120,32 @@ CREATE TABLE Admin (
 	Permission INT
 );
 
-
-CREATE TABLE Data_sending_request (
-    ID_data_sending_request SERIAL PRIMARY KEY,
-    ID_user INT REFERENCES Users(ID_user),
-    Data_type INT,
-    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
+CREATE TABLE Data_selling_request (
+    ID_data_selling_request SERIAL PRIMARY KEY,
+    ID_seller INT REFERENCES Users(ID_user),
     ID_dataset INT REFERENCES Dataset(ID_dataset),
-    Description TEXT
+    ID_data_format INT REFERENCES Data_format(ID_data_format),
+    Name_dataset TEXT,
+    Expected_price NUMERIC(10, 2),
+    Evolution BOOLEAN,
+    Description TEXT,
+    Data_requirements TEXT,
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
 
 CREATE TABLE Data_buying_request (
     ID_data_buying_request SERIAL PRIMARY KEY,
-    ID_user INT REFERENCES Users(ID_user),
-    Public_data BOOLEAN,
-    Description TEXT,
-    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0),
+    ID_buyer INT REFERENCES Users(ID_user),
+    ID_dataset INT REFERENCES Dataset(ID_dataset),
+    ID_data_format INT REFERENCES Data_format(ID_data_format),
+    Name_dataset TEXT,
     Deposit  NUMERIC(10, 2),
 	Price NUMERIC(10, 2),
 	Due_Date TIMESTAMP,
-    ID_dataset INT REFERENCES Dataset(ID_dataset),
-    Data_type INT
+    Public_data BOOLEAN,
+    Description TEXT,
+    Data_requirements TEXT,
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
 
 CREATE TABLE Censorship_DBR (
@@ -120,7 +161,7 @@ CREATE TABLE Censorship_DBR (
 CREATE TABLE Censorship_DSR (
     ID_dsr SERIAL PRIMARY KEY,
     ID_admin INT REFERENCES Admin(ID_admin),
-	ID_data_sending_request INT REFERENCES Data_sending_request(ID_data_sending_request),
+	ID_data_selling_request INT REFERENCES Data_selling_request(ID_data_selling_request),
     Confirm BOOlEAN,
 	Reason TEXT,
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
@@ -135,11 +176,16 @@ CREATE TABLE Censorship_complete_version(
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
 
+CREATE TABLE Version_sender_expert (
+    ID_version_sender_expert SERIAL PRIMARY KEY,
+	ID_version INT REFERENCES Version(ID_version),
+    ID_expert_tag INT REFERENCES Expert_Tag(ID_expert_tag)
+);
 
-CREATE TABLE Expert_Register (
-    ID_expert_register SERIAL PRIMARY KEY,
-    ID_user INT REFERENCES Users(ID_user),
-    File_CV TEXT
+CREATE TABLE Version_labeler_expert (
+    ID_version_labeler_expert SERIAL PRIMARY KEY,
+	ID_version INT REFERENCES Version(ID_version),
+    ID_expert_tag INT REFERENCES Expert_Tag(ID_expert_tag)
 );
 
 CREATE TABLE Authen (
@@ -150,21 +196,6 @@ CREATE TABLE Authen (
 	Reason TEXT,
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
 );
-
-CREATE TABLE Expert (
-    ID_expert SERIAL PRIMARY KEY,
-    ID_user INT REFERENCES Users(ID_user),
-    Field INT,
-    Description TEXT
-);
-
-
-CREATE TABLE Dataset_Expert (
-    ID_Dataset_Expert SERIAL PRIMARY KEY,
-    ID_expert INT REFERENCES Expert(ID_expert),
-	ID_dataset INT REFERENCES Dataset(ID_dataset)
-);
-
 
 CREATE TABLE Report (
     ID_report SERIAL PRIMARY KEY,
@@ -202,16 +233,16 @@ CREATE TABLE TransactionDetails (
 --trigger
 
 -- Function: check_time_durations
--- This function checks the constraints for the fields Data_sending_time_duration,
--- Labeling_time_duration, and Valuation_time_duration in the Version table.
--- It ensures that Data_sending_time_duration < Labeling_time_duration < Valuation_time_duration.
+-- This function checks the constraints for the fields Data_sending_due_date,
+-- Data_labeling_due_date, and Valuation_due_date in the Version table.
+-- It ensures that Data_sending_due_date < Data_labeling_due_date < Valuation_due_date.
 -- If this condition is violated, the function raises an exception to prevent the operation.
 CREATE OR REPLACE FUNCTION check_time_durations()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.Data_sending_time_duration > NEW.Labeling_time_duration OR
-       NEW.Labeling_time_duration > NEW.Valuation_time_duration THEN
-        RAISE EXCEPTION 'Constraint violation: Ensure that Data_sending_time_duration < Labeling_time_duration < Valuation_time_duration';
+    IF NEW.Data_sending_due_date > NEW.Data_labeling_due_date OR
+       NEW.Data_labeling_due_date > NEW.Valuation_due_date THEN
+        RAISE EXCEPTION 'Constraint violation: Ensure that Data_sending_due_date < Data_labeling_due_date < Valuation_due_date';
     END IF;
     RETURN NEW;
 END;
@@ -227,7 +258,7 @@ FOR EACH ROW
 EXECUTE FUNCTION check_time_durations();
 
 -- Function: check_participation_time
--- This function ensures that the Join_date of a user in the User_Version_Participation table
+-- This function ensures that the Join_date of a user in the User_version_participation table
 -- is earlier than the end time of the respective activity in the Version table.
 -- It checks the Join_date based on the Participation_Type (either 'Sending' or 'Labeling').
 -- If Join_date is later than or equal to the end time of the activity, the function raises an exception.
@@ -237,18 +268,18 @@ DECLARE
     end_time TIMESTAMP;
 BEGIN
     IF NEW.Participation_Type = 'Sending' THEN
-        SELECT Data_sending_time_duration INTO end_time
+        SELECT Data_sending_due_date INTO end_time
         FROM Version
         WHERE ID_version = NEW.ID_version;
         IF NEW.Join_date >= end_time THEN
-            RAISE EXCEPTION 'Participation time constraint violation: Join_date must be earlier than Data_sending_time_duration for Sending activity';
+            RAISE EXCEPTION 'Participation time constraint violation: Join_date must be earlier than Data_sending_due_date for Sending activity';
         END IF;
     ELSIF NEW.Participation_Type = 'Labeling' THEN
-        SELECT Labeling_time_duration INTO end_time
+        SELECT Data_labeling_due_date INTO end_time
         FROM Version
         WHERE ID_version = NEW.ID_version;
-        IF NEW.Join_date >= end_time OR NEW.Join_date <= (SELECT Data_sending_time_duration FROM Version WHERE ID_version = NEW.ID_version) THEN
-            RAISE EXCEPTION 'Participation time constraint violation: Join_date for Labeling must be between Data_sending_time_duration and Labeling_time_duration';
+        IF NEW.Join_date >= end_time OR NEW.Join_date <= (SELECT Data_sending_due_date FROM Version WHERE ID_version = NEW.ID_version) THEN
+            RAISE EXCEPTION 'Participation time constraint violation: Join_date for Labeling must be between Data_sending_due_date and Data_labeling_due_date';
         END IF;
     END IF;
 
@@ -257,7 +288,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger: trigger_check_participation_time
--- This trigger executes before every INSERT or UPDATE operation on the User_Version_Participation table.
+-- This trigger executes before every INSERT or UPDATE operation on the User_version_participation table.
 -- It calls the check_participation_time function to ensure that the Join_date for Sending or Labeling
 -- meets the constraints defined in the Version table.
 -- If the condition is violated, the trigger raises an exception to prevent the operation.
@@ -270,13 +301,13 @@ EXECUTE FUNCTION check_participation_time();
 CREATE OR REPLACE FUNCTION check_time_valuation()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.time_valuation <= (SELECT Labeling_time_duration
+    IF NEW.time_valuation <= (SELECT Data_labeling_due_date
                               FROM version
                               WHERE version.ID_version = NEW.ID_version)
-       OR NEW.time_valuation >= (SELECT Valuation_time_duration
+       OR NEW.time_valuation >= (SELECT Valuation_due_date
                                  FROM version
                                  WHERE version.ID_version = NEW.ID_version) THEN
-        RAISE EXCEPTION 'Validation error: time_valuation must be between Labeling_time_duration and Valuation_time_duration in the version table';
+        RAISE EXCEPTION 'Validation error: time_valuation must be between Data_labeling_due_date and Valuation_due_date in the version table';
     END IF;
 
     IF EXISTS (
@@ -294,7 +325,7 @@ $$ LANGUAGE plpgsql;
 -- Trigger: trigger_check_time_valuation
 -- This trigger executes before every INSERT or UPDATE operation on the valuation table.
 -- It calls the check_time_valuation function to validate that the time_valuation of the new
--- or updated record is between Labeling_time_duration and Valuation_time_duration in the associated Version record.
+-- or updated record is between Data_labeling_due_date and Valuation_due_date in the associated Version record.
 -- It also checks that each user can only have one valuation per version.
 -- If the condition is violated, the trigger raises an exception to prevent the operation.
 CREATE TRIGGER trigger_check_time_valuation
@@ -348,26 +379,157 @@ VALUES
 ('Sebastian Young', 'pass858687', 79, 120, '1594567538', 'sebastianyoung@example.com', '1987-10-11', '2023-03-22 09:55:00', 'Austin', 'FinanceCorp', 'English', 28.00, 35, 2),
 ('Zoe Walker', 'pass888990', 94, 0, '7539513578', 'zoewalker@example.com', '1995-01-07', '2023-08-30 11:30:00', 'Las Vegas', 'RealEstate Pro', 'Spanish', 40.50, 50, 3);
 
-INSERT INTO Dataset (Verified, Avatar, Name_dataset, Voucher, Data_type, Request_type, Slug)
+INSERT INTO Tag (Tag_name)
 VALUES
-(TRUE, 'avatar1.png', 'Flowers Dataset', 10.0, 1, 'Sending', 'flowers_dataset'),
+('Business'),
+('Data Analytics'),
+('English'),
+('Linear Regression'),
+('Marketing'),
+('Machine Learning'),
+('Computer Vision'),
+('Image Classification'),
+('Natural Language Processing'),
+('Big Data'),
+('Finance'),
+('Statistics'),
+('Deep Learning'),
+('AI Models'),
+('Time Series Analysis'),
+('Predictive Modeling'),
+('Data Visualization'),
+('E-commerce'),
+('Customer Insights'),
+('Social Media Analysis'),
+('Healthcare'),
+('Retail'),
+('Supply Chain'),
+('Education'),
+('Sentiment Analysis'),
+('Text Mining'),
+('Speech Recognition'),
+('Robotics'),
+('Image Segmentation'),
+('Object Detection'),
+('Customer Behavior'),
+('Sales Forecasting'),
+('Data Preprocessing'),
+('Feature Engineering'),
+('Clustering'),
+('Classification'),
+('Regression'),
+('Neural Networks'),
+('Reinforcement Learning'),
+('Transfer Learning'),
+('Genomics'),
+('Drug Discovery'),
+('Cybersecurity'),
+('Fraud Detection'),
+('Risk Management'),
+('Customer Retention'),
+('Product Recommendation'),
+('User Experience'),
+('A/B Testing'),
+('Market Research'),
+('Web Scraping'),
+('SEO'),
+('Content Creation'),
+('Financial Modeling'),
+('Portfolio Optimization'),
+('Cryptocurrency'),
+('Blockchain'),
+('Data Governance'),
+('Privacy and Security'),
+('Cloud Computing'),
+('Serverless Architecture'),
+('Data Warehousing'),
+('ETL Processes'),
+('SQL Optimization'),
+('NoSQL Databases'),
+('Data Pipelines'),
+('Graph Theory'),
+('Knowledge Graphs'),
+('Augmented Reality'),
+('Virtual Reality'),
+('3D Modeling'),
+('Game Development'),
+('Quantum Computing'),
+('Edge Computing'),
+('IoT (Internet of Things)'),
+('Smart Cities'),
+('Energy Efficiency'),
+('Climate Change Analysis'),
+('Geospatial Data'),
+('Satellite Imagery'),
+('Weather Forecasting'),
+('Agriculture'),
+('Plant Recognition'),
+('Wildlife Monitoring'),
+('Food Supply Chain'),
+('Sports Analytics'),
+('Player Performance'),
+('Video Analysis'),
+('Motion Detection'),
+('Emotion Detection'),
+('Customer Support AI'),
+('Chatbots'),
+('Recommendation Systems'),
+('Audio Processing'),
+('Music Genre Classification'),
+('Speech Synthesis'),
+('Data Ethics'),
+('Fairness in AI'),
+('Explainable AI'),
+('Bias Detection'),
+('Model Interpretability'),
+('Human-Computer Interaction'),
+('Data Augmentation'),
+('Synthetic Data Generation'),
+('Anomaly Detection'),
+('Flower Recognition'),
+('Nature');
+
+INSERT INTO Data_format(Data_format) VALUES
+('MP4'),
+('JPEG'),
+('PNG'),
+('MP3'),
+('DOCX'),
+('PDF'),
+('XLSX'),
+('CSV');
+
+INSERT INTO Dataset (Verified, Avatar, Name_dataset, Voucher, ID_data_format, Request_type, Slug)
+VALUES
+(TRUE, 'avatar1.png', 'Flowers Dataset', 10.0, 2, 'Selling', 'flowers_dataset'),
 (FALSE, 'avatar2.png', 'Hair Type Dataset', 15.5, 2, 'Buying', 'hair_type_dataset'),
-(TRUE, 'avatar3.png', 'Stanford Cars Dataset', 20.0, 3, 'Buying', 'stanford_cars_dataset'),
-(TRUE, 'avatar4.png', 'Brain Tumor MRI Dataset', 8.0, 1, 'Buying', 'brain_tumor_mri_dataset'),
-(FALSE, 'avatar5.png', 'Lung Cancer', 12.5, 4, 'Buying', 'lung_cancer'),
+(TRUE, 'avatar3.png', 'Stanford Cars Dataset', 20.0, 2, 'Buying', 'stanford_cars_dataset'),
+(TRUE, 'avatar4.png', 'Brain Tumor MRI Dataset', 8.0, 2, 'Buying', 'brain_tumor_mri_dataset'),
+(FALSE, 'avatar5.png', 'Lung Cancer', 12.5, 2, 'Buying', 'lung_cancer'),
 (TRUE, 'avatar6.png', 'CelebFaces Attributes Dataset', 9.0, 2, 'Buying', 'celebFaces_attributes_dataset'),
-(FALSE, 'avatar7.png', 'Skin Cancer', 18.0, 5, 'Buying', 'skin_cancer'),
-(TRUE, 'avatar8.png', 'Chest X-rays Labeled by 13 Classes - 150 studies', 7.5, 1, 'Buying', 'chest_c-rays_labeled_by_13_classes'),
-(FALSE, 'avatar9.png', 'House Plant Species', 14.0, 6, 'Buying', 'house_plant_species'),
-(TRUE, 'avatar10.png', 'Image Classification - 64 Classes - Animal', 11.0, 3, 'Sending', 'image_classification-64classes-animal'),
-(FALSE, 'avatar11.png', 'Cat Dataset', 11.0, 2, 'Sending', 'cat_dataset'),
-(TRUE, 'avatar12.png', 'Animal Faces', 11.0, 3, 'Sending', 'animal_faces'),
-(FALSE, 'avatar13.png', 'Sea Animals Image Dataset', 11.0, 1, 'Sending', 'sea_animals_image_dataset'),
-(TRUE, 'avatar14.png', 'Celebrity Face Image Dataset', 11.0, 4, 'Sending', 'celebrity_face_image_dataset'),
-(TRUE, 'avatar15.png', 'Drone Dataset', 11.0, 2, 'Sending', 'drone_dataset'),
-(FALSE, 'avatar16.png', 'Date Fruit Datasets', 11.0, 5, 'Sending', 'date_fruit_datasets'),
-(FALSE, 'avatar17.png', 'Yoga Posture Dataset', 11.0, 1, 'Sending', 'yoga_posture_dataset'),
-(TRUE, 'avatar18.png', 'Dog vs Cat', 11.0, 6, 'Sending', 'dog_vs_cat');
+(FALSE, 'avatar7.png', 'Skin Cancer', 18.0, 2, 'Buying', 'skin_cancer'),
+(TRUE, 'avatar8.png', 'Chest X-rays Labeled by 13 Classes - 150 studies', 7.5, 2, 'Buying', 'chest_c-rays_labeled_by_13_classes'),
+(FALSE, 'avatar9.png', 'House Plant Species', 14.0, 2, 'Buying', 'house_plant_species'),
+(TRUE, 'avatar10.png', 'Image Classification - 64 Classes - Animal', 11.0, 2, 'Selling', 'image_classification-64classes-animal'),
+(FALSE, 'avatar11.png', 'Cat Dataset', 11.0, 2, 'Selling', 'cat_dataset'),
+(TRUE, 'avatar12.png', 'Animal Faces', 11.0, 2, 'Selling', 'animal_faces'),
+(FALSE, 'avatar13.png', 'Sea Animals Image Dataset', 11.0, 2, 'Selling', 'sea_animals_image_dataset'),
+(TRUE, 'avatar14.png', 'Celebrity Face Image Dataset', 11.0, 2, 'Selling', 'celebrity_face_image_dataset'),
+(TRUE, 'avatar15.png', 'Drone Dataset', 11.0, 2, 'Selling', 'drone_dataset'),
+(FALSE, 'avatar16.png', 'Date Fruit Datasets', 11.0, 2, 'Selling', 'date_fruit_datasets'),
+(FALSE, 'avatar17.png', 'Yoga Posture Dataset', 11.0, 2, 'Selling', 'yoga_posture_dataset'),
+(TRUE, 'avatar18.png', 'Dog vs Cat', 11.0, 2, 'Selling', 'dog_vs_cat');
+
+INSERT INTO Dataset_tag (ID_dataset, ID_tag) VALUES
+(1, 7),
+(1, 8),
+(1, 106),
+(1, 83),
+(1, 107),
+(2, 7),
+(2, 8),
+(2, 103);
+
 
 INSERT INTO User_click (ID_user, ID_dataset) VALUES
 (1, 1), (2, 2),(3, 3),(4, 4), (5, 5),(6, 6),(7, 7),(8, 8),
@@ -377,25 +539,24 @@ INSERT INTO User_click (ID_user, ID_dataset) VALUES
 INSERT INTO Version (
     ID_dataset, Price, Number_parts, Reliability_minimum,
     Create_Date, Maximum_size, Total_size, Number_of_data,
-    Data_sending_time_duration, Labeling_time_duration,
-    Valuation_time_duration, Stock_percent,
-    Data_format, Status
+    Data_sending_due_date, Data_labeling_due_date,
+    Valuation_due_date, Stock_percent, Status
 ) VALUES
-(1, 500.00, 10, 85, '2024-01-01 10:00:00', 50.12345, 45.54321, 1000, '2024-01-05 01:04:11', '2024-07-11 21:37:19', '2024-12-19 01:39:10', 75.0, 1, 1),
-(2, 450.50, 10, 92, '2024-01-01 10:00:00', 60.54321, 55.32145, 1500, '2024-05-12 12:20:30', '2024-12-26 16:39:59', '2024-12-29 11:16:51', 80.0, 2, 2),
-(3, 600.00, 10, 78, '2024-01-01 10:00:00', 45.54321, 40.12345, 1200, '2024-08-17 17:20:04', '2024-11-12 04:30:49', '2024-12-01 13:55:40', 65.0, 1, 3),
-(4, 520.75, 10, 95, '2024-01-01 10:00:00', 55.12345, 50.32145, 1100, '2024-03-09 09:26:32', '2024-09-12 15:57:20', '2024-12-09 12:02:55', 85.0, 3, 1),
-(5, 480.25, 10, 60, '2024-01-01 10:00:00', 65.32145, 60.54321, 1400, '2024-01-30 19:25:57', '2024-07-24 11:27:05', '2024-12-02 18:37:14', 70.0, 2, 2),
-(6, 540.50, 10, 88, '2024-01-01 10:00:00', 70.54321, 65.12345, 1300, '2024-06-17 02:11:36', '2024-10-28 04:13:01', '2024-12-08 16:56:49', 60.0, 1, 3),
-(7, 510.00, 10, 45, '2024-01-01 10:00:00', 75.54321, 70.32145, 1700, '2024-08-10 01:26:04', '2024-12-14 22:03:59', '2024-12-16 16:21:16', 55.0, 3, 1),
-(8, 495.00, 10, 99, '2024-01-01 10:00:00', 85.12345, 80.54321, 900, '2024-05-05 02:41:05', '2024-09-04 05:37:35', '2024-10-25 02:27:18', 90.0, 2, 2),
-(9, 525.50, 10, 82, '2024-01-01 10:00:00', 90.54321, 85.12345, 1600, '2024-12-10 04:22:36', '2024-12-12 02:40:09', '2024-12-26 04:24:26', 78.0, 1, 3),
-(10, 470.75, 10, 55, '2024-01-01 10:00:00', 95.54321, 90.32145, 1050, '2024-11-28 06:08:28', '2024-12-18 17:14:10', '2024-12-29 08:07:14', 72.0, 3, 1),
-(1, 505.00, 12, 73, '2025-01-01 10:00:00', 50.12345, 45.54321, 1000, '2025-12-04 07:27:30', '2025-12-07 17:18:42', '2025-12-21 19:37:43', 75.0, 1, 1),
-(2, 425.50, 12, 80, '2025-01-01 10:00:00', 60.54321, 55.32145, 1500, '2025-09-22 10:04:16', '2025-10-29 20:47:02', '2025-12-25 09:37:18', 80.0, 2, 2),
-(3, 585.00, 12, 68, '2025-01-01 10:00:00', 45.54321, 40.12345, 1200, '2025-02-08 17:43:01', '2025-03-30 10:57:59', '2025-12-31 04:50:52', 65.0, 1, 3),
-(4, 510.75, 12, 92, '2025-01-01 10:00:00', 55.12345, 50.32145, 1100, '2025-03-18 08:06:41', '2025-12-23 20:49:48', '2025-12-31 06:59:40', 85.0, 3, 1),
-(5, 460.25, 12, 64, '2025-01-01 10:00:00', 65.32145, 60.54321, 1400, '2025-12-11 16:22:33', '2025-12-28 06:39:54', '2025-12-31 02:41:49', 70.0, 2, 2);
+(1, 500.00, 10, 85, '2024-01-01 10:00:00', 50.12345, 45.54321, 1000, '2024-01-05 01:04:11', '2024-07-11 21:37:19', '2024-12-19 01:39:10', 75.0, 1),
+(2, 450.50, 10, 92, '2024-01-01 10:00:00', 60.54321, 55.32145, 1500, '2024-05-12 12:20:30', '2024-12-26 16:39:59', '2024-12-29 11:16:51', 80.0, 2),
+(3, 600.00, 10, 78, '2024-01-01 10:00:00', 45.54321, 40.12345, 1200, '2024-08-17 17:20:04', '2024-11-12 04:30:49', '2024-12-01 13:55:40', 65.0, 3),
+(4, 520.75, 10, 95, '2024-01-01 10:00:00', 55.12345, 50.32145, 1100, '2024-03-09 09:26:32', '2024-09-12 15:57:20', '2024-12-09 12:02:55', 85.0, 1),
+(5, 480.25, 10, 60, '2024-01-01 10:00:00', 65.32145, 60.54321, 1400, '2024-01-30 19:25:57', '2024-07-24 11:27:05', '2024-12-02 18:37:14', 70.0, 2),
+(6, 540.50, 10, 88, '2024-01-01 10:00:00', 70.54321, 65.12345, 1300, '2024-06-17 02:11:36', '2024-10-28 04:13:01', '2024-12-08 16:56:49', 60.0, 3),
+(7, 510.00, 10, 45, '2024-01-01 10:00:00', 75.54321, 70.32145, 1700, '2024-08-10 01:26:04', '2024-12-14 22:03:59', '2024-12-16 16:21:16', 55.0, 1),
+(8, 495.00, 10, 99, '2024-01-01 10:00:00', 85.12345, 80.54321, 900, '2024-05-05 02:41:05', '2024-09-04 05:37:35', '2024-10-25 02:27:18', 90.0, 2),
+(9, 525.50, 10, 82, '2024-01-01 10:00:00', 90.54321, 85.12345, 1600, '2024-12-10 04:22:36', '2024-12-12 02:40:09', '2024-12-26 04:24:26', 78.0, 3),
+(10, 470.75, 10, 55, '2024-01-01 10:00:00', 95.54321, 90.32145, 1050, '2024-11-28 06:08:28', '2024-12-18 17:14:10', '2024-12-29 08:07:14', 72.0, 1),
+(1, 505.00, 12, 73, '2025-01-01 10:00:00', 50.12345, 45.54321, 1000, '2025-12-04 07:27:30', '2025-12-07 17:18:42', '2025-12-21 19:37:43', 75.0, 1),
+(2, 425.50, 12, 80, '2025-01-01 10:00:00', 60.54321, 55.32145, 1500, '2025-09-22 10:04:16', '2025-10-29 20:47:02', '2025-12-25 09:37:18', 80.0, 2),
+(3, 585.00, 12, 68, '2025-01-01 10:00:00', 45.54321, 40.12345, 1200, '2025-02-08 17:43:01', '2025-03-30 10:57:59', '2025-12-31 04:50:52', 65.0, 3),
+(4, 510.75, 12, 92, '2025-01-01 10:00:00', 55.12345, 50.32145, 1100, '2025-03-18 08:06:41', '2025-12-23 20:49:48', '2025-12-31 06:59:40', 85.0, 1),
+(5, 460.25, 12, 64, '2025-01-01 10:00:00', 65.32145, 60.54321, 1400, '2025-12-11 16:22:33', '2025-12-28 06:39:54', '2025-12-31 02:41:49', 70.0, 2);
 
 INSERT INTO Part (ID_version, Number_of_record) VALUES
 (1, 8), (1, 13), (1, 10), (1, 8), (1, 7),
@@ -405,9 +566,7 @@ INSERT INTO Part (ID_version, Number_of_record) VALUES
 (2, 7), (2, 7), (2, 6), (2, 11), (2, 13),
 (2, 8), (2, 5), (2, 11), (2, 8), (2, 5);
 
-
-
-INSERT INTO User_Version_Participation (ID_user, ID_version, Participation_Type, Join_date) VALUES
+INSERT INTO User_version_participation (ID_user, ID_version, Participation_Type, Join_date) VALUES
 (1, 1, 'Sending', '2024-01-03 12:00:00'),
 (1, 2, 'Labeling', '2024-12-20 12:00:00'),
 (1, 3, 'Sending', '2024-08-16 12:00:00'),
@@ -435,7 +594,7 @@ INSERT INTO User_Version_Participation (ID_user, ID_version, Participation_Type,
 (28, 8, 'Labeling', '2024-07-10 11:00:00'),
 (28, 9, 'Sending', '2024-06-20 09:30:00'),
 (28, 10, 'Labeling', '2024-11-29 08:45:00'),
-(19, 1, 'Sending', '2024-01-03 09:15:00'), --
+(19, 1, 'Sending', '2024-01-03 09:15:00'),
 (19, 3, 'Labeling', '2024-08-20 09:30:00'),
 (19, 6, 'Sending', '2024-05-20 09:30:00'),
 (20, 4, 'Labeling', '2024-07-10 11:30:00'),
@@ -450,29 +609,29 @@ INSERT INTO Admin (Username, Password, Permission) VALUES
 ('admin4', 'password4', 2),
 ('admin5', 'password5', 1);
 
-INSERT INTO Data_sending_request (ID_user, Data_type, ID_dataset, Description)
+INSERT INTO Data_selling_request (ID_seller, ID_dataset, ID_data_format, Name_dataset, Expected_price, Evolution, Description, Data_requirements, Time)
 VALUES
-(1, 1, 1, 'This dataset consists of images from five distinct flower species, ideal for tasks like image classification and computer vision projects. It provides a diverse range of floral images, enabling models to learn the subtle differences between species.'),
-(2, 2, 11, 'The CAT dataset includes over 9,000 cat images. For each image, there are annotations of the head of cat with nine points, two for eyes, one for mouth, and six for ears.'),
-(3, 3, 12, 'This dataset, also known as Animal Faces-HQ (AFHQ), consists of 16,130 high-quality images at 512×512 resolution.'),
-(4, 1, 13, 'Most life forms began their evolution in aquatic environments. About 90% of the worlds living space is provided by the oceans in terms of volume. Fish, which are only found in water, are the first known vertebrates. Some of these transformed into amphibians, which dwell both on land and in water for parts of the day'),
-(10, 4, 14, 'This dataset contains images of 18 Hollywood celebrities with 100 images of each celebrity'),
-(16, 2, 15, 'This dataset collected by me Mehdi Özel for a UAV Competition. When I search about "Drone (UAV) Dataset", I realized that the datasets only contain photos taken by UAVs(drone-to earth view mostly).'),
-(17, 5, 16, 'A great number of fruits are grown around the world, each of which has various types. The factors that determine the type of fruit are the external appearance features such as color, length, diameter, and shape. '),
-(28, 1, 17, 'Yoga is a group of physical, mental, and spiritual practices or disciplines that originated in ancient India and aim to control and still the mind, recognizing a detached witness-consciousness untouched by the mind and mundane suffering. There is a wide variety of schools of yoga, practices, and goals in Hinduism, Buddhism, and Jainism, and traditional and modern yoga is practiced worldwide.'),
-(19, 6, 18, 'This dataset contains a total of 1000 images, with an equal distribution of 500 images of dog and 500 images of cat. The images are standardized to a resolution of 512x512 pixels.'),
-(20, 3, 10, 'This dataset contains 64 animal image classes for multi-class image classification tasks. Each folder corresponds to a distinct class, and the images in each folder represent different types of animals.');
+(1, 1, 2, 'Flowers Dataset', 500.00, TRUE, 'This dataset consists of images from five distinct flower species, ideal for tasks like image classification and computer vision projects. It provides a diverse range of floral images, enabling models to learn the subtle differences between species.', 'Data_requirements1.txt', '2024-01-01 00:00:00'),
+(2, 10, 2, 'Image Classification - 64 Classes - Animal', 1000.00, TRUE, 'This dataset contains 64 animal image classes for multi-class image classification tasks. Each folder corresponds to a distinct class, and the images in each folder represent different types of animals.', 'Data_requirements10.txt', '2024-01-01 00:00:00'),
+(2, 11, 2, 'Cat Dataset', 1200.00, FALSE, 'The CAT dataset includes over 9,000 cat images. For each image, there are annotations of the head of cat with nine points, two for eyes, one for mouth, and six for ears.', 'Data_requirements11.txt', '2024-01-01 00:00:00'),
+(3, 12, 2, 'Animal Faces', 1320.00, TRUE, 'This dataset, also known as Animal Faces-HQ (AFHQ), consists of 16,130 high-quality images at 512×512 resolution.', 'Data_requirements12.txt', '2024-01-01 00:00:00'),
+(4, 13, 2, 'Sea Animals Image Dataset', 5000.00, TRUE, 'Most life forms began their evolution in aquatic environments. About 90% of the worlds living space is provided by the oceans in terms of volume. Fish, which are only found in water, are the first known vertebrates. Some of these transformed into amphibians, which dwell both on land and in water for parts of the day', 'Data_requirements13.txt', '2024-01-01 00:00:00'),
+(10, 14, 2, 'Celebrity Face Image Dataset', 1250.00, FALSE, 'This dataset contains images of 18 Hollywood celebrities with 100 images of each celebrity', 'Data_requirements14.txt', '2024-01-01 00:00:00'),
+(16, 15, 2, 'Drone Dataset', 1300.00, TRUE, 'This dataset collected by me Mehdi Özel for a UAV Competition. When I search about "Drone (UAV) Dataset", I realized that the datasets only contain photos taken by UAVs(drone-to earth view mostly).', 'Data_requirements15.txt', '2024-01-01 00:00:00'),
+(17, 16, 2, 'Date Fruit Datasets', 7800.00, TRUE, 'A great number of fruits are grown around the world, each of which has various types. The factors that determine the type of fruit are the external appearance features such as color, length, diameter, and shape. ', 'Data_requirements16.txt', '2024-01-01 00:00:00'),
+(28, 17, 2, 'Yoga Posture Dataset', 10000.00, FALSE, 'Yoga is a group of physical, mental, and spiritual practices or disciplines that originated in ancient India and aim to control and still the mind, recognizing a detached witness-consciousness untouched by the mind and mundane suffering. There is a wide variety of schools of yoga, practices, and goals in Hinduism, Buddhism, and Jainism, and traditional and modern yoga is practiced worldwide.', 'Data_requirements17.txt', '2024-01-01 00:00:00'),
+(19, 18, 2, 'Dog vs Cat', 1200000.00, TRUE, 'This dataset contains a total of 1000 images, with an equal distribution of 500 images of dog and 500 images of cat. The images are standardized to a resolution of 512x512 pixels.', 'Data_requirements18.txt', '2024-01-01 00:00:00');
 
-INSERT INTO Data_buying_request (ID_user, Public_data, ID_dataset, Description, Time, Deposit, Price, Due_Date, Data_type)
+INSERT INTO Data_buying_request (ID_buyer, ID_dataset, ID_data_format, Name_dataset, Deposit, Price, Due_Date, Public_data, Description, Data_requirements, Time)
 VALUES
-(1, TRUE, 2, 'The Hair Type Dataset is an image dataset designed to classify various hair types. It includes high-quality images of individuals with diverse hair types. The dataset is helpful for training machine learning models to recognize and classify hair types.', NOW(), 500.00, 2500.00, '2024-09-01 12:00:00', 1),
-(2, FALSE, 3, 'The Cars dataset contains 16,185 images of 196 classes of cars. The data is split into 8,144 training images and 8,041 testing images, where each class has been split roughly in a 50-50 split. Classes are typically at the level of Make, Model, Year, ex. 2012 Tesla Model S or 2012 BMW M3 coupe.', NOW(), 1000.00, 4500.00, '2024-09-10 15:30:00', 2),
-(13, TRUE, 4, 'The dataset is divided into two separate parts. The first part is a dataset created for classification. Here, brain tumors are divided into 4 different classes. These are: glioma, meningioma, pituitarity and no tumor. Training and test separation is made in the folder. cThe second part is created for segmentation. Here, two different classes are created only to detect the presence or absence of the tumor, and only for cases where the tumor is present, the coordinates of the tumor are in the labels folder. Training-validation-test split is made in the folder', NOW(), 750.00, 3500.00, '2024-08-20 09:00:00', 3),
-(14, TRUE, 5, 'The original dataset was published by https://arxiv.org/abs/1912.12142v1 at https://github.com/tampapath/lung_colon_image_set. To cite this dataset, write "Borkowski AA, Bui MM, Thomas LB, Wilson CP, DeLand LA, Mastorides SM. Lung and Colon Cancer Histopathological Image Dataset (LC25000). arXiv:1912.12142v1 [eess.IV], 2019"', NOW(), 300.00, 1500.00, '2024-09-05 11:45:00', 1),
-(15, TRUE, 6, 'A popular component of computer vision and deep learning revolves around identifying faces for various applications from logging into your phone with your face or searching through surveillance images for a particular suspect. This dataset is great for training and testing models for face detection, particularly for recognising facial attributes such as finding people with brown hair, are smiling, or wearing glasses. Images cover large pose variations, background clutter, diverse people, supported by a large quantity of images and rich annotations. This data was originally collected by researchers at MMLAB, The Chinese University of Hong Kong (specific reference in Acknowledgment section).', NOW(), 600.00, 3200.00, '2024-08-25 10:00:00', 4),
-(26, FALSE, 7, 'This is a balanced dataset of benign (healthy) and malignant (infected) skin spots. Transfer learning and CNNs can be used to classify the images into these two categories. The rules for using the data are detailed at https://www.isic-archive.com/#!/topWithHeader/wideContentTop/main.', NOW(), 400.00, 2000.00, '2024-09-12 13:00:00', 2),
-(17, TRUE, 8, 'This dataset consists of 150 medical studies with chest X-ray (CXR) images primarily focused on the detection of lung diseases, including COVID-19 cases and pneumonias. The collection includes frontal chest radiographs and chest radiography scans in DICOM format. The dataset is ideal for medical research, disease detection, and classification tasks, particularly for developing computer-aided diagnosis and machine learning models', NOW(), 900.00, 4200.00, '2024-09-03 16:00:00', 5),
-(8, FALSE, 9, 'This plant image dataset consists of 14,790 images categorized into 47 distinct plant species classes. The dataset was compiled by collecting images from Bing Images and manually curating them, although not by professional biologist. I collected this images for a project aimed at classifying plant species as either toxic or safe for cats.', NOW(), 350.00, 1800.00, '2024-08-30 14:30:00', 1);
+(1, 2, 2, 'Hair Type Dataset', 100.00, 10000.00, '2024-12-30 00:00:00', TRUE, 'The Hair Type Dataset is an image dataset designed to classify various hair types. It includes high-quality images of individuals with diverse hair types. The dataset is helpful for training machine learning models to recognize and classify hair types.', 'Data_requirements2.txt', '2024-01-01 00:00:00'),
+(2, 3, 2, 'Stanford Cars Dataset', 10000.00, 1000000.00, '2024-12-30 00:00:00', TRUE, 'The Cars dataset contains 16,185 images of 196 classes of cars. The data is split into 8,144 training images and 8,041 testing images, where each class has been split roughly in a 50-50 split. Classes are typically at the level of Make, Model, Year, ex. 2012 Tesla Model S or 2012 BMW M3 coupe.', 'Data_requirements3.txt', '2024-01-01 00:00:00'),
+(13, 4, 2, 'Brain Tumor MRI Dataset', 230.00, 124000.00, '2024-12-30 00:00:00', TRUE, 'The dataset is divided into two separate parts. The first part is a dataset created for classification. Here, brain tumors are divided into 4 different classes. These are: glioma, meningioma, pituitarity and no tumor. Training and test separation is made in the folder. cThe second part is created for segmentation. Here, two different classes are created only to detect the presence or absence of the tumor, and only for cases where the tumor is present, the coordinates of the tumor are in the labels folder. Training-validation-test split is made in the folder', 'Data_requirements4.txt', '2024-01-01 00:00:00'),
+(14, 5, 2, 'Lung Cancer', 5000.00, 1200.00, '2024-12-30 00:00:00', TRUE, 'The original dataset was published by https://arxiv.org/abs/1912.12142v1 at https://github.com/tampapath/lung_colon_image_set. To cite this dataset, write "Borkowski AA, Bui MM, Thomas LB, Wilson CP, DeLand LA, Mastorides SM. Lung and Colon Cancer Histopathological Image Dataset (LC25000). arXiv:1912.12142v1 [eess.IV], 2019"', 'Data_requirements5.txt', '2024-01-01 00:00:00'),
+(15, 6, 2, 'CelebFaces Attributes Dataset', 1400.00, 123400.00, '2024-12-30 00:00:00', TRUE, 'A popular component of computer vision and deep learning revolves around identifying faces for various applications from logging into your phone with your face or searching through surveillance images for a particular suspect. This dataset is great for training and testing models for face detection, particularly for recognising facial attributes such as finding people with brown hair, are smiling, or wearing glasses. Images cover large pose variations, background clutter, diverse people, supported by a large quantity of images and rich annotations. This data was originally collected by researchers at MMLAB, The Chinese University of Hong Kong (specific reference in Acknowledgment section).', 'Data_requirements6.txt', '2024-01-01 00:00:00'),
+(26, 7, 2, 'Skin Cancer', 2500.00, 35000.00, '2024-12-30 00:00:00', TRUE, 'This is a balanced dataset of benign (healthy) and malignant (infected) skin spots. Transfer learning and CNNs can be used to classify the images into these two categories. The rules for using the data are detailed at https://www.isic-archive.com/#!/topWithHeader/wideContentTop/main.', 'Data_requirements7.txt', '2024-01-01 00:00:00'),
+(17, 8, 2, 'Chest X-rays Labeled by 13 Classes - 150 studies', 4500.00, 36000.00, '2024-12-30 00:00:00', TRUE, 'This dataset consists of 150 medical studies with chest X-ray (CXR) images primarily focused on the detection of lung diseases, including COVID-19 cases and pneumonias. The collection includes frontal chest radiographs and chest radiography scans in DICOM format. The dataset is ideal for medical research, disease detection, and classification tasks, particularly for developing computer-aided diagnosis and machine learning models', 'Data_requirements8.txt', '2024-01-01 00:00:00'),
+(8, 9, 2, 'House Plant Species', 3600.00, 500000.00, '2024-12-30 00:00:00', TRUE, 'This plant image dataset consists of 14,790 images categorized into 47 distinct plant species classes. The dataset was compiled by collecting images from Bing Images and manually curating them, although not by professional biologist. I collected this images for a project aimed at classifying plant species as either toxic or safe for cats.', 'Data_requirements9.txt', '2024-01-01 00:00:00');
 
 INSERT INTO Censorship_DBR (ID_admin, ID_data_buying_request, Confirm, Reason)
 VALUES
@@ -485,7 +644,7 @@ VALUES
 (2, 7, FALSE, 'Rejected. The dataset does not meet the requirements.'),
 (3, 8, TRUE, 'Approved after verifying the data type.');
 
-INSERT INTO Censorship_DSR (ID_admin, ID_data_sending_request, Confirm, Reason)
+INSERT INTO Censorship_DSR (ID_admin, ID_data_selling_request, Confirm, Reason)
 VALUES
 (1, 1, FALSE, 'Approved. The request is complete and correct.'),
 (2, 2, TRUE, 'Rejected. Missing additional documentation.'),
@@ -510,12 +669,64 @@ INSERT INTO Censorship_complete_version (ID_admin, ID_version, Confirm, Reason) 
 (4, 9, FALSE, 'Issues detected during quality assurance.'),
 (5, 10, TRUE, 'All issues resolved, confirmed for release.');
 
-INSERT INTO Expert_Register (ID_user, File_CV)
-VALUES (11, 'path/to/cv_john_doe.pdf'),
-(12, 'path/to/cv_jane_smith.docx'),
-(13, 'path/to/cv_michael_johnson.pdf'),
-(14, 'path/to/cv_emily_davis.docx'),
-(15, 'path/to/cv_david_wilson.pdf');
+INSERT INTO Expert_Tag (Expertise)
+VALUES ('Everyone'),
+('Ophthalmologist'),
+('Otolaryngologist'),
+('Pulmonologist'),
+('Cardiologist'),
+('Gastroenterologist'),
+('Neurologist'),
+('Dermatologist'),
+('Orthopedic Surgeon'),
+('Oncologist'),
+('Obstetrician'),
+('Pediatrician'),
+('Structural Engineer'),
+('Civil Engineer'),
+('Geotechnical Engineer'),
+('Urban Planner'),
+('Construction Safety Engineer'),
+('Construction Cost Analyst'),
+('Energy Efficiency Specialist'),
+('Geneticis'),
+('Molecular Biologist'),
+('Ecologist'),
+('Cellular Biologist'),
+('Plant Biotechnologist'),
+('Data Sciencist');
+
+INSERT INTO Expert (ID_user, ID_expert_tag)
+VALUES (1, 25),
+(1, 22),
+(1, 24),
+(1, 1),
+(2, 22),
+(2, 24),
+(2, 1),
+(14, 22),
+(14, 24),
+(14, 1),
+(26, 22),
+(26, 24),
+(26, 1),
+(17, 1);
+
+INSERT INTO Expert_Register (ID_user, ID_expert_tag, File_CV)
+VALUES (1, 25, 'Path/CV1'),
+(1, 22, 'Path/CV2'),
+(1, 24, 'Path/CV3'),
+(1, 1, 'Path/CV4'),
+(2, 22, 'Path/CV5'),
+(2, 24, 'Path/CV6'),
+(2, 1, 'Path/CV7'),
+(14, 22, 'Path/CV8'),
+(14, 24, 'Path/CV9'),
+(14, 1, 'Path/CV10'),
+(26, 22, 'Path/CV11'),
+(26, 24, 'Path/CV12'),
+(26, 1, 'Path/CV13'),
+(17, 1, 'Path/CV14');
 
 INSERT INTO Authen (ID_admin, ID_expert_register, Confirm, Reason)
 VALUES (1, 1, TRUE, 'Approved without issues.'),
@@ -524,19 +735,17 @@ VALUES (1, 1, TRUE, 'Approved without issues.'),
 (4, 4, FALSE, 'Incomplete CV provided.'),
 (5, 5, TRUE, 'Expert registration approved.');
 
-INSERT INTO Expert (ID_user, Field, Description)
-VALUES (1, 101, 'Data Sciencist'),
-(3, 102, 'Cybersecurity'),
-(8, 103, 'Software Engineering'),
-(5, 104, 'Artificial Intelligence'),
-(2, 105, 'FinTech');
+INSERT INTO Version_sender_expert (ID_version, ID_expert_tag)
+VALUES (1, 1),
+(2, 1),
+(11, 1);
 
-INSERT INTO Dataset_Expert (ID_expert, ID_dataset) VALUES
-(1, 1),(1, 2),(2, 3),(3, 4),
-(4, 5),(5, 6),(1, 7),(2, 8),
-(3, 9),(4, 10),(5, 11),(1, 5),
-(2, 5),(5, 7),(1, 4),(2, 7),
-(3, 2),(2, 10),(1, 11);
+INSERT INTO Version_labeler_expert (ID_version, ID_expert_tag)
+VALUES (1, 22),
+(1, 24),
+(2, 1),
+(11, 22),
+(11, 24);
 
 INSERT INTO Report (Content, ID_user)
 VALUES

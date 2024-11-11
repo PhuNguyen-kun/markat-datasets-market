@@ -41,7 +41,7 @@
                 >
                 <div style="display: flex; gap: 10px">
                   <div>{{ versionData.price }}</div>
-                  <img src="/Screenshot%202024-11-09%20023923.png" alt=""
+                  <img src="/Logo3.jpg" alt=""
                        style="width: 30px; border-radius: 999px; border: 1px solid #888; object-fit: cover; transform: scale(1.0); transform-origin: center;">
                 </div>
               </p>

@@ -5,22 +5,26 @@ const path = require('path');
 
 const getAllDatasetsDb = async ({ limit, offset }) => {
   const datasets = await client.query(
-    `SELECT d.ID_dataset,
+    `SELECT
+    d.ID_dataset,
     d.Avatar,
     d.Name_dataset,
-    (SELECT COUNT(*) FROM User_Click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
+    (SELECT COUNT(*) FROM User_click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
     d.Voucher,
-    CASE
-        WHEN v.Data_format = 1 THEN 'CSV'
-        WHEN v.Data_format = 2 THEN 'Excel'
-        ELSE 'Unknown'
-    END AS Data_Format,
+    df.Data_format AS Data_Format,
     (SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS Version_Count
-     FROM Dataset d
-     LEFT JOIN Version v ON d.ID_Dataset = v.ID_Dataset
-     GROUP BY d.ID_Dataset, d.Avatar, d.Name_dataset, d.Voucher, v.Data_format
-     ORDER BY d.ID_Dataset ASC
-     OFFSET $1 LIMIT $2`,
+    FROM
+        Dataset d
+    LEFT JOIN
+        Version v ON d.ID_Dataset = v.ID_Dataset
+    LEFT JOIN
+        Data_format df ON d.ID_data_format = df.ID_data_format
+    GROUP BY
+        d.ID_Dataset, d.Avatar, d.Name_dataset, d.Voucher, df.Data_format
+    ORDER BY
+        d.ID_Dataset ASC
+    OFFSET $1 LIMIT $2;
+    `,
     [offset, limit]
   );
 
@@ -37,19 +41,25 @@ const datasetsWithAvatar = await Promise.all(datasets.rows.map(async (dataset) =
 };
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
   const { rows: datasets } = await client.query(
-    `SELECT d.name_dataset,
-      d.avatar,
-      COALESCE(MAX(ds.Description), MAX(db.Description), 'No description available') AS description,
-      STRING_AGG(DISTINCT e.Description, ', ')                                       AS expert_tags,
-      COUNT(v.ID_Dataset)                                                            AS version_count
-     FROM dataset d
-      LEFT JOIN Data_sending_request ds ON ds.ID_dataset = d.ID_dataset
-      LEFT JOIN Data_buying_request db ON db.ID_dataset = d.ID_dataset
-      LEFT JOIN Dataset_Expert de ON d.ID_dataset = de.ID_dataset
-      LEFT JOIN Expert e ON de.ID_expert = e.ID_expert
-      LEFT JOIN Version v ON d.ID_Dataset = v.ID_Dataset
-     WHERE d.ID_dataset = $1
-     GROUP BY d.name_dataset, d.avatar, d.id_dataset;
+    `SELECT
+    d.Name_dataset,
+    d.Avatar,
+    COALESCE(dsr.Description, dbr.Description) AS Description,
+    STRING_AGG(t.Tag_name, ', ') AS Tags
+    FROM
+        Dataset d
+    LEFT JOIN
+        Data_selling_request dsr ON d.ID_dataset = dsr.ID_dataset AND d.Request_type = 'Selling'
+    LEFT JOIN
+        Data_buying_request dbr ON d.ID_dataset = dbr.ID_dataset AND d.Request_type = 'Buying'
+    LEFT JOIN
+        Dataset_tag dt ON d.ID_dataset = dt.ID_dataset
+    LEFT JOIN
+        Tag t ON dt.ID_tag = t.ID_tag
+    WHERE
+        d.ID_dataset = $1
+    GROUP BY
+    d.Name_dataset, d.Avatar, dsr.Description, dbr.Description;
     `,
     [id_dataset]
   );
@@ -137,8 +147,8 @@ const versionBuyingTransactionDb = async (id_user, id_version) => {
     await client.query("BEGIN");
     const { rows: versionRows } = await client.query(
       `SELECT Price, Stock_percent,
-              COALESCE((SELECT ID_user FROM Data_sending_request WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1) LIMIT 1),
-                       (SELECT ID_user FROM Data_buying_request WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1) LIMIT 1)) AS Requester_ID,
+              COALESCE((SELECT ID_seller FROM Data_selling_request WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1) LIMIT 1),
+                       (SELECT ID_buyer FROM Data_buying_request WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1) LIMIT 1)) AS Requester_ID,
               (SELECT Voucher FROM Dataset WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1)) AS Voucher
        FROM Version
        WHERE ID_version = $1`,
