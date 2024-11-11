@@ -1,16 +1,15 @@
 <template>
   <div class="your-work-detail__container">
+    <router-link to="/your-work" class="page-link">
+      <button class="btn btn--rounded">
+        <el-icon size="20">
+          <Back />
+        </el-icon>
+        <span>Back</span>
+      </button>
+    </router-link>
     <div class="heading">
       <div class="heading--title">
-        <router-link to="/your-work" class="page-link">
-          <button class="btn btn--rounded" style="margin-bottom: 30px">
-            <el-icon size="20">
-              <Back />
-            </el-icon>
-            <span>Back</span>
-          </button>
-        </router-link>
-
         <!--        <img src="/avatar1.png" alt="" class="heading&#45;&#45;img" />-->
         <h1 class="small-title">{{ datasetName }}</h1>
         <h2 class="small-sub-title">Version {{ versionNumber }}</h2>
@@ -299,6 +298,7 @@ onMounted(() => {
 .your-work-detail__container .heading {
   display: flex;
   align-items: center;
+  justify-content: center;
 
   &--title {
     width: 250px;
@@ -341,13 +341,11 @@ onMounted(() => {
 .small-title {
   font-size: 20px;
   font-weight: 600;
-  margin-left: 20px;
 }
 
 .small-sub-title {
   font-size: 16px;
   font-weight: 400;
-  margin-left: 20px;
 }
 
 .count-down {
@@ -355,7 +353,6 @@ onMounted(() => {
   font-size: 20px;
   font-weight: 500;
   margin-top: 30px;
-  margin-left: 70px;
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 25px;
