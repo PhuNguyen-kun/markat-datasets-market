@@ -44,7 +44,7 @@ const getVersionPartsDetailDb = async (id_user, id_version) => {
       {
         $project: {
           _id: 0, // Loại bỏ trường _id khỏi kết quả
-          id_part: '$_id', // Đổi tên _id thành id_part để hiển thị trong kết quả
+          id_part: { $toInt: '$_id' }, // Chuyển đổi _id sang số và đặt tên là id_part
           part_number: 1,
           userLabelCount: 1,
           uniqueLabelerCount: { $size: '$uniqueLabelers' } // Đếm số lượng labeler duy nhất
@@ -58,6 +58,7 @@ const getVersionPartsDetailDb = async (id_user, id_version) => {
     throw error;
   }
 };
+
 
 const getDatasDb = async (id_user, id_part) => {
   try {
