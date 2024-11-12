@@ -13,9 +13,9 @@ class YourWorkService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   }
-  getYourWorkDetail = async (id_user, id_dataset) => {
+  getYourWorkDetail = async (id_user, id_version) => {
     try {
-      return await getYourWorkDetailDb(id_user, id_dataset)
+      return await getYourWorkDetailDb(id_user, id_version)
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }
