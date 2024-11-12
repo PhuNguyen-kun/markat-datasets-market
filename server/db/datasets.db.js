@@ -1,3 +1,4 @@
+const { log } = require("console");
 const client = require("../config");
 const Data = require('../models/data');
 const fs = require('fs').promises;
@@ -10,7 +11,7 @@ const getDatasetAvatar = async (id_dataset) => {
     return imageBuffer.toString('base64');
   } catch (err) {
     console.error(`Error reading file ${id_dataset}:`, err);
-    return null; 
+    return null;
   }
 };
 
@@ -49,7 +50,7 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
   return { items: datasetsWithAvatar };
 };
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
-  const { rows: datasets } = await client.query(
+  const { rows: dataset } = await client.query(
     `SELECT
     d.Name_dataset,
     d.Avatar,
@@ -72,7 +73,8 @@ const getDatasetbyDatasetIdDb = async (id_dataset) => {
     `,
     [id_dataset]
   );
-  return datasets[0];
+  dataset[0].avatar = await getDatasetAvatar(id_dataset);
+  return dataset[0];
 };
 
 const createDatasetDb = async ({
