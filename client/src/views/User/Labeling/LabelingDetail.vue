@@ -15,31 +15,108 @@
       <el-pagination
         background
         layout="prev, pager, next"
-        :total="1000"
+        :total="totalItems"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        @current-change="handlePageChange"
         class="labeling-detail-pagination"
       />
     </div>
 
-    <div class="labeling-detail__main">
-      <img
-        src="/608f74bc-c3ee-41ea-929a-b7259578e6e4.jpg"
-        alt=""
-        class="main-left"
-      />
+    <div class="labeling-detail__main" v-if="currentImageData">
+      <img :src="currentImageData.base64Image" alt="" class="main-left" />
       <div class="main-right">
+        <p class="main-right__title">Choose labels for the picture</p>
         <div class="label-detail__tag">
-          <button class="btn btn--rounded">Animals</button>
+          <button
+            class="btn btn--rounded"
+            v-for="label in currentImageData.labels"
+            :key="label"
+            @click="selectLabel(label)"
+          >
+            {{ label }}
+          </button>
         </div>
       </div>
+    </div>
+    <div v-else>
+      <p style="text-align: center; margin-top: 100px; color: #777">
+        No more images to label.
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { fetchLabelingDetailData, updateLabel } from '@/services/labeling'
+import { ElLoading, ElMessage } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
+const id_user = 1
+const id_part = 1
+
+const labelingData = ref([])
+const totalItems = ref(0)
+const currentPage = ref(1)
+const pageSize = 1
+let loadingInstance: any = null
+
+onMounted(async () => {
+  loadingInstance = ElLoading.service({
+    lock: true,
+    text: 'Markat is loading 🗿⌛',
+    background: 'rgba(0, 0, 0, 0.1)',
+  })
+
+  try {
+    const data = await fetchLabelingDetailData(id_user, id_part)
+    if (data && data.length > 0) {
+      labelingData.value = data
+      totalItems.value = data.length
+    } else {
+      ElMessage.error('No data available.')
+    }
+  } catch (error) {
+    ElMessage.error('Failed to fetch data.')
+  } finally {
+    if (loadingInstance) {
+      loadingInstance.close()
+    }
+  }
+})
+
+const currentImageData = computed(() => {
+  return labelingData.value[currentPage.value - 1]
+})
+
+function handlePageChange(page: number) {
+  currentPage.value = page
+}
+
+async function selectLabel(label: string) {
+  const imageData = currentImageData.value
+  if (imageData) {
+    imageData.label = label
+    imageData.labelingTime = new Date()
+
+    const result = await updateLabel(imageData._id, label)
+    if (result && result.success) {
+      ElMessage.success(`You have selected the label: ${label}`)
+
+      // Tự động chuyển sang ảnh tiếp theo
+      if (currentPage.value < totalItems.value) {
+        currentPage.value += 1
+      } else {
+        ElMessage.info('You have labeled all images.')
+      }
+    } else {
+      ElMessage.error('Failed to update label.')
+    }
+  }
+}
 
 function goBack() {
   router.back()
@@ -99,10 +176,23 @@ function goBack() {
   }
 
   .main-right {
-    width: 400px;
+    flex: 1;
     border: 1px solid #999;
     border-radius: 10px;
     padding: 20px;
+
+    &__title {
+      text-align: center;
+      font-weight: 600;
+      font-size: 17px;
+      margin-bottom: 30px;
+    }
   }
+}
+
+.label-detail__tag {
+  display: flex;
+  flex-wrap: wrap;
+  height: 100px;
 }
 </style>

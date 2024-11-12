@@ -183,16 +183,6 @@ const handleClickTab = (tab: TabsPaneContext, event: Event) => {
 }
 
 const loading = ref(false)
-const openFullScreen1 = () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Markat is loading 🗿⌛',
-    background: 'rgba(0, 0, 0, 0.5)',
-  })
-  setTimeout(() => {
-    loading.close()
-  }, 200)
-}
 
 import { fetchYourWorkData } from '@/services/yourWork'
 
@@ -217,7 +207,6 @@ const yourWorkData = ref<any[]>([])
 
 const loadData = async () => {
   try {
-    openFullScreen1()
     loading.value = true
     const token = localStorage.getItem('access_token')
     if (token) {

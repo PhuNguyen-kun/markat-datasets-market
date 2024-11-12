@@ -73,6 +73,8 @@ import { fetchLabelingData } from '@/services/labeling'
 import dayjs from 'dayjs'
 import { Calendar } from '@element-plus/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
+import { notifyError } from '@/services/notification'
+import { ElLoading } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
@@ -84,7 +86,17 @@ const id_dataset = Number(route.query.id_dataset)
 const id_user = Number(route.query.id_user)
 const versionNumber = ref('')
 const datasetName = ref('')
-const labelingData = ref([])
+const id_part = Number(route.query.id_part)
+// const labelingData = ref([])
+let loadingInstance: any = null
+
+type LabelingItem = {
+  _id: string
+  part_number: number
+  userLabelCount: number
+  uniqueLabelerCount: number
+}
+const labelingData = ref<LabelingItem[]>([])
 
 function goBack() {
   router.back()
@@ -95,16 +107,40 @@ function reset() {
 }
 
 async function loadLabelingData() {
+  loadingInstance = ElLoading.service({
+    lock: true,
+    text: 'Markat is loading 🗿⌛',
+    background: 'rgba(0, 0, 0, 0.1)',
+  })
+
   try {
     const data = await fetchLabelingData(id_user, id_version)
     labelingData.value = data.items
   } catch (error) {
     console.error('Failed to load labeling data:', error)
+  } finally {
+    if (loadingInstance) {
+      loadingInstance.close()
+    }
   }
 }
 
 const moveToLabelingDetail = () => {
-  router.push('/labeling-detail')
+  const userID = id_user || 1
+  const partID = id_part || 1
+
+  if (userID && partID) {
+    router.push({
+      path: '/labeling-detail',
+      query: {
+        id_user: userID.toString(),
+        id_part: userID.toString(),
+      },
+    })
+  } else {
+    notifyError('Failed to navigate to labeling detail')
+    console.error('No labeling detail found')
+  }
 }
 
 onMounted(() => {

@@ -143,6 +143,7 @@ import { fetchYourWorkData, fetchYourWorkDetailData } from '@/services/yourWork'
 import { useRoute, useRouter } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 import { notifyError } from '@/services/notification'
+import { ElLoading } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
@@ -161,12 +162,19 @@ const userLabeledCount = ref(0)
 const value = ref(Date.now() + 1000 * 60 * 60 * 7)
 const value1 = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
 const value2 = ref(dayjs().add(1, 'month').startOf('month'))
+let loadingInstance: any = null
 
 function reset() {
   value1.value = Date.now() + 1000 * 60 * 60 * 24 * 2
 }
 
 const loadYourWorkData = async () => {
+  loadingInstance = ElLoading.service({
+    lock: true,
+    text: 'Markat is loading 🗿⌛',
+    background: 'rgba(0, 0, 0, 0.1)',
+  })
+
   try {
     const data = await fetchYourWorkData(id_user)
     console.log(data.items)
@@ -188,6 +196,10 @@ const loadYourWorkData = async () => {
     }
   } catch (error) {
     console.error('Failed to load your work data:', error)
+  } finally {
+    if (loadingInstance) {
+      loadingInstance.close()
+    }
   }
 }
 
