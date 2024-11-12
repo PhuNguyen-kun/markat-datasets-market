@@ -43,7 +43,8 @@ const getVersionPartsDetailDb = async (id_user, id_version) => {
       },
       {
         $project: {
-          ID_part: '$_id', // Đổi tên _id thành ID_part để hiển thị trong kết quả
+          _id: 0, // Loại bỏ trường _id khỏi kết quả
+          id_part: '$_id', // Đổi tên _id thành id_part để hiển thị trong kết quả
           part_number: 1,
           userLabelCount: 1,
           uniqueLabelerCount: { $size: '$uniqueLabelers' } // Đếm số lượng labeler duy nhất
