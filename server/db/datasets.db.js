@@ -8,7 +8,6 @@ const getDatasetAvatar = async (id_dataset) => {
   try {
     const imagePath = path.join(__dirname, '..', 'Package/Datasets/Avatar/avatar' + id_dataset.toString() + '.png');
     const imageBuffer = await fs.readFile(imagePath);
-    // Thêm prefix `data:image/png;base64,` trước chuỗi base64
     return `data:image/png;base64,${imageBuffer.toString('base64')}`;
   } catch (err) {
     console.error(`Error reading file ${id_dataset}:`, err);

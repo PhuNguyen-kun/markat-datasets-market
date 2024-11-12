@@ -1,5 +1,6 @@
 const {
     getAllProjectsDb,
+    getProjectDetailDb,
 } = require("../db/project.db");
 const { ErrorHandler } = require("../helpers/error");
 
@@ -9,6 +10,13 @@ class ProjectService {
         const offset = (page - 1) * limit;
         try {
             return await getAllProjectsDb({ limit, offset });
+        } catch (error) {
+            throw new ErrorHandler(error.statusCode, error.message);
+        }
+    };
+    getProjectDetail = async (id_version) => {
+        try {
+            return await getProjectDetailDb(id_version);
         } catch (error) {
             throw new ErrorHandler(error.statusCode, error.message);
         }

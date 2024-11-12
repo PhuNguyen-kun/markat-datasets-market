@@ -99,6 +99,18 @@ CREATE TABLE Version (
     Status INT
 );
 
+CREATE TABLE Version_sender_tag (
+    ID_version_expert_tag SERIAL PRIMARY KEY,
+    ID_version INT REFERENCES Version(ID_version),
+    ID_expert_tag INT REFERENCES Expert_Tag (ID_expert_tag)
+);
+
+CREATE TABLE Version_labeler_tag (
+    ID_version_labeler_tag SERIAL PRIMARY KEY,
+    ID_version INT REFERENCES Version(ID_version),
+    ID_expert_tag INT REFERENCES Expert_Tag (ID_expert_tag)
+);
+
 CREATE TABLE Part (
     ID_part SERIAL PRIMARY KEY,
     ID_version INT REFERENCES Version(ID_version),
@@ -174,18 +186,6 @@ CREATE TABLE Censorship_complete_version(
     Confirm BOOlEAN,
 	Reason TEXT,
 	Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP(0)
-);
-
-CREATE TABLE Version_sender_expert (
-    ID_version_sender_expert SERIAL PRIMARY KEY,
-	ID_version INT REFERENCES Version(ID_version),
-    ID_expert_tag INT REFERENCES Expert_Tag(ID_expert_tag)
-);
-
-CREATE TABLE Version_labeler_expert (
-    ID_version_labeler_expert SERIAL PRIMARY KEY,
-	ID_version INT REFERENCES Version(ID_version),
-    ID_expert_tag INT REFERENCES Expert_Tag(ID_expert_tag)
 );
 
 CREATE TABLE Authen (
@@ -558,6 +558,88 @@ INSERT INTO Version (
 (4, 510.75, 12, 92, '2025-01-01 10:00:00', 55.12345, 50.32145, 1100, '2025-03-18 08:06:41', '2025-12-23 20:49:48', '2025-12-31 06:59:40', 85.0, 1),
 (5, 460.25, 12, 64, '2025-01-01 10:00:00', 65.32145, 60.54321, 1400, '2025-12-11 16:22:33', '2025-12-28 06:39:54', '2025-12-31 02:41:49', 70.0, 2);
 
+INSERT INTO Expert_Tag (Expertise)
+VALUES ('Everyone'),
+('Ophthalmologist'),
+('Otolaryngologist'),
+('Pulmonologist'),
+('Cardiologist'),
+('Gastroenterologist'),
+('Neurologist'),
+('Dermatologist'),
+('Orthopedic Surgeon'),
+('Oncologist'),
+('Obstetrician'),
+('Pediatrician'),
+('Structural Engineer'),
+('Civil Engineer'),
+('Geotechnical Engineer'),
+('Urban Planner'),
+('Construction Safety Engineer'),
+('Construction Cost Analyst'),
+('Energy Efficiency Specialist'),
+('Geneticis'),
+('Molecular Biologist'),
+('Ecologist'),
+('Cellular Biologist'),
+('Plant Biotechnologist'),
+('Data Sciencist');
+
+INSERT INTO Expert (ID_user, ID_expert_tag)
+VALUES (1, 25),
+(1, 8),
+(1, 22),
+(1, 24),
+(1, 1),
+(2, 22),
+(2, 24),
+(2, 1),
+(14, 22),
+(14, 24),
+(14, 1),
+(26, 22),
+(26, 24),
+(26, 1),
+(17, 1),
+(13, 1);
+
+INSERT INTO Expert_Register (ID_user, ID_expert_tag, File_CV)
+VALUES (1, 25, 'Path/CV1'),
+(1, 22, 'Path/CV2'),
+(1, 24, 'Path/CV3'),
+(1, 1, 'Path/CV4'),
+(2, 22, 'Path/CV5'),
+(2, 24, 'Path/CV6'),
+(2, 1, 'Path/CV7'),
+(14, 22, 'Path/CV8'),
+(14, 24, 'Path/CV9'),
+(14, 1, 'Path/CV10'),
+(26, 22, 'Path/CV11'),
+(26, 24, 'Path/CV12'),
+(26, 1, 'Path/CV13'),
+(17, 1, 'Path/CV14');
+
+INSERT INTO Version_sender_tag (ID_version, ID_expert_tag) VALUES
+(1, 1),
+(2, 1),
+(7, 8),
+(7, 25),
+(9, 1),
+(10, 1),
+(11, 1);
+INSERT INTO Version_labeler_tag (ID_version, ID_expert_tag) VALUES
+(1, 22),
+(1, 24),
+(1, 25),
+(7, 8),
+(9, 22),
+(9, 24),
+(10, 1),
+(11, 22),
+(11, 24),
+(11, 25),
+(2, 1);
+
 INSERT INTO Part (ID_version, Number_of_record) VALUES
 (1, 8), (1, 13), (1, 10), (1, 8), (1, 7),
 (1, 5), (1, 8), (1, 8), (1, 3), (1, 10),
@@ -669,65 +751,6 @@ INSERT INTO Censorship_complete_version (ID_admin, ID_version, Confirm, Reason) 
 (4, 9, FALSE, 'Issues detected during quality assurance.'),
 (5, 10, TRUE, 'All issues resolved, confirmed for release.');
 
-INSERT INTO Expert_Tag (Expertise)
-VALUES ('Everyone'),
-('Ophthalmologist'),
-('Otolaryngologist'),
-('Pulmonologist'),
-('Cardiologist'),
-('Gastroenterologist'),
-('Neurologist'),
-('Dermatologist'),
-('Orthopedic Surgeon'),
-('Oncologist'),
-('Obstetrician'),
-('Pediatrician'),
-('Structural Engineer'),
-('Civil Engineer'),
-('Geotechnical Engineer'),
-('Urban Planner'),
-('Construction Safety Engineer'),
-('Construction Cost Analyst'),
-('Energy Efficiency Specialist'),
-('Geneticis'),
-('Molecular Biologist'),
-('Ecologist'),
-('Cellular Biologist'),
-('Plant Biotechnologist'),
-('Data Sciencist');
-
-INSERT INTO Expert (ID_user, ID_expert_tag)
-VALUES (1, 25),
-(1, 22),
-(1, 24),
-(1, 1),
-(2, 22),
-(2, 24),
-(2, 1),
-(14, 22),
-(14, 24),
-(14, 1),
-(26, 22),
-(26, 24),
-(26, 1),
-(17, 1);
-
-INSERT INTO Expert_Register (ID_user, ID_expert_tag, File_CV)
-VALUES (1, 25, 'Path/CV1'),
-(1, 22, 'Path/CV2'),
-(1, 24, 'Path/CV3'),
-(1, 1, 'Path/CV4'),
-(2, 22, 'Path/CV5'),
-(2, 24, 'Path/CV6'),
-(2, 1, 'Path/CV7'),
-(14, 22, 'Path/CV8'),
-(14, 24, 'Path/CV9'),
-(14, 1, 'Path/CV10'),
-(26, 22, 'Path/CV11'),
-(26, 24, 'Path/CV12'),
-(26, 1, 'Path/CV13'),
-(17, 1, 'Path/CV14');
-
 INSERT INTO Authen (ID_admin, ID_expert_register, Confirm, Reason)
 VALUES (1, 1, TRUE, 'Approved without issues.'),
 (2, 2, FALSE, 'Missing required documentation.'),
@@ -735,12 +758,12 @@ VALUES (1, 1, TRUE, 'Approved without issues.'),
 (4, 4, FALSE, 'Incomplete CV provided.'),
 (5, 5, TRUE, 'Expert registration approved.');
 
-INSERT INTO Version_sender_expert (ID_version, ID_expert_tag)
+INSERT INTO Version_sender_tag (ID_version, ID_expert_tag)
 VALUES (1, 1),
 (2, 1),
 (11, 1);
 
-INSERT INTO Version_labeler_expert (ID_version, ID_expert_tag)
+INSERT INTO Version_labeler_tag (ID_version, ID_expert_tag)
 VALUES (1, 22),
 (1, 24),
 (2, 1),
