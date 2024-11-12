@@ -78,5 +78,5 @@ const getAllProjectsDb = async ({ limit, offset }) => {
 };
 
 module.exports = {
-    getAllProjectsDb,
+  getAllProjectsDb,
 };
