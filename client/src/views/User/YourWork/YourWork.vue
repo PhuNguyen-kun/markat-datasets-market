@@ -135,7 +135,7 @@ import { ElLoading, type TabsPaneContext } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 
-const route = useRouter()
+const router = useRouter()
 
 const dialogVisible = ref(false)
 import { ElMessageBox } from 'element-plus'
@@ -204,7 +204,7 @@ const handleClick = (id_dataset: number) => {
     const decoded = jwtDecode<{ id_user: number }>(token)
     const id_user = decoded.id_user
 
-    route.push({
+    router.push({
       path: '/your-work-detail',
       query: { id_user: id_user.toString(), id_dataset: id_dataset.toString() },
     })

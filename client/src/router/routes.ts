@@ -71,6 +71,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: '/labeling-detail',
+        name: 'labeling-detail',
+        component: () => import('../views/User/Labeling/LabelingDetail.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+
+      {
         path: '/datasets/:id',
         name: 'dataset-detail',
         component: () => import('../views/User/Datasets/DatasetDetail.vue'),
