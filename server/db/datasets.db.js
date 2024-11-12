@@ -53,27 +53,32 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
   const { rows: dataset } = await client.query(
     `SELECT
-    d.Name_dataset,
-    d.Avatar,
-    COALESCE(dsr.Description, dbr.Description) AS Description,
-    STRING_AGG(t.Tag_name, ', ') AS Tags
+      d.Name_dataset,
+      d.Avatar,
+      COALESCE(dsr.Description, dbr.Description) AS Description,
+      STRING_AGG(t.Tag_name, ', ') AS Tags,
+      version_count.total_versions AS versionCount
     FROM
-        Dataset d
+      Dataset d
     LEFT JOIN
-        Data_selling_request dsr ON d.ID_dataset = dsr.ID_dataset AND d.Request_type = 'Selling'
+      Data_selling_request dsr ON d.ID_dataset = dsr.ID_dataset AND d.Request_type = 'Selling'
     LEFT JOIN
-        Data_buying_request dbr ON d.ID_dataset = dbr.ID_dataset AND d.Request_type = 'Buying'
+      Data_buying_request dbr ON d.ID_dataset = dbr.ID_dataset AND d.Request_type = 'Buying'
     LEFT JOIN
-        Dataset_tag dt ON d.ID_dataset = dt.ID_dataset
+      Dataset_tag dt ON d.ID_dataset = dt.ID_dataset
     LEFT JOIN
-        Tag t ON dt.ID_tag = t.ID_tag
+      Tag t ON dt.ID_tag = t.ID_tag
+    LEFT JOIN
+      (SELECT ID_dataset, COUNT(*) AS total_versions FROM Version GROUP BY ID_dataset) AS version_count
+      ON d.ID_dataset = version_count.ID_dataset
     WHERE
-        d.ID_dataset = $1
+      d.ID_dataset = $1
     GROUP BY
-    d.Name_dataset, d.Avatar, dsr.Description, dbr.Description;
+      d.Name_dataset, d.Avatar, dsr.Description, dbr.Description, version_count.total_versions;
     `,
     [id_dataset]
   );
+
   dataset[0].avatar = await getDatasetAvatar(id_dataset);
   return dataset[0];
 };
