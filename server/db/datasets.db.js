@@ -1,7 +1,18 @@
 const client = require("../config");
-const Dataset = require('../models/dataset');
+const Data = require('../models/data');
 const fs = require('fs').promises;
 const path = require('path');
+
+const getDatasetAvatar = async (id_dataset) => {
+  try {
+    const imagePath = path.join(__dirname, '..', 'Package/Datasets/Avatar/avatar' + id_dataset.toString() + '.png');
+    const imageBuffer = await fs.readFile(imagePath);
+    return imageBuffer.toString('base64');
+  } catch (err) {
+    console.error(`Error reading file ${id_dataset}:`, err);
+    return null; 
+  }
+};
 
 const getAllDatasetsDb = async ({ limit, offset }) => {
   const datasets = await client.query(
@@ -28,14 +39,12 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
     [offset, limit]
   );
 
-const datasetsWithAvatar = await Promise.all(datasets.rows.map(async (dataset) => {
-  if (dataset.avatar) {
-    const imagePath = path.join(__dirname, '..','Package/Datasets/Avatar', dataset.avatar);
-    const imageBuffer = await fs.readFile(imagePath);
-    dataset.avatar = imageBuffer.toString('base64');
-  }
-  return dataset;
-}));
+  const datasetsWithAvatar = await Promise.all(datasets.rows.map(async (dataset) => {
+    if (dataset.avatar && dataset.id_dataset) {
+      dataset.avatar = await getDatasetAvatar(dataset.id_dataset)
+    }
+    return dataset;
+  }));
 
   return { items: datasetsWithAvatar };
 };
@@ -211,7 +220,7 @@ const versionBuyingTransactionDb = async (id_user, id_version) => {
         [transactionId, requesterId, id_version, requesterReward, 'requester']
        );
 
-      const labeledData = await Dataset.aggregate([
+      const labeledData = await Data.aggregate([
         { $match: { 'image.ID_version': id_version } },
         { $unwind: '$image.labeled' },
         { $group: {
@@ -275,6 +284,7 @@ const versionBuyingTransactionDb = async (id_user, id_version) => {
 };
 
 module.exports = {
+  getDatasetAvatar,
   getAllDatasetsDb,
   getDatasetbyDatasetIdDb,
   createDatasetDb,

@@ -1,5 +1,5 @@
 const client = require("../config");
-const Data = require('../models/dataset');
+const Data = require('../models/data');
 const fs = require('fs').promises;
 const path = require('path');
 const getAllYourWorkVersionsByUserIdDb = async (id_user) => {

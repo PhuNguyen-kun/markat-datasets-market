@@ -1,6 +1,6 @@
 const client = require("../config");
 const mongoose = require('mongoose');
-const Data = require('../models/dataset');
+const Data = require('../models/data');
 const getVersionPartsDetailDb = async (id_user, id_version) => {
   try {
     const partsDetails = await Data.aggregate([
