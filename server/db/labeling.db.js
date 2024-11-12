@@ -6,46 +6,47 @@ const getVersionPartsDetailDb = async (id_user, id_version) => {
     const partsDetails = await Data.aggregate([
       {
         $match: {
-          'image.ID_version': id_version.toString() // Filter by version ID
+          'image.ID_version': id_version.toString() // Lọc theo ID_version trong trường image
         }
       },
       {
         $group: {
-          _id: '$image.ID_part', // Group by part ID
+          _id: '$image.ID_part', // Nhóm theo ID_part trong image
           userLabelCount: {
             $sum: {
               $size: {
                 $filter: {
                   input: '$image.labeled',
                   as: 'label',
-                  cond: { $eq: ['$$label.labeler', id_user.toString()] } // Count labels by user
+                  cond: { $eq: ['$$label.labeler', id_user.toString()] } // Đếm các label do người dùng cụ thể gán
                 }
               }
             }
           },
           uniqueLabelers: {
-            $addToSet: '$image.labeled.labeler' // Collect unique labelers
+            $addToSet: '$image.labeled.labeler' // Thu thập các labeler duy nhất
           }
         }
       },
       {
         $sort: {
-          _id: 1 // Sort parts by ID_part in ascending order
+          _id: 1 // Sắp xếp theo ID_part tăng dần
         }
       },
       {
         $setWindowFields: {
           sortBy: { _id: 1 },
           output: {
-            part_number: { $documentNumber: {} } // Assign sequential numbers starting from 1
+            part_number: { $documentNumber: {} } // Đánh số thứ tự cho các phần bắt đầu từ 1
           }
         }
       },
       {
         $project: {
+          ID_part: '$_id', // Đổi tên _id thành ID_part để hiển thị trong kết quả
           part_number: 1,
           userLabelCount: 1,
-          uniqueLabelerCount: { $size: '$uniqueLabelers' } // Count unique labelers
+          uniqueLabelerCount: { $size: '$uniqueLabelers' } // Đếm số lượng labeler duy nhất
         }
       }
     ]);
