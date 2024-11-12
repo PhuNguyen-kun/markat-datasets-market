@@ -21,14 +21,14 @@ const getAllYourWorkVersionsByUserId = async (req, res) => {
 
 const getYourWorkDetail = async (req, res) => {
   try {
-    const { id_user, id_dataset } = req.query;
+    const { id_user, id_version } = req.query;
 
-    if (!id_user || !id_dataset) {
+    if (!id_user || !id_version) {
       return res.status(400).json({ message: "User ID or Dataset ID is required" });
     }
     const yourworkdetail = await YourWorkService.getYourWorkDetail(
       id_user,
-      id_dataset,
+      id_version,
     );
     if (!yourworkdetail) {
       return res.status(404).json({ message: "Your work detail not found" });
