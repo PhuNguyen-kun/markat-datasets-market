@@ -64,13 +64,12 @@ const openFullScreen1 = () => {
 
 const loadDatasets = async () => {
   try {
-    await openFullScreen1();
-    items.value = await fetchDatasets();
+    await openFullScreen1()
+    items.value = await fetchDatasets()
   } catch (error) {
-    console.error('Failed to load datasets:', error);
+    console.error('Failed to load datasets:', error)
   }
-};
-
+}
 
 const goToDetail = (id: number) => {
   route.push({ name: 'dataset-detail', params: { id } })
@@ -87,8 +86,7 @@ onMounted(() => {
   padding: 20px 40px;
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-around;
+  gap: 25px;
   justify-content: start;
 }
 
@@ -96,7 +94,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   background-color: white;
-  width: 250px;
+  width: 220px;
   border-radius: 30px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   overflow: hidden;
@@ -110,7 +108,7 @@ onMounted(() => {
 
 .card-image {
   width: 100%;
-  height: 150px;
+  height: 100px;
   object-fit: cover;
 }
 
@@ -120,12 +118,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  line-height: 15px;
 }
 
 .card-title {
   font-size: 1.1rem;
   font-weight: bold;
-  margin: 8px 0;
+  //margin: 2px 0 1px 0;
+  height: 60px;
+  line-height: 22px;
 }
 
 .card-info {
@@ -138,9 +139,9 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
-  padding: 10px 0;
-  margin-bottom: -14px;
+  margin-top: 5px;
+  padding: 10px 0 0 0;
+  margin-bottom: -5px;
 }
 
 .views {

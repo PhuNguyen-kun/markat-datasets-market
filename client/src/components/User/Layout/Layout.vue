@@ -70,18 +70,16 @@ const toggleSidebar = () => {
 .main {
   //margin-top: 60px;
   //flex: 1.8;
+  min-height: 100vh;
 }
 
 .footer {
   //height: 170px;
-  min-height: calc(100vh - 500px);
+  min-height: calc(100vh - 670px);
   background-color: var(--markat-theme-dark);
   background-image: url('/background_in_space.webp');
   //background-repeat: no-repeat, repeat;
 }
 </style>
 
-<style lang="scss">
-.el-footer {
-}
-</style>
+<style lang="scss"></style>
