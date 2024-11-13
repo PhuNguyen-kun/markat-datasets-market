@@ -49,7 +49,7 @@
     </div>
     <h1 class="labeling__title">Labeling Workspace</h1>
     <div class="labeling__main">
-      <div class="card" v-for="item in labelingData">
+      <div class="card" v-for="item in labelingData" :key="item.id_part">
         <div class="card-content">
           <h2 class="card-title">Part {{ item.part_number }}</h2>
           <p class="card-info">Labeled: {{ item.userLabelCount }}</p>
@@ -57,7 +57,10 @@
             Unique Label Count: {{ item.uniqueLabelerCount }}
           </p>
           <p class="card-footer">
-            <button class="btn btn--rounded" @click="moveToLabelingDetail">
+            <button
+              class="btn btn--rounded"
+              @click="moveToLabelingDetail(item.id_part)"
+            >
               Start labeling
             </button>
           </p>
@@ -81,19 +84,23 @@ const router = useRouter()
 const value = ref(Date.now() + 1000 * 60 * 60 * 7)
 const value1 = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
 const value2 = ref(dayjs().add(1, 'month').startOf('month'))
-const id_version = Number(route.query.id_version) || 1
+const id_version = Number(route.query.id_version)
 const id_dataset = Number(route.query.id_dataset)
 const id_user = Number(route.query.id_user)
 const versionNumber = ref('')
 const datasetName = ref('')
-const id_part = Number(route.query.id_part)
+// const id_part = Number(route.query.id_part)
+const id_part = ref<number | null>(null)
+
+console.log(route.query)
+// const id_part = ref()
 // const labelingData = ref([])
 let loadingInstance: any = null
 
 type LabelingItem = {
-  _id: string
   part_number: number
   userLabelCount: number
+  id_part: number
   uniqueLabelerCount: number
 }
 const labelingData = ref<LabelingItem[]>([])
@@ -115,7 +122,15 @@ async function loadLabelingData() {
 
   try {
     const data = await fetchLabelingData(id_user, id_version)
+    console.log('API response:', data)
+
     labelingData.value = data.items
+
+    if (data.id_part) {
+      id_part.value = data.id_part
+    } else {
+      console.warn('id_part is missing in the API response')
+    }
   } catch (error) {
     console.error('Failed to load labeling data:', error)
   } finally {
@@ -125,16 +140,16 @@ async function loadLabelingData() {
   }
 }
 
-const moveToLabelingDetail = () => {
+const moveToLabelingDetail = (id_part: any) => {
   const userID = id_user || 1
-  const partID = id_part || 1
-
-  if (userID && partID) {
+  // const partID = id_part || 1
+  console.log(id_user, id_part)
+  if (userID && id_part) {
     router.push({
       path: '/labeling-detail',
       query: {
         id_user: userID.toString(),
-        id_part: userID.toString(),
+        id_part: id_part.toString(),
       },
     })
   } else {
