@@ -1,6 +1,4 @@
-const { log } = require("console");
 const client = require("../config");
-const Data = require('../models/data');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -16,7 +14,7 @@ const getDatasetAvatar = async (id_dataset) => {
 };
 
 const getAllDatasetsDb = async ({ limit, offset }) => {
-  const datasets = await client.query(
+  const { rows: datasets } = await client.query(
     `SELECT
     d.ID_dataset,
     d.Avatar,
@@ -39,15 +37,7 @@ const getAllDatasetsDb = async ({ limit, offset }) => {
     `,
     [offset, limit]
   );
-
-  const datasetsWithAvatar = await Promise.all(datasets.rows.map(async (dataset) => {
-    if (dataset.avatar && dataset.id_dataset) {
-      dataset.avatar = await getDatasetAvatar(dataset.id_dataset)
-    }
-    return dataset;
-  }));
-
-  return { items: datasetsWithAvatar };
+  return datasets;
 };
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
   const { rows: dataset } = await client.query(
@@ -77,8 +67,6 @@ const getDatasetbyDatasetIdDb = async (id_dataset) => {
     `,
     [id_dataset]
   );
-
-  dataset[0].avatar = await getDatasetAvatar(id_dataset);
   return dataset[0];
 };
 
@@ -91,8 +79,8 @@ const createDatasetDb = async ({
 }) => {
   const { rows: datasets } = await client.query(
     `
-        INSERT INTO Dataset (Reliability_minimum, Avatar, Name_dataset, Voucher, Field)
-        VALUES ($1, $2, $3, $4, $5) returning *
+    INSERT INTO Dataset (Reliability_minimum, Avatar, Name_dataset, Voucher, Field)
+    VALUES ($1, $2, $3, $4, $5) returning *
     `,
     [reliability_minimum, avatar, name_dataset, voucher, field]
   );
@@ -152,142 +140,7 @@ const getVersionDb = async (id_dataset, name_version) => {
     `,
     [id_dataset, name_version]
   );
-  return version;
-};
-
-const roundDownToTwoDecimals = (value) => {
-  return Math.floor(value * 100) / 100;
-};
-const versionBuyingTransactionDb = async (id_user, id_version) => {
-  try {
-    await client.query("BEGIN");
-    const { rows: versionRows } = await client.query(
-      `SELECT Price, Stock_percent,
-              COALESCE((SELECT ID_seller FROM Data_selling_request WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1) LIMIT 1),
-                       (SELECT ID_buyer FROM Data_buying_request WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1) LIMIT 1)) AS Requester_ID,
-              (SELECT Voucher FROM Dataset WHERE ID_dataset = (SELECT ID_dataset FROM Version WHERE ID_version = $1)) AS Voucher
-       FROM Version
-       WHERE ID_version = $1`,
-      [id_version]
-    );
-    let price = versionRows[0]?.price;
-    let stockPercent = versionRows[0]?.stock_percent / 100;
-    let requesterId = versionRows[0]?.requester_id;
-    let voucher = versionRows[0]?.voucher;
-
-    if (price === undefined || stockPercent === undefined || requesterId === undefined) {
-      throw new Error("Version not found or necessary data not defined.");
-    }
-    // voucher
-    price *= (1 - voucher / 100);
-    const { rows: userRows } = await client.query(
-      `SELECT Kat
-       FROM Users
-       WHERE ID_user = $1`,
-      [id_user]
-    );
-    let currentKat = userRows[0]?.kat;
-
-    if (currentKat === undefined) {
-      throw new Error("User not found.");
-    }
-
-     if (currentKat >= price) {
-      const { rows: transactionRows } = await client.query(
-        `INSERT INTO Transaction (ID_buyer, ID_version)
-         VALUES ($1, $2) RETURNING ID_transaction`,
-        [id_user, id_version]
-      );
-
-      const transactionId = transactionRows[0].id_transaction;
-
-      let remainingKat = currentKat - price;
-      await client.query(
-        `UPDATE Users
-         SET Kat = $1
-         WHERE ID_user = $2`,
-        [remainingKat, id_user]
-      );
-      // Markat get 20%
-      price *= 0.8
-      // requester get 5%
-      let requesterReward = price * 0.05
-      let distributableAmount = price - requesterReward
-
-      await client.query(
-        `UPDATE Users
-         SET Kat = Kat + $1
-         WHERE ID_user = $2`,
-        [requesterReward, requesterId]
-      );
-
-      await client.query(
-        `INSERT INTO TransactionDetails (ID_transaction, ID_user, ID_version, amount_earned, role)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [transactionId, requesterId, id_version, requesterReward, 'requester']
-       );
-
-      const labeledData = await Data.aggregate([
-        { $match: { 'image.ID_version': id_version } },
-        { $unwind: '$image.labeled' },
-        { $group: {
-            _id: '$image.labeled.labeler',
-            labelCount: { $sum: 1 }
-          }
-        }
-      ]);
-
-      const totalLabels = labeledData.reduce((sum, user) => sum + user.labelCount, 0);
-
-      const sendData = await Dataset.aggregate([
-        { $match: { 'image.ID_version': id_version } },
-        { $group: {
-            _id: '$image.sender',
-            sendCount: { $sum: 1 }
-          }
-        }
-      ]);
-
-      const totalImagesSent = sendData.reduce((sum, sender) => sum + sender.sendCount, 0);
-       for (const labeler of labeledData) {
-        let rewardForLabeler = roundDownToTwoDecimals((distributableAmount * stockPercent) * (labeler.labelCount / totalLabels));
-         await client.query(
-          `UPDATE Users
-           SET Kat = Kat + $1
-           WHERE ID_user = $2`,
-          [rewardForLabeler, labeler._id]
-        );
-        await client.query(
-          `INSERT INTO TransactionDetails (ID_transaction, ID_user, ID_version, amount_earned, role)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [transactionId, labeler._id, id_version, rewardForLabeler, 'labeler']
-        );
-      }
-       for (const sender of sendData) {
-        let rewardForSender = roundDownToTwoDecimals((distributableAmount * (1 - stockPercent)) * (sender.sendCount / totalImagesSent));
-        await client.query(
-          `UPDATE Users
-           SET Kat = Kat + $1
-           WHERE ID_user = $2`,
-          [rewardForSender, sender._id]
-        );
-        await client.query(
-          `INSERT INTO TransactionDetails (ID_transaction, ID_user, ID_version, amount_earned, role)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [transactionId, sender._id, id_version, rewardForSender, 'sender']
-        );
-      }
-
-      await client.query("COMMIT");
-      return { success: true, remainingKat };
-    } else {
-      await client.query("ROLLBACK");
-      throw new Error("Insufficient balance to make transaction.");
-    }
-  } catch (error) {
-    await client.query("ROLLBACK");
-    return { success: false, error: error.message };
-  }
+  return version[0];
 };
 
 module.exports = {
@@ -298,5 +151,4 @@ module.exports = {
   getUserOwnedDatasetsDb,
   getUserOwnedDatasetByIdDb,
   getVersionDb,
-  versionBuyingTransactionDb,
 };

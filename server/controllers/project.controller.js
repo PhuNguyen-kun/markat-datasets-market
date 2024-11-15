@@ -1,18 +1,31 @@
-const projectService = require("../services/project.service.js");
+const projectService = require("../services/project.service");
+const handleRequest = require("../helpers/handleRequest");
 
-const getAllProjects = async (req, res) => {
-    const { page = 1 } = req.query;
-    const projects = await projectService.getAllProjects(page);
-    res.status(200).json(projects);
+const getAllProjects = async (req, res, next) => {
+  const { page = 1 } = req.query;
+  await handleRequest(
+    projectService.getAllProjects,
+    [page],
+    res,
+    next,
+    "Projects retrieved successfully",
+    "Projects not found"
+  );
 };
-const getProjectDetail = async (req, res) => {
-    const { id_version } = req.query;
-   // console.log(id_part);
 
-    const projectDetail = await projectService.getProjectDetail(id_version);
-    res.status(200).json(projectDetail);
-}
+const getProjectDetail = async (req, res, next) => {
+  const { id_version } = req.query;
+  await handleRequest(
+    projectService.getProjectDetail,
+    [id_version],
+    res,
+    next,
+    "Project detail retrieved successfully",
+    "Project detail not found"
+  );
+};
+
 module.exports = {
-    getAllProjects,
-    getProjectDetail,
+  getAllProjects,
+  getProjectDetail,
 };

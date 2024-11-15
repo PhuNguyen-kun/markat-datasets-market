@@ -1,80 +1,146 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const authService = require("../services/auth.service.js");
+const handleRequest = require("../helpers/handleRequest");
 
-const createAccount = async (req, res) => {
-  const { user } = await authService.signUp(req.body);
-  res.status(200).json({
-    user,
-  });
+const SECRET_KEY = process.env.SECRET_KEY;
+const JWT_EXPIRATION = "1h";
+
+const createAccount = async (req, res, next) => {
+  await handleRequest(
+    authService.signUp,
+    [req.body],
+    res,
+    next,
+    "Account created successfully.",
+    "Account creation failed."
+  );
 };
 
-// const loginUser = async (req, res) => {
-//   const { email, password } = req.body;
-//   const { user } = await authService.login(email, password);
-//   res.status(200).json({
-//     user,
-//   });
-// };
+const loginUser = async (req, res, next) => {
+  const { email, password } = req.body;
 
-const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const { user } = await authService.login(email, password);
-    console.log("User data:", user); // Kiểm tra thông tin user
-
-    const access_token = jwt.sign(
-      { id_user: user.id_user, full_name: user.full_name, email: user.email },
-      process.env.SECRET_KEY,
-      { expiresIn: "1h" }
-    );
-
-    res.status(200).json({
-      user: {
-        id_user: user.id_user,
-        full_name: user.full_name,
-        email: user.email,
-      },
-      access_token,
+  if (!email || !password) {
+    return res.status(400).json({
+      status: "error",
+      message: "Email and password are required.",
     });
-  } catch (error) {
-    res.status(error.statusCode || 500).json({ message: error.message });
   }
+
+  await handleRequest(
+    async (email, password) => {
+      const { user } = await authService.login(email, password);
+      const access_token = jwt.sign(
+        {
+          id_user: user.id_user,
+          full_name: user.full_name,
+          email: user.email,
+        },
+        SECRET_KEY,
+        { expiresIn: JWT_EXPIRATION }
+      );
+      return {
+        user: {
+          id_user: user.id_user,
+          full_name: user.full_name,
+          email: user.email,
+        },
+        access_token,
+      };
+    },
+    [email, password],
+    res,
+    next,
+    "Login successful.",
+    "Invalid credentials."
+  );
 };
 
-const forgotPassword = async (req, res) => {
+const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
 
-  await authService.forgotPassword(email);
+  if (!email) {
+    return res.status(400).json({
+      status: "error",
+      message: "Email is required.",
+    });
+  }
 
-  res.json({ status: "OK" });
+  await handleRequest(
+    authService.forgotPassword,
+    [email],
+    res,
+    next,
+    "Password reset instructions sent successfully.",
+    "Failed to send password reset instructions."
+  );
 };
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
   const { password, password2, email } = req.body;
 
-  await authService.resetPassword(password, password2, email);
+  // Input validation
+  if (!password || !password2 || !email) {
+    return res.status(400).json({
+      status: "error",
+      message: "Password, confirmation, and email are required.",
+    });
+  }
 
-  res.json({
-    status: "OK",
-    message: "Password reset. Please login with your new password.",
-  });
+  if (password !== password2) {
+    return res.status(400).json({
+      status: "error",
+      message: "Passwords do not match.",
+    });
+  }
+
+  if (password.trim().length < 6) {
+    return res.status(400).json({
+      status: "error",
+      message: "Password must be at least 6 characters long.",
+    });
+  }
+
+  // Call the resetPassword service
+  try {
+    const result = await authService.resetPassword(password, password2, email);
+    if (!result) {
+      return res.status(400).json({
+        status: "error",
+        message: "Password reset failed.",
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset successfully.",
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(error.statusCode || 500).json({
+      status: "error",
+      message: error.message || "Internal Server Error",
+    });
+  }
 };
 
-const logoutUser = async (req, res) => {
-  try {
-    const result = await authService.logout();
 
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(error.statusCode || 500).json({ message: error.message });
-  }
+
+const logoutUser = async (req, res, next) => {
+  await handleRequest(
+    authService.logout,
+    [],
+    res,
+    next,
+    "Logout successful.",
+    "Logout failed."
+  );
 };
 
 module.exports = {
   createAccount,
   loginUser,
-  //forgotPassword,
+  forgotPassword,
   resetPassword,
   logoutUser,
 };

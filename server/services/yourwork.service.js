@@ -3,37 +3,33 @@ const {
   getYourWorkDetailDb,
   getAllCollectionsByUserIdDb,
   getCollectionDetailDb,
- } = require("../db/yourwork.db");
+} = require("../db/yourwork.db");
 const { ErrorHandler } = require("../helpers/error.js");
+
 class YourWorkService {
+  handleDatabaseCall = async (dbFunction, params) => {
+    try {
+      return await dbFunction(...params);
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode || 500, error.message || "Database call failed");
+    }
+  };
+
   getAllYourWorkVersionsByUserId = async (id_user) => {
-    try {
-      return await getAllYourWorkVersionsByUserIdDb(id_user);
-    } catch (error) {
-      throw new ErrorHandler(error.statusCode, error.message);
-    }
-  }
+    return this.handleDatabaseCall(getAllYourWorkVersionsByUserIdDb, [id_user]);
+  };
+
   getYourWorkDetail = async (id_user, id_version) => {
-    try {
-      return await getYourWorkDetailDb(id_user, id_version)
-    } catch (error) {
-      throw new ErrorHandler(error.statusCode, error.message);
-    }
-  }
+    return this.handleDatabaseCall(getYourWorkDetailDb, [id_user, id_version]);
+  };
+
   getAllCollectionsByUserId = async (id_user) => {
-    try {
-      return await getAllCollectionsByUserIdDb(id_user)
-    } catch (error) {
-      throw new ErrorHandler(error.statusCode, error.message);
-    }
-  }
+    return this.handleDatabaseCall(getAllCollectionsByUserIdDb, [id_user]);
+  };
+
   getCollectionDetail = async (id_user, id_dataset) => {
-    try {
-      return await getCollectionDetailDb(id_user, id_dataset)
-    } catch (error) {
-      throw new ErrorHandler(error.statusCode, error.message);
-    }
-  }
+    return this.handleDatabaseCall(getCollectionDetailDb, [id_user, id_dataset]);
+  };
 }
 
 module.exports = new YourWorkService();

@@ -4,6 +4,7 @@ const {
   getRequestsHistoryByIdDb,
   getSendingRequestsByIdDb,
   getBuyingRequestsByIdDb,
+  getDataFormatDb,
 } = require("../db/requests.db.js");
 const { ErrorHandler } = require("../helpers/error");
 
@@ -79,6 +80,13 @@ class RequestService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
+  getDataFormat = async () => {
+    try {
+      return await getDataFormatDb();
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode, error.message);
+    }
+  }
 }
 
 module.exports = new RequestService();

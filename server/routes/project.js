@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const {
     getAllProjects,
-    getProjectDetail
+    getProjectDetail,
 } = require("../controllers/project.controller.js");
 
 router.route("/project_detail").get(getProjectDetail);

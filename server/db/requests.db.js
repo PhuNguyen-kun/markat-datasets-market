@@ -80,10 +80,20 @@ const getAllBuyingRequestsByIdDb = async (id) => {
   return requests;
 };
 
+const getDataFormatDb = async () => {
+  const { rows : data_format } = await client.query(
+    `
+    SELECT Data_format From Data_format;
+    `
+  )
+  return data_format;
+}
+
 module.exports = {
   createSellingRequestDb,
   createBuyingRequestDb,
   getRequestsHistoryByIdDb,
   getAllSendingRequestsByIdDb,
   getAllBuyingRequestsByIdDb,
+  getDataFormatDb,
 };

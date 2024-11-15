@@ -1,7 +1,7 @@
 const {
   getUserByIdDb,
   changeUserPasswordDb,
-  getUserReliabilitybyIdDb,
+  getUserReliabilityByIdDb,
   getKatByIdUserDb,
 } = require("../db/users.db.js");
 const { ErrorHandler } = require("../helpers/error");
@@ -23,7 +23,7 @@ class UsersService {
   };
   getUserReliabilitybyId = async (id_user) => {
     try {
-      return await getUserReliabilitybyIdDb(id_user);
+      return await getUserReliabilityByIdDb(id_user);
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }
