@@ -14,7 +14,7 @@
         <p class="common__desc-black">{{ dataset.description }}</p>
       </div>
       <img
-        :src="`/${dataset.avatar}`"
+        :src="`${dataset.avatar}`"
         alt="Dataset Image"
         class="dataset-detail__image"
       />
@@ -37,29 +37,39 @@
             <div v-if="versionData">
               <p class="version-desc">
                 <strong style="font-weight: 600; display: block; width: 180px"
-                >Price:</strong
+                  >Price:</strong
                 >
-                <div style="display: flex; gap: 10px">
-                  <div>{{ versionData.price }}</div>
-                  <img src="/Logo3.jpg" alt=""
-                       style="width: 30px; border-radius: 999px; border: 1px solid #888; object-fit: cover; transform: scale(1.0); transform-origin: center;">
-                </div>
+                <span style="display: flex; gap: 10px">
+                  <span>{{ versionData.price }}</span>
+                  <img
+                    src="/Screenshot%202024-11-09%20023923.png"
+                    alt=""
+                    style="
+                      width: 30px;
+                      border-radius: 999px;
+                      border: 1px solid #888;
+                      object-fit: cover;
+                      transform: scale(1);
+                      transform-origin: center;
+                    "
+                  />
+                </span>
               </p>
               <p class="version-desc">
                 <strong style="font-weight: 600; display: block; width: 180px"
-                >Total Size:</strong
+                  >Total Size:</strong
                 >
                 {{ versionData.total_size }} MB
               </p>
               <p class="version-desc">
                 <strong style="font-weight: 600; display: block; width: 180px"
-                >Number of Data:</strong
+                  >Number of Data:</strong
                 >
                 {{ versionData.number_of_data }}
               </p>
               <p class="version-desc">
                 <strong style="font-weight: 600; display: block; width: 180px"
-                >Last Updated:</strong
+                  >Last Updated:</strong
                 >
                 {{ formatDate(versionData.day_updated) }}
               </p>
@@ -121,73 +131,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
-import { useRoute } from "vue-router";
-import { fetchDatasetsDetail, fetchVersionData } from "@/services/datasets";
-import { ElLoading } from "element-plus";
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { fetchDatasetsDetail, fetchVersionData } from '@/services/datasets'
+import { ElLoading } from 'element-plus'
 
-const route = useRoute();
-const dataset = ref<any>(null);
-const activeTab = ref("version-1");
-const versionTabs = ref<number[]>([]);
-const versionData = ref<any>(null);
+const route = useRoute()
+const dataset = ref<any>(null)
+const activeTab = ref('version-1')
+const versionTabs = ref<number[]>([])
+const versionData = ref<any>(null)
 
 const loadDatasetDetail = async () => {
-  const datasetId = Number(route.params.id);
-  dataset.value = await fetchDatasetsDetail(datasetId);
-  console.log("Dataset detail:", dataset.value);
+  const datasetId = Number(route.params.id)
+  dataset.value = await fetchDatasetsDetail(datasetId)
+  console.log('Dataset detail:', dataset.value)
 
-  if (dataset.value?.version_count) {
+  if (dataset.value?.versioncount) {
     versionTabs.value = Array.from(
-      { length: dataset.value.version_count },
+      { length: dataset.value.versioncount },
       (_, index) => index + 1,
-    );
-    console.log("Generated version tabs:", versionTabs.value);
+    )
+    console.log('Generated version tabs:', versionTabs.value)
   }
 
-  loadVersionData(datasetId, 1);
-};
+  loadVersionData(datasetId, 1)
+}
 
 const loadVersionData = async (datasetId: number, versionId: number) => {
-  versionData.value = null;
-  const data = await fetchVersionData(datasetId, versionId);
-  console.log("Data received from API:", data);
+  versionData.value = null
+  const data = await fetchVersionData(datasetId, versionId)
+  console.log('Data received from API:', data)
   if (data) {
-    versionData.value = data[0];
+    versionData.value = data[0]
   }
-};
+}
 
 const handleTabClick = (tab: any) => {
-  const selectedVersionId = parseInt(tab.index) + 1;
-  const datasetId = Number(route.params.id);
-  loadVersionData(datasetId, selectedVersionId);
-};
+  const selectedVersionId = parseInt(tab.index) + 1
+  const datasetId = Number(route.params.id)
+  loadVersionData(datasetId, selectedVersionId)
+}
 
 onMounted(async () => {
-  await openFullScreen1();
-  loadDatasetDetail();
-});
+  await openFullScreen1()
+  loadDatasetDetail()
+})
 
 const openFullScreen1 = () => {
   const loading = ElLoading.service({
     lock: true,
-    text: "Markat is loading 🗿⌛",
-    background: "rgba(0, 0, 0, 0.2)",
-  });
+    text: 'Markat is loading 🗿⌛',
+    background: 'rgba(0, 0, 0, 0.2)',
+  })
   setTimeout(() => {
-    loading.close();
-  }, 300);
-};
+    loading.close()
+  }, 300)
+}
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString();
-};
+  return new Date(dateString).toLocaleDateString()
+}
 
 const expertTagsArray = computed(() => {
-  return dataset.value.expert_tags
-    ? dataset.value.expert_tags.split(",").map(tag => tag.trim())
-    : [];
-});
+  return dataset.value.tags
+    ? dataset.value.tags.split(',').map(tag => tag.trim())
+    : []
+})
 </script>
 
 <style scoped lang="scss">
@@ -206,7 +216,6 @@ const expertTagsArray = computed(() => {
     height: 200px;
     object-fit: cover;
     border-radius: 10px;
-    margin-top: -50px;
   }
 
   &__version-container {
@@ -221,7 +230,7 @@ const expertTagsArray = computed(() => {
 .version-desc {
   display: flex;
   align-items: center;
-  font-size: 17px;
+  font-size: 16px;
   margin-bottom: 15px;
 }
 
@@ -231,20 +240,22 @@ const expertTagsArray = computed(() => {
   justify-content: space-around;
 
   &__right {
-    margin-right: 250px;
+    margin-left: 70px;
+    width: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: start;
     gap: 15px;
 
     &--actions {
       display: flex;
-      margin-top: 250px;
+      margin-top: 220px;
     }
   }
 
   &__left {
     border-right: 1px solid #ccc;
-    padding-right: 150px;
+    padding-right: 120px;
     padding-left: 100px;
 
     &--directory {

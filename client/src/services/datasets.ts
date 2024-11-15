@@ -3,20 +3,19 @@ import { notifyError } from '@/services/notification'
 
 export const fetchDatasets = async () => {
   try {
-    const response = await axiosInstance.get('/datasets');
+    const response = await axiosInstance.get('/datasets')
     return response.data.items.map((item: any) => {
       if (item.avatar) {
-        item.avatar = `data:image/jpeg;base64,${item.avatar}`; 
+        item.avatar = `${item.avatar}`
       }
-      return item;
-    });
+      return item
+    })
   } catch (error) {
-    notifyError('Fail to get datasets!');
-    console.error('Failed to fetch data:', error);
-    return [];
+    notifyError('Fail to get datasets!')
+    console.error('Failed to fetch data:', error)
+    return []
   }
-};
-
+}
 
 export const fetchDatasetsDetail = async (datasetId: number) => {
   try {
@@ -26,7 +25,6 @@ export const fetchDatasetsDetail = async (datasetId: number) => {
   } catch (error) {
     notifyError('Failed to load dataset details!')
     console.error('Failed to load dataset details:', error)
-    return null
   }
 }
 

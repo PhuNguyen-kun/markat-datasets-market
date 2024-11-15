@@ -135,7 +135,7 @@ import { ElLoading, type TabsPaneContext } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 
-const route = useRouter()
+const router = useRouter()
 
 const dialogVisible = ref(false)
 import { ElMessageBox } from 'element-plus'
@@ -183,16 +183,6 @@ const handleClickTab = (tab: TabsPaneContext, event: Event) => {
 }
 
 const loading = ref(false)
-const openFullScreen1 = () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Markat is loading 🗿⌛',
-    background: 'rgba(0, 0, 0, 0.5)',
-  })
-  setTimeout(() => {
-    loading.close()
-  }, 200)
-}
 
 import { fetchYourWorkData } from '@/services/yourWork'
 
@@ -204,7 +194,7 @@ const handleClick = (id_dataset: number) => {
     const decoded = jwtDecode<{ id_user: number }>(token)
     const id_user = decoded.id_user
 
-    route.push({
+    router.push({
       path: '/your-work-detail',
       query: { id_user: id_user.toString(), id_dataset: id_dataset.toString() },
     })
@@ -217,7 +207,6 @@ const yourWorkData = ref<any[]>([])
 
 const loadData = async () => {
   try {
-    openFullScreen1()
     loading.value = true
     const token = localStorage.getItem('access_token')
     if (token) {

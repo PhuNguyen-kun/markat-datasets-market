@@ -1,10 +1,18 @@
 <template>
   <div class="labeling__container">
+    <button class="btn btn--rounded page-link" @click="goBack">
+      <el-icon size="20">
+        <Back />
+      </el-icon>
+      <span>Back</span>
+    </button>
+
     <div class="heading">
-      <div class="heading--title">
-        <img src="/avatar1.png" alt="" class="heading--img" />
-        <h1 class="small-title">Demographic Data Analysis</h1>
-      </div>
+      <!--      <div class="heading&#45;&#45;title">-->
+      <!--        &lt;!&ndash;        <img src="/avatar1.png" alt="" class="heading&#45;&#45;img" />&ndash;&gt;-->
+      <!--        &lt;!&ndash;        <h1 class="small-title">{{ datasetName }}</h1>&ndash;&gt;-->
+      <!--        &lt;!&ndash;        <h2 class="small-sub-title">Version {{ versionNumber }}</h2>&ndash;&gt;-->
+      <!--      </div>-->
       <!-- Clock -->
       <p id="demo" class="count-down">
         <el-row>
@@ -41,55 +49,20 @@
     </div>
     <h1 class="labeling__title">Labeling Workspace</h1>
     <div class="labeling__main">
-      <!--        1-->
-      <div class="card" @click="dialogVisible = true">
+      <div class="card" v-for="item in labelingData" :key="item.id_part">
         <div class="card-content">
-          <h2 class="card-title">Part 1</h2>
-          <p class="card-info">Labeled: 123/234</p>
-          <p class="card-info">Participants: 31</p>
-          <p class="card-footer">
-            <button class="btn btn--rounded">Start labeling</button>
+          <h2 class="card-title">Part {{ item.part_number }}</h2>
+          <p class="card-info">Labeled: {{ item.userLabelCount }}</p>
+          <p class="card-info">
+            Unique Label Count: {{ item.uniqueLabelerCount }}
           </p>
-        </div>
-      </div>
-
-      <!--        2-->
-      <div class="card" @click="dialogVisible = true">
-        <div class="card-content" style="background-color: #e3e3e3">
-          <div style="display: flex; align-items: center; gap: 15px">
-            <h2 class="card-title">Part 2</h2>
-            <div class="flex gap-2">
-              <el-tag type="success">Finished</el-tag>
-            </div>
-          </div>
-          <p class="card-info">Labeled: 234/234</p>
-          <p class="card-info">Participants: 50</p>
           <p class="card-footer">
-            <button class="btn btn--rounded">Start labeling</button>
-          </p>
-        </div>
-      </div>
-
-      <!--        3-->
-      <div class="card" @click="dialogVisible = true">
-        <div class="card-content">
-          <h2 class="card-title">Part 3</h2>
-          <p class="card-info">Labeled: 240/586</p>
-          <p class="card-info">Participants: 68</p>
-          <p class="card-footer">
-            <button class="btn btn--rounded">Start labeling</button>
-          </p>
-        </div>
-      </div>
-
-      <!--        4-->
-      <div class="card" @click="dialogVisible = true">
-        <div class="card-content">
-          <h2 class="card-title">Part 4</h2>
-          <p class="card-info">Labeled: 250/586</p>
-          <p class="card-info">Participants:79</p>
-          <p class="card-footer">
-            <button class="btn btn--rounded">Start labeling</button>
+            <button
+              class="btn btn--rounded"
+              @click="moveToLabelingDetail(item.id_part)"
+            >
+              Start labeling
+            </button>
           </p>
         </div>
       </div>
@@ -98,17 +71,96 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { fetchLabelingData } from '@/services/labeling'
 import dayjs from 'dayjs'
 import { Calendar } from '@element-plus/icons-vue'
+import { useRoute, useRouter } from 'vue-router'
+import { notifyError } from '@/services/notification'
+import { ElLoading } from 'element-plus'
 
+const route = useRoute()
+const router = useRouter()
 const value = ref(Date.now() + 1000 * 60 * 60 * 7)
 const value1 = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
 const value2 = ref(dayjs().add(1, 'month').startOf('month'))
+const id_version = Number(route.query.id_version)
+const id_dataset = Number(route.query.id_dataset)
+const id_user = Number(route.query.id_user)
+const versionNumber = ref('')
+const datasetName = ref('')
+// const id_part = Number(route.query.id_part)
+const id_part = ref<number | null>(null)
+
+console.log(route.query)
+// const id_part = ref()
+// const labelingData = ref([])
+let loadingInstance: any = null
+
+type LabelingItem = {
+  part_number: number
+  userLabelCount: number
+  id_part: number
+  uniqueLabelerCount: number
+}
+const labelingData = ref<LabelingItem[]>([])
+
+function goBack() {
+  router.back()
+}
 
 function reset() {
   value1.value = Date.now() + 1000 * 60 * 60 * 24 * 2
 }
+
+async function loadLabelingData() {
+  loadingInstance = ElLoading.service({
+    lock: true,
+    text: 'Markat is loading 🗿⌛',
+    background: 'rgba(0, 0, 0, 0.1)',
+  })
+
+  try {
+    const data = await fetchLabelingData(id_user, id_version)
+    console.log('API response:', data)
+
+    labelingData.value = data.items
+
+    if (data.id_part) {
+      id_part.value = data.id_part
+    } else {
+      console.warn('id_part is missing in the API response')
+    }
+  } catch (error) {
+    console.error('Failed to load labeling data:', error)
+  } finally {
+    if (loadingInstance) {
+      loadingInstance.close()
+    }
+  }
+}
+
+const moveToLabelingDetail = (id_part: any) => {
+  const userID = id_user || 1
+  // const partID = id_part || 1
+  console.log(id_user, id_part)
+  if (userID && id_part) {
+    router.push({
+      path: '/labeling-detail',
+      query: {
+        id_user: userID.toString(),
+        id_part: id_part.toString(),
+      },
+    })
+  } else {
+    notifyError('Failed to navigate to labeling detail')
+    console.error('No labeling detail found')
+  }
+}
+
+onMounted(() => {
+  loadLabelingData()
+})
 </script>
 
 <style scoped lang="scss">
@@ -128,6 +180,7 @@ function reset() {
 .labeling__container .heading {
   display: flex;
   align-items: center;
+  justify-content: center;
 
   &--title {
     width: 250px;
@@ -187,11 +240,12 @@ function reset() {
 
 .labeling__main {
   margin-top: 20px;
+  margin-left: 60px;
   padding: 20px;
   display: flex;
   flex-wrap: wrap;
-  gap: 50px;
-  justify-content: center;
+  gap: 30px;
+  justify-content: start;
 
   .card {
     display: flex;

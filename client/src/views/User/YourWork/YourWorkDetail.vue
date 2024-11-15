@@ -66,32 +66,32 @@
       </div>
 
       <!--          2-->
-      <router-link to="/labeling">
-        <div class="card">
-          <img
-            src="/your-work-labeling.png"
-            alt="Card image"
-            class="card-image"
-          />
-          <div class="card-content">
-            <h2 class="card-title">Labeling</h2>
-            <p class="card-info">
-              <el-progress
-                :text-inside="true"
-                :stroke-width="20"
-                :percentage="50"
-                striped
-                striped-flow
-              />
-            </p>
-            <p class="card-info">Number of participants: {{ totalLabelers }}</p>
-            <p class="card-info">Labeled: {{ userLabeledCount }}</p>
-            <p class="card-footer">
-              <button class="btn btn--rounded">Continue</button>
-            </p>
-          </div>
+      <div class="card">
+        <img
+          src="/your-work-labeling.png"
+          alt="Card image"
+          class="card-image"
+        />
+        <div class="card-content">
+          <h2 class="card-title">Labeling</h2>
+          <p class="card-info">
+            <el-progress
+              :text-inside="true"
+              :stroke-width="20"
+              :percentage="50"
+              striped
+              striped-flow
+            />
+          </p>
+          <p class="card-info">Number of participants: {{ totalLabelers }}</p>
+          <p class="card-info">Labeled: {{ userLabeledCount }}</p>
+          <p class="card-footer">
+            <button class="btn btn--rounded" @click="navigateToLabeling">
+              Continue
+            </button>
+          </p>
         </div>
-      </router-link>
+      </div>
       <!--          3-->
       <div class="card">
         <img
@@ -140,11 +140,14 @@ import { ref, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import { Calendar } from '@element-plus/icons-vue'
 import { fetchYourWorkData, fetchYourWorkDetailData } from '@/services/yourWork'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 import { notifyError } from '@/services/notification'
+import { ElLoading } from 'element-plus'
 
 const route = useRoute()
+const router = useRouter()
+
 const id_user = Number(route.query.id_user)
 const id_dataset = Number(route.query.id_dataset)
 const id_version = Number(route.query.id_version)
@@ -159,12 +162,19 @@ const userLabeledCount = ref(0)
 const value = ref(Date.now() + 1000 * 60 * 60 * 7)
 const value1 = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
 const value2 = ref(dayjs().add(1, 'month').startOf('month'))
+let loadingInstance: any = null
 
 function reset() {
   value1.value = Date.now() + 1000 * 60 * 60 * 24 * 2
 }
 
 const loadYourWorkData = async () => {
+  loadingInstance = ElLoading.service({
+    lock: true,
+    text: 'Markat is loading 🗿⌛',
+    background: 'rgba(0, 0, 0, 0.1)',
+  })
+
   try {
     const data = await fetchYourWorkData(id_user)
     console.log(data.items)
@@ -186,6 +196,10 @@ const loadYourWorkData = async () => {
     }
   } catch (error) {
     console.error('Failed to load your work data:', error)
+  } finally {
+    if (loadingInstance) {
+      loadingInstance.close()
+    }
   }
 }
 
@@ -208,6 +222,24 @@ const loadYourWorkDetailData = async () => {
     }
   } catch (error) {
     console.error('Failed to load your work detail data:', error)
+  }
+}
+
+const navigateToLabeling = () => {
+  const userId = id_user
+  const versionId = id_version || 1
+
+  if (userId && versionId) {
+    router.push({
+      path: '/labeling',
+      query: {
+        id_user: userId.toString(),
+        id_version: versionId.toString(),
+      },
+    })
+  } else {
+    notifyError('Failed to navigate to labeling')
+    console.error('Invalid or missing parameters')
   }
 }
 
@@ -252,7 +284,6 @@ onMounted(() => {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     transition: transform 0.2s;
-    cursor: pointer;
   }
 
   .card:hover {
