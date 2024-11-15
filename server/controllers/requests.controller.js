@@ -1,32 +1,47 @@
 const RequestService = require("../services/requests.service");
 
-const sendSendingRequest = async (req, res) => {
-  const { id_user, data_type, id_dataset, description } = req.body;
-  const request = await RequestService.createSendingRequest(
-    id_user,
-    data_type,
-    id_dataset,
-    description
+const sendSellingRequest = async (req, res) => {
+  const { id_seller,
+    id_data_format,
+    name_dataset,
+    expected_price,
+    evolution,
+    description,
+    data_requirements
+  } = req.body;
+  const request = await RequestService.createSellingRequest(
+    id_seller,
+    id_data_format,
+    name_dataset,
+    expected_price,
+    evolution,
+    description,
+    data_requirements
   );
   return res.status(200).json(request);
 };
 const sendBuyingRequest = async (req, res) => {
   const {
-    id_user,
-    id_dataset,
-    description,
+    id_buyer,
+    id_data_format,
+    name_dataset,
     deposit,
     price,
     due_date,
-    data_type,
+    public_data,
+    description,
+    data_requirements,
   } = req.body;
   const request = await RequestService.createBuyingRequest(
-    id_dataset,
-    description,
+    id_buyer,
+    id_data_format,
+    name_dataset,
     deposit,
     price,
     due_date,
-    data_type
+    public_data,
+    description,
+    data_requirements,
   );
   return res.status(200).json(request);
 };
@@ -49,7 +64,7 @@ const getAllBuyingRequests = async (req, res) => {
 };
 
 module.exports = {
-  sendSendingRequest,
+  sendSellingRequest,
   sendBuyingRequest,
   getRequestsHistory,
   getAllSendingRequests,

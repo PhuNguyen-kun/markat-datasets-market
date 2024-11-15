@@ -1,5 +1,5 @@
 const {
-  createSendingRequestDb,
+  createSellingRequestDb,
   createBuyingRequestDb,
   getRequestsHistoryByIdDb,
   getSendingRequestsByIdDb,
@@ -8,41 +8,51 @@ const {
 const { ErrorHandler } = require("../helpers/error");
 
 class RequestService {
-  createSendingRequest = async (
-    id_user,
-    data_type,
-    id_dataset,
-    description
+  createSellingRequest = async (
+    id_seller,
+    id_data_format,
+    name_dataset,
+    expected_price,
+    evolution,
+    description,
+    data_requirements
   ) => {
     try {
-      return await createSendingRequestDb(
-        id_user,
-        data_type,
-        id_dataset,
-        description
+      return await createSellingRequestDb(
+        id_seller,
+        id_data_format,
+        name_dataset,
+        expected_price,
+        evolution,
+        description,
+        data_requirements
       );
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
   createBuyingRequest = async (
-    id_user,
-    id_dataset,
-    description,
+    id_buyer,
+    id_data_format,
+    name_dataset,
     deposit,
     price,
     due_date,
-    data_type
+    public_data,
+    description,
+    data_requirements,
   ) => {
     try {
       return await createBuyingRequestDb(
-        id_user,
-        id_dataset,
-        description,
+        id_buyer,
+        id_data_format,
+        name_dataset,
         deposit,
         price,
         due_date,
-        data_type
+        public_data,
+        description,
+        data_requirements,
       );
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);

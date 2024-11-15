@@ -195,8 +195,6 @@ async function labelDataDb(id_data, id_labeler, label) {
         labeling_time: getRandomTimeBetween('2024-07-10 01:56:57', '2024-07-11 21:37:19'),
         // labeling_time: new Date().toISOString(), // Lấy thời gian hiện tại
       });
-      //console.log(data);
-
       await data.save();
       return { message: 'Label added successfully' };
     }

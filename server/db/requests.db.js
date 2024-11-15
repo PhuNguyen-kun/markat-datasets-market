@@ -1,38 +1,44 @@
 const client = require("../config");
 
-const createSendingRequestDb = async (
-  id_user,
-  data_type,
-  id_dataset,
-  description
+const createSellingRequestDb = async (
+  id_seller,
+  id_data_format,
+  name_dataset,
+  expected_price,
+  evolution,
+  description,
+  data_requirements
 ) => {
   const { rows: request } = await client.query(
     `
-    INSERT INTO Data_sending_request (ID_User, Data_type, ID_dataset, Description)
-    VALUES ($1, $2, $3, $4)
-    RETURNING ID_User, Data_type, ID_dataset, Description
+    INSERT INTO Data_selling_request (ID_seller, ID_data_format, Name_dataset, Expected_price, Evolution, Description, Data_requirements)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *;
     `,
-    [id_user, data_type, id_dataset, description]
+    [id_seller, id_data_format, name_dataset, expected_price, evolution, description, data_requirements]
   );
   return request[0];
 };
 
 const createBuyingRequestDb = async (
-  id_user,
-  id_dataset,
-  description,
+  id_buyer,
+  id_data_format,
+  name_dataset,
   deposit,
   price,
   due_date,
-  data_type
+  public_data,
+  description,
+  data_requirements,
 ) => {
   const { rows: request } = await client.query(
     `
-    INSERT INTO Data_buying_request (ID_User, ID_Dataset, Description, Deposit, Price, Due_Date, Data_type)
+    INSERT INTO Data_buying_request (ID_buyer, ID_data_format, Name_dataset, Deposit, Price, Due_date, Public_data, Description, Data_requirements)
     VALUES
-    ('$1','$2' , '$3', '$4', '$4', '$5','$6')
+    ($1, $2 , $3, $4, $5, $6, $7, $8, $9)
+    RETURNING *;
     `,
-    [id_user, id_dataset, description, deposit, price, due_date, data_type]
+    [id_buyer, id_data_format, name_dataset, deposit, price, due_date, public_data, description, data_requirements]
   );
   return request[0];
 };
@@ -75,7 +81,8 @@ const getAllBuyingRequestsByIdDb = async (id) => {
 };
 
 module.exports = {
-  createSendingRequestDb,
+  createSellingRequestDb,
+  createBuyingRequestDb,
   getRequestsHistoryByIdDb,
   getAllSendingRequestsByIdDb,
   getAllBuyingRequestsByIdDb,

@@ -153,7 +153,7 @@ CREATE TABLE Data_buying_request (
     Name_dataset TEXT,
     Deposit  NUMERIC(10, 2),
 	Price NUMERIC(10, 2),
-	Due_Date TIMESTAMP,
+	Due_date TIMESTAMP,
     Public_data BOOLEAN,
     Description TEXT,
     Data_requirements TEXT,

@@ -1,5 +1,6 @@
+const router = require("express").Router()
 const {
-  sendSendingRequest,
+  sendSellingRequest,
   sendBuyingRequest,
   //getRequestsHistory,
   // getAllSendingRequests,
@@ -7,10 +8,9 @@ const {
   // getSendingRequests,
   // getBuyingRequests,
 } = require("../controllers/requests.controller");
-const router = require("express").Router();
-
-router.route("/create/sending").post(sendSendingRequest);
-router.route("/create/buying").post(sendBuyingRequest);
+;
+router.route("/create/selling").put(sendSellingRequest);
+router.route("/create/buying").put(sendBuyingRequest);
 // router.route("/history").get(getRequestsHistory);
 // router.route("/sending").get(getAllSendingRequests);
 // router.route("/buying").get(getAllBuyingRequests);
