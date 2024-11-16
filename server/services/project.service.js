@@ -5,6 +5,14 @@ const {
 const { ErrorHandler } = require("../helpers/error");
 
 class ProjectService {
+    constructor(name) {
+    this.name = name;
+    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+      if (typeof this[key] === "function" && key !== "constructor") {
+        this[key] = this[key].bind(this);
+      }
+    }
+  }
     getAllProjects = async ({ page }) => {
         const limit = 20;
         const offset = (page - 1) * limit;

@@ -5,6 +5,14 @@ const {
 } = require("../db/labeling.db");
 const { ErrorHandler } = require("../helpers/error.js");
 class LabelingService {
+    constructor(name) {
+    this.name = name;
+    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+      if (typeof this[key] === "function" && key !== "constructor") {
+        this[key] = this[key].bind(this);
+      }
+    }
+  }
     getVersionPartsDetail = async ({ id_user, id_version }) => {
         try {
             return await getVersionPartsDetailDb(id_user, id_version);

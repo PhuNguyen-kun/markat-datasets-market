@@ -9,6 +9,14 @@ const {
 const { ErrorHandler } = require("../helpers/error");
 
 class RequestService {
+  constructor(name) {
+    this.name = name;
+    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+      if (typeof this[key] === "function" && key !== "constructor") {
+        this[key] = this[key].bind(this);
+      }
+    }
+  }
   createSellingRequest = async (
     { id_seller,
       id_data_format,

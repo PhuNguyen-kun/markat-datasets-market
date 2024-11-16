@@ -6,6 +6,14 @@ const {
 } = require("../db/yourwork.db");
 
 class YourWorkService {
+  constructor(name) {
+    this.name = name;
+    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+      if (typeof this[key] === "function" && key !== "constructor") {
+        this[key] = this[key].bind(this);
+      }
+    }
+  }
   getAllYourWorkVersionsByUserId = async ({ id_user }) => {
     try {
       return await getAllYourWorkVersionsByUserIdDb(id_user);
