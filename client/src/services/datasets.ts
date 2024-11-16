@@ -4,7 +4,9 @@ import { notifyError } from '@/services/notification'
 export const fetchDatasets = async () => {
   try {
     const response = await axiosInstance.get('/datasets')
-    return response.data.items.map((item: any) => {
+    const datasets = response?.data?.data?.datasets || []
+
+    return datasets.map((item: any) => {
       if (item.avatar) {
         item.avatar = `${item.avatar}`
       }

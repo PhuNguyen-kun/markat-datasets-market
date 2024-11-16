@@ -28,11 +28,11 @@ export const fetchYourCollectionData = async (id_user: number) => {
 
 export const fetchYourWorkDetailData = async (
   id_user: number,
-  id_dataset: number,
+  id_version: number,
 ) => {
   try {
     const response = await axiosInstance.get('/yourwork/yourwork_detail', {
-      params: { id_user, id_dataset },
+      params: { id_user, id_version },
     })
     console.log(response.data)
     return response.data

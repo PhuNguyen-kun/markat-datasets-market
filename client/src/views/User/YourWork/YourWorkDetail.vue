@@ -177,9 +177,12 @@ const loadYourWorkData = async () => {
 
   try {
     const data = await fetchYourWorkData(id_user)
-    console.log(data.items)
+    console.log('Fetched Data:', data)
 
-    const selectedWork = data.items.find((item: any) => {
+    const items = data?.data?.versions || []
+    console.log('Items:', items)
+
+    const selectedWork = items.find((item: any) => {
       return (
         item.id_dataset === id_dataset &&
         (!id_version || item.id_version === id_version)
@@ -206,19 +209,20 @@ const loadYourWorkData = async () => {
 const loadYourWorkDetailData = async () => {
   try {
     const data = await fetchYourWorkDetailData(id_user, id_dataset)
-    console.log(data)
+    console.log('Fetched Data:', data)
 
-    if (data.items && data.items.length > 0) {
-      const item = data.items[0]
+    if (data?.data?.version && data.data.version.length > 0) {
+      const item = data.data.version[0]
+
       totalSenders.value = item.totalSenders
       userSentCount.value = item.userSentCount
       totalImageSizeMB.value = parseFloat(item.totalImageSizeMB.toFixed(2))
       totalLabelers.value = item.totalLabelers
       userLabeledCount.value = item.userLabeledCount
 
-      console.log(totalSenders.value)
+      console.log('Total Senders:', totalSenders.value)
     } else {
-      console.error('No items found in the response')
+      console.error('No version data found in the response')
     }
   } catch (error) {
     console.error('Failed to load your work detail data:', error)
