@@ -1,61 +1,37 @@
 const LabelingService = require("../services/labeling.service");
-const handleRequest = require("../helpers/handleRequest");
+const { handleRequest } = require("../helpers/error");
 
 const getVersionPartsDetail = async (req, res, next) => {
-  const { id_user, id_version } = req.query;
-
-  if (!id_user || !id_version) {
-    return res.status(400).json({
-      status: "error",
-      message: "User ID and Version ID are required.",
-    });
-  }
-
   await handleRequest(
     LabelingService.getVersionPartsDetail,
-    [id_user, id_version],
+    [req.query],
     res,
     next,
+    ["id_user", "id_version"], // Các trường bắt buộc
     "Version parts detail retrieved successfully.",
     "Version parts detail not found."
   );
 };
 
 const getDatas = async (req, res, next) => {
-  const { id_user, id_part } = req.query;
-
-  if (!id_user || !id_part) {
-    return res.status(400).json({
-      status: "error",
-      message: "User ID and Part ID are required.",
-    });
-  }
-
   await handleRequest(
     LabelingService.getDatas,
-    [id_user, id_part],
+    [req.query],
     res,
     next,
+    ["id_user", "id_part"], // Các trường bắt buộc
     "Datas retrieved successfully.",
     "Datas not found."
   );
 };
 
 const labelData = async (req, res, next) => {
-  const { id_data, id_labeler, label } = req.body;
-
-  if (!id_data || !id_labeler || !label) {
-    return res.status(400).json({
-      status: "error",
-      message: "Data ID, Labeler ID, and Label are required.",
-    });
-  }
-
   await handleRequest(
     LabelingService.labelData,
-    [id_data, id_labeler, label],
+    [req.body],
     res,
     next,
+    ["id_data", "id_labeler", "label"], // Các trường bắt buộc
     "Data labeled successfully.",
     "Data labeling failed."
   );

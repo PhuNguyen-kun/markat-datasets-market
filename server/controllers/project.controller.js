@@ -1,25 +1,25 @@
 const projectService = require("../services/project.service");
-const handleRequest = require("../helpers/handleRequest");
+const { handleRequest } = require("../helpers/error");
 
 const getAllProjects = async (req, res, next) => {
-  const { page = 1 } = req.query;
   await handleRequest(
     projectService.getAllProjects,
-    [page],
+    [req.query],
     res,
     next,
+    ["page"],
     "Projects retrieved successfully",
     "Projects not found"
   );
 };
 
 const getProjectDetail = async (req, res, next) => {
-  const { id_version } = req.query;
   await handleRequest(
     projectService.getProjectDetail,
-    [id_version],
+    [req.query],
     res,
     next,
+    ["id_version"],
     "Project detail retrieved successfully",
     "Project detail not found"
   );

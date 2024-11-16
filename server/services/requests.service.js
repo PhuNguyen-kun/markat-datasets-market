@@ -10,13 +10,13 @@ const { ErrorHandler } = require("../helpers/error");
 
 class RequestService {
   createSellingRequest = async (
-    id_seller,
-    id_data_format,
-    name_dataset,
-    expected_price,
-    evolution,
-    description,
-    data_requirements
+    { id_seller,
+      id_data_format,
+      name_dataset,
+      expected_price,
+      evolution,
+      description,
+      data_requirements }
   ) => {
     try {
       return await createSellingRequestDb(
@@ -33,15 +33,15 @@ class RequestService {
     }
   };
   createBuyingRequest = async (
-    id_buyer,
-    id_data_format,
-    name_dataset,
-    deposit,
-    price,
-    due_date,
-    public_data,
-    description,
-    data_requirements,
+    { id_buyer,
+      id_data_format,
+      name_dataset,
+      deposit,
+      price,
+      due_date,
+      public_data,
+      description,
+      data_requirements, }
   ) => {
     try {
       return await createBuyingRequestDb(
@@ -59,21 +59,21 @@ class RequestService {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
-  getRequestsHistoryById = async (id_user) => {
+  getRequestsHistoryById = async ({ id_user }) => {
     try {
       return await getRequestsHistoryByIdDb(id_user);
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
-  getAllSendingRequests = async (id) => {
+  getAllSendingRequests = async ({ id }) => {
     try {
       return await getSendingRequestsByIdDb(id);
     } catch (error) {
       throw new ErrorHandler(error.statusCode, error.message);
     }
   };
-  getAllBuyingRequests = async (id) => {
+  getAllBuyingRequests = async ({ id }) => {
     try {
       return await getBuyingRequestsByIdDb(id);
     } catch (error) {

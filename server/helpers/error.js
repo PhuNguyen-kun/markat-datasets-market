@@ -2,36 +2,44 @@ const { logger } = require("../utils/logger");
 
 class ErrorHandler extends Error {
   constructor(statusCode, message) {
-    super();
-    this.status = "error";
+    super(message);
     this.statusCode = statusCode;
-    this.message = message;
   }
 }
 
 const handleError = (err, req, res, next) => {
   const { statusCode, message } = err;
-
-  logger.error({
-    message: err.message || "Internal Server Error",
-    stack: err.stack,
-  });
-
-  const response = {
+  res.status(statusCode || 500).json({
     status: "error",
-    statusCode: statusCode || 500,
-    message: statusCode === 500 ? "An internal error occurred" : message,
-  };
-
-  if (process.env.NODE_ENV === "development") {
-    response.stack = err.stack;
-  }
-
-  res.status(response.statusCode).json(response);
+    message: message || "Internal Server Error",
+    // Không trả về `stack`
+  });
 };
 
-const handleRequest = async (serviceFunction, params, res, next, successMessage = "Request successful", errorMessage = "Resource not found") => {
+const handleRequest = async (
+  serviceFunction,
+  params,
+  res,
+  next,
+  requiredFields = [],
+  successMessage = "Request successful",
+  errorMessage = "Resource not found"
+) => {
   try {
+    // Validate inputs nếu có requiredFields
+    if (requiredFields.length > 0) {
+      for (const field of requiredFields) {
+         console.log(params[0][field]);
+        if (!params[0][field]) {
+          return res.status(400).json({
+            status: "error",
+            message: `${field} is required.`,
+          });
+        }
+      }
+    }
+
+    // Gọi service function
     const result = await serviceFunction(...params);
     if (!result || (Array.isArray(result) && result.length === 0)) {
       return res.status(404).json({
@@ -39,6 +47,7 @@ const handleRequest = async (serviceFunction, params, res, next, successMessage 
         message: errorMessage,
       });
     }
+
     return res.status(200).json({
       status: "success",
       message: successMessage,
@@ -46,18 +55,16 @@ const handleRequest = async (serviceFunction, params, res, next, successMessage 
     });
   } catch (error) {
     console.error("Error:", error);
-    if (error instanceof ErrorHandler) {
-      next(error);
-    } else {
-      res.status(500).json({
-        status: "error",
-        message: "Internal Server Error",
-      });
-    }
+    res.status(error.statusCode || 500).json({
+      status: "error",
+      message: error.message || "Internal Server Error",
+      // Loại bỏ stack khỏi phản hồi
+    });
   }
 };
 
 module.exports = {
   ErrorHandler,
   handleError,
+  handleRequest
 };

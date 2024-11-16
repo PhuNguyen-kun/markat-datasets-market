@@ -12,13 +12,16 @@ const { ErrorHandler } = require("../helpers/error");
 const SECRET_KEY = process.env.SECRET_KEY;
 
 class AuthService {
+  constructor(name) {
+    this.name = name;
+    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
+      if (typeof this[key] === "function" && key !== "constructor") {
+        this[key] = this[key].bind(this);
+      }
+    }
+  }
   async signUp(user) {
     const { email, password, full_name } = user;
-
-    if (!email || !password || !full_name) {
-      throw new ErrorHandler(400, "All fields are required.");
-    }
-
     if (!validateUser(email, password)) {
       throw new ErrorHandler(400, "Invalid email or password format.");
     }
@@ -29,7 +32,6 @@ class AuthService {
       if (userByEmail) {
         throw new ErrorHandler(409, "Email is already registered.");
       }
-
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await createUserDb(email, hashedPassword, full_name);
 
@@ -47,20 +49,14 @@ class AuthService {
   }
 
   async login(email, password) {
-    if (!email || !password) {
-      throw new ErrorHandler(400, "Email and password are required.");
-    }
-
     try {
       const user = await getUserByEmailDb(email);
 
       if (!user) {
         throw new ErrorHandler(404, "User not found.");
       }
-
-      //const isPasswordValid = await bcrypt.compare(password, user.password);
-      const isPasswordValid = (password == user.password)
-
+      // const isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = (password == user.password);
       if (!isPasswordValid) {
         throw new ErrorHandler(401, "Invalid email or password.");
       }
@@ -85,40 +81,39 @@ class AuthService {
     }
   }
 
-  async resetPassword(password, password2, email) {
-  if (!email || !password || !password2) {
-    throw new ErrorHandler(400, "Email, password, and confirmation are required.");
-  }
-
-  if (password !== password2) {
-    throw new ErrorHandler(400, "Passwords do not match.");
-  }
-
-  const isValidPassword = typeof password === "string" && password.trim().length >= 6;
-
-  if (!isValidPassword) {
-    throw new ErrorHandler(400, "Password must be at least 6 characters long.");
-  }
-
-  try {
-    const user = await getUserByEmailDb(email);
-    if (!user) {
-      throw new ErrorHandler(404, "User not found.");
+  async resetPassword({ email, password, password2 }) {
+    // Ensure passwords match
+    if (password !== password2) {
+      throw new ErrorHandler(400, "Passwords do not match.");
     }
 
-    const updated = await changeUserPasswordDb(password, email);
-    if (!updated) {
-      throw new ErrorHandler(500, "Failed to update password.");
+    if (password.trim().length < 6) {
+      throw new ErrorHandler(400, "Password must be at least 6 characters long.");
     }
 
-    return true;
-  } catch (error) {
-    console.error("Error in resetPassword service:", error);
-    throw new ErrorHandler(error.statusCode || 500, error.message || "Password reset failed.");
+    try {
+      const user = await getUserByEmailDb(email);
+
+      if (!user) {
+        throw new ErrorHandler(404, "User not found.");
+      }
+
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Update password in the database
+      const updated = await changeUserPasswordDb(hashedPassword, email);
+
+      if (!updated) {
+        throw new ErrorHandler(500, "Failed to update password.");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error in resetPassword service:", error);
+      throw new ErrorHandler(error.statusCode || 500, error.message || "Password reset failed.");
+    }
   }
-}
-
-
 }
 
 module.exports = new AuthService();
