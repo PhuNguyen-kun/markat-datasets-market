@@ -36,7 +36,7 @@
           <transition name="fade">
             <div v-if="versionData">
               <p class="version-desc">
-                <strong style="font-weight: 600; display: block; width: 180px"
+                <strong style="font-weight: 600; display: block; width: 230px"
                   >Price:</strong
                 >
                 <span style="display: flex; gap: 10px">
@@ -56,19 +56,19 @@
                 </span>
               </p>
               <p class="version-desc">
-                <strong style="font-weight: 600; display: block; width: 180px"
+                <strong style="font-weight: 600; display: block; width: 230px"
                   >Total Size:</strong
                 >
                 {{ versionData.total_size }} MB
               </p>
               <p class="version-desc">
-                <strong style="font-weight: 600; display: block; width: 180px"
+                <strong style="font-weight: 600; display: block; width: 230px"
                   >Number of Data:</strong
                 >
                 {{ versionData.number_of_data }}
               </p>
               <p class="version-desc">
-                <strong style="font-weight: 600; display: block; width: 180px"
+                <strong style="font-weight: 600; display: block; width: 230px"
                   >Last Updated:</strong
                 >
                 {{ formatDate(versionData.day_updated) }}
@@ -262,7 +262,7 @@ const expertTagsArray = computed(() => {
   justify-content: space-around;
 
   &__right {
-    margin-left: 150px;
+    margin-left: 80px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -277,7 +277,8 @@ const expertTagsArray = computed(() => {
 
   &__left {
     border-right: 1px solid #ccc;
-    padding-right: 180px;
+    width: 100%;
+    padding-right: 100px;
     padding-left: 120px;
 
     &--directory {
