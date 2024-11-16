@@ -213,7 +213,7 @@ const loadData = async () => {
       const decoded = jwtDecode<{ id_user: number }>(token)
       const id_user = decoded.id_user
       const response = await fetchYourWorkData(id_user)
-      yourWorkData.value = response.items
+      yourWorkData.value = response.data.versions
     } else {
       throw new Error('No access token found.')
     }

@@ -109,7 +109,7 @@
 
         <div class="version-content__right">
           <div style="font-weight: 600; font-size: 17px">Expert tag</div>
-          <div style="display: flex; gap: 10px">
+          <div style="display: flex; gap: 14px; flex-wrap: wrap">
             <el-tag
               v-for="(tag, index) in expertTagsArray"
               :key="index"
@@ -143,27 +143,48 @@ const versionTabs = ref<number[]>([])
 const versionData = ref<any>(null)
 
 const loadDatasetDetail = async () => {
-  const datasetId = Number(route.params.id)
-  dataset.value = await fetchDatasetsDetail(datasetId)
-  console.log('Dataset detail:', dataset.value)
+  try {
+    const datasetId = Number(route.params.id)
 
-  if (dataset.value?.versioncount) {
-    versionTabs.value = Array.from(
-      { length: dataset.value.versioncount },
-      (_, index) => index + 1,
-    )
-    console.log('Generated version tabs:', versionTabs.value)
+    const response = await fetchDatasetsDetail(datasetId)
+    console.log('Dataset detail response:', response)
+
+    if (response && response.data) {
+      dataset.value = response.data
+      console.log('Dataset detail:', dataset.value)
+
+      if (dataset.value.versioncount) {
+        versionTabs.value = Array.from(
+          { length: dataset.value.versioncount },
+          (_, index) => index + 1,
+        )
+        console.log('Generated version tabs:', versionTabs.value)
+      }
+
+      await loadVersionData(datasetId, 1)
+    } else {
+      console.error('Dataset detail is missing or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to load dataset detail:', error)
   }
-
-  loadVersionData(datasetId, 1)
 }
 
 const loadVersionData = async (datasetId: number, versionId: number) => {
-  versionData.value = null
-  const data = await fetchVersionData(datasetId, versionId)
-  console.log('Data received from API:', data)
-  if (data) {
-    versionData.value = data[0]
+  try {
+    versionData.value = null
+
+    const response = await fetchVersionData(datasetId, versionId)
+    console.log('Version data received from API:', response)
+
+    if (response && response.data) {
+      versionData.value = response.data
+      console.log('Loaded version data:', versionData.value)
+    } else {
+      console.error('Version data is missing or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to load version data:', error)
   }
 }
 
@@ -173,8 +194,8 @@ const handleTabClick = (tab: any) => {
   loadVersionData(datasetId, selectedVersionId)
 }
 
-onMounted(async () => {
-  await openFullScreen1()
+onMounted(() => {
+  openFullScreen1()
   loadDatasetDetail()
 })
 
@@ -237,10 +258,11 @@ const expertTagsArray = computed(() => {
 .version-content {
   margin-top: 30px;
   display: flex;
+  //flex-wrap: wrap;
   justify-content: space-around;
 
   &__right {
-    margin-left: 70px;
+    margin-left: 150px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -255,8 +277,8 @@ const expertTagsArray = computed(() => {
 
   &__left {
     border-right: 1px solid #ccc;
-    padding-right: 120px;
-    padding-left: 100px;
+    padding-right: 180px;
+    padding-left: 120px;
 
     &--directory {
       margin-top: 50px;

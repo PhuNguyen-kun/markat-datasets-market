@@ -72,14 +72,17 @@ onMounted(async () => {
   })
 
   try {
-    const data = await fetchLabelingDetailData(id_user, id_part)
-    if (data && data.length > 0) {
-      labelingData.value = data
-      totalItems.value = data.length
+    const response = await fetchLabelingDetailData(id_user, id_part)
+    console.log('API response:', response)
+
+    if (response && response.data && response.data.length > 0) {
+      labelingData.value = response.data
+      totalItems.value = response.data.length
     } else {
       ElMessage.error('No data available.')
     }
   } catch (error) {
+    console.error('Error fetching data:', error)
     ElMessage.error('Failed to fetch data.')
   } finally {
     if (loadingInstance) {

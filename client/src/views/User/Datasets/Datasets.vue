@@ -64,7 +64,7 @@ const openFullScreen1 = () => {
 
 const loadDatasets = async () => {
   try {
-    await openFullScreen1()
+    openFullScreen1()
     items.value = await fetchDatasets()
   } catch (error) {
     console.error('Failed to load datasets:', error)
