@@ -287,6 +287,7 @@ const formatOptions = [
 
 const handleActiveClick = (index: number) => {
   sidebarLinks.value.forEach((link, i) => {
+    const element = link instanceof HTMLElement ? link : link?.$el // Đảm bảo `link` là phần tử HTML
     if (i === index) {
       const svgPath = link.querySelector('path')
       const fillColor = svgPath?.getAttribute('fill') || '#000'
@@ -312,7 +313,7 @@ const selectOption = (option: string) => {
 }
 
 onMounted(() => {
-  sidebarLinks.value = sidebarLinks.value.map(link => link?.$el || link)
+  sidebarLinks.value = Array.from(document.querySelectorAll('.sidebar-items'))
 })
 </script>
 
