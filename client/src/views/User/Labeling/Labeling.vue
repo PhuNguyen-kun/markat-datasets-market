@@ -124,7 +124,7 @@ async function loadLabelingData() {
     const data = await fetchLabelingData(id_user, id_version)
     console.log('API response:', data)
 
-    labelingData.value = data?.data?.items || []
+    labelingData.value = data?.data?.version_parts_detail || []
 
     if (labelingData.value.length === 0) {
       console.warn('No labeling data found in the API response')

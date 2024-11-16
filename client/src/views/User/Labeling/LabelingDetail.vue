@@ -75,9 +75,14 @@ onMounted(async () => {
     const response = await fetchLabelingDetailData(id_user, id_part)
     console.log('API response:', response)
 
-    if (response && response.data && response.data.length > 0) {
-      labelingData.value = response.data
-      totalItems.value = response.data.length
+    if (
+      response &&
+      response.data &&
+      response.data.datas &&
+      response.data.datas.length > 0
+    ) {
+      labelingData.value = response.data.datas
+      totalItems.value = response.data.datas.length
     } else {
       ElMessage.error('No data available.')
     }
@@ -90,7 +95,6 @@ onMounted(async () => {
     }
   }
 })
-
 const currentImageData = computed(() => {
   return labelingData.value[currentPage.value - 1]
 })
