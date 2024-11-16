@@ -1,4 +1,2 @@
-<template>
-  <h1>This is new dataset page</h1>
-</template>
+<template></template>
 <script setup lang="ts"></script>
