@@ -30,9 +30,9 @@ class DatasetService {
     }
   }
 
-  async getAllDatasets({ page }) {
+  async getAllDatasets() {
     const limit = 20;
-    const offset = (page - 1) * limit;
+    const offset = 0;
     try {
       const datasets = await getAllDatasetsDb({ limit, offset });
       const datasetsWithAvatar = await Promise.all(datasets.map(async (dataset) => {

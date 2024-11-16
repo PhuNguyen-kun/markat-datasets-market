@@ -12,7 +12,6 @@ const handleError = (err, req, res, next) => {
   res.status(statusCode || 500).json({
     status: "error",
     message: message || "Internal Server Error",
-    // Không trả về `stack`
   });
 };
 
@@ -26,10 +25,9 @@ const handleRequest = async (
   errorMessage = "Resource not found"
 ) => {
   try {
-    // Validate inputs nếu có requiredFields
     if (requiredFields.length > 0) {
       for (const field of requiredFields) {
-         console.log(params[0][field]);
+        //  console.log(params[0][field]);
         if (!params[0][field]) {
           return res.status(400).json({
             status: "error",
@@ -39,7 +37,6 @@ const handleRequest = async (
       }
     }
 
-    // Gọi service function
     const result = await serviceFunction(...params);
     if (!result || (Array.isArray(result) && result.length === 0)) {
       return res.status(404).json({
@@ -58,7 +55,6 @@ const handleRequest = async (
     res.status(error.statusCode || 500).json({
       status: "error",
       message: error.message || "Internal Server Error",
-      // Loại bỏ stack khỏi phản hồi
     });
   }
 };

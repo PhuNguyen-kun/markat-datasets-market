@@ -52,7 +52,7 @@ const getVersionPartsDetailDb = async (id_user, id_version) => {
       }
     ]);
 
-    return { items: partsDetails };
+    return { version_parts_detail: partsDetails };
   } catch (error) {
     console.error('Error retrieving part details from MongoDB:', error);
     throw error;
@@ -169,7 +169,7 @@ const getDatasDb = async (id_user, id_part) => {
       }
     ]);
 
-    return labeledData;
+    return { datas: labeledData };
   } catch (error) {
     console.error('Error retrieving labeled data:', error);
     throw error;
@@ -196,7 +196,7 @@ async function labelDataDb(id_data, id_labeler, label) {
         // labeling_time: new Date().toISOString(), // Lấy thời gian hiện tại
       });
       await data.save();
-      return { message: 'Label added successfully' };
+      return {};
     }
   } catch (error) {
     console.error('Error', error);

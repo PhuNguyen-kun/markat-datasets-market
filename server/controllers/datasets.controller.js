@@ -16,10 +16,10 @@ const createDataset = async (req, res, next) => {
 const getAllDatasets = async (req, res, next) => {
   await handleRequest(
     datasetService.getAllDatasets,
-    [req.query],
+    [],
     res,
     next,
-    ["page"],
+    [],
     "Datasets retrieved successfully.",
     "No datasets found."
   );

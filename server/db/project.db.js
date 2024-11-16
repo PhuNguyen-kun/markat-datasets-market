@@ -74,7 +74,7 @@ const getAllProjectsDb = async ({ limit, offset }) => {
     })
   );
 
-  return projectsWithUserCounts;
+  return { projects : projectsWithUserCounts };
 };
 
 const getProjectDetailDb = async (id_version) => {
