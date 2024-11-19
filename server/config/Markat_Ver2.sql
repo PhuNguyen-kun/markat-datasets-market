@@ -48,6 +48,12 @@ CREATE TABLE Dataset (
     Slug TEXT
 );
 
+CREATE TABLE Dataset_topic (
+    ID_dataset_topic SERIAL PRIMARY KEY,
+    ID_dataset INT REFERENCES Dataset(ID_dataset),
+    Topic VARCHAR(40)
+);
+
 CREATE TABLE Dataset_tag(
     ID_dataset_tag SERIAL PRIMARY KEY,
     ID_dataset INT REFERENCES Dataset(ID_dataset),
@@ -520,6 +526,28 @@ VALUES
 (FALSE, 'avatar17.png', 'Yoga Posture Dataset', 11.0, 2, 'Selling', 'yoga_posture_dataset'),
 (TRUE, 'avatar18.png', 'Dog vs Cat', 11.0, 2, 'Selling', 'dog_vs_cat');
 
+INSERT INTO Dataset_topic (ID_dataset, Topic) VALUES
+(1, 'trendingDatasets'),
+(2, 'trendingDatasets'),
+(3, 'trendingDatasets'),
+(6, 'trendingDatasets'),
+(4, 'healthCare'),
+(5, 'healthCare'),
+(7, 'healthCare'),
+(8, 'healthCare'),
+(10, 'animal'),
+(11, 'animal'),
+(12, 'animal'),
+(18, 'animal'),
+(9, 'earthAndNature'),
+(13, 'earthAndNature'),
+(15, 'earthAndNature'),
+(14, 'earthAndNature'),
+(16, 'recentlyViewedDatasets'),
+(17, 'recentlyViewedDatasets'),
+(1, 'recentlyViewedDatasets'),
+(2, 'recentlyViewedDatasets');
+
 INSERT INTO Dataset_tag (ID_dataset, ID_tag) VALUES
 (1, 7),
 (1, 8),
@@ -741,14 +769,14 @@ VALUES
 
 INSERT INTO Censorship_complete_version (ID_admin, ID_version, Confirm, Reason) VALUES
 (1, 1, TRUE, 'Verified and approved for release.'),
-(2, 2, FALSE, 'Incomplete documentation, requires more information.'),
+(2, 2, TRUE, 'Incomplete documentation, requires more information.'),
 (3, 3, TRUE, 'Compliant with all required standards.'),
-(4, 4, FALSE, 'Failed security checks, needs revision.'),
+(4, 4, TRUE, 'Failed security checks, needs revision.'),
 (5, 5, TRUE, 'Approved after successful testing and review.'),
 (1, 6, TRUE, 'All criteria met, approved for deployment.'),
-(2, 7, FALSE, 'Non-compliance with data privacy regulations.'),
+(2, 7, TRUE, 'Non-compliance with data privacy regulations.'),
 (3, 8, TRUE, 'Confirmed after thorough assessment.'),
-(4, 9, FALSE, 'Issues detected during quality assurance.'),
+(4, 9, TRUE, 'Issues detected during quality assurance.'),
 (5, 10, TRUE, 'All issues resolved, confirmed for release.');
 
 INSERT INTO Authen (ID_admin, ID_expert_register, Confirm, Reason)

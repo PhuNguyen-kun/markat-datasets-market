@@ -1,11 +1,23 @@
 import axiosInstance from '@/utils/axiosInstance'
 import { notifyError } from '@/services/notification'
 
-export const fetchDatasets = async () => {
+export const fetchDatasets = async (limit : number, offset : number, topic : string) => {
   try {
-    const response = await axiosInstance.get('/datasets')
-    const datasets = response?.data?.data?.datasets || []
+    // const limit = 4, offset = 0;
+    // const topic = "trendingDatasets";
+    // console.log(limit);
+    // console.log(offset);
+    // console.log(topic);
 
+    const response = await axiosInstance.get('/datasets', {
+      params: {
+        limit,
+        offset,
+        topic,
+      }
+    });
+
+    const datasets = response?.data?.data?.datasets || []
     return datasets.map((item: any) => {
       if (item.avatar) {
         item.avatar = `${item.avatar}`

@@ -7,33 +7,85 @@
     </p>
   </div>
 
-  <div
-    class="dataset-page__container"
-    v-loading.fullscreen.lock="fullscreenLoading"
-  >
-    <div
-      class="card"
-      v-for="(item, index) in items"
-      :key="index"
-      @click="goToDetail(item.id_dataset)"
-    >
-      <img :src="item.avatar" alt="Card image" class="card-image" />
-      <div class="card-content">
-        <h2 class="card-title">{{ item.name_dataset }}</h2>
-        <p class="card-info">{{ item.views }} views</p>
-        <p class="card-info">{{ item.version_count }} versions</p>
-        <p class="card-info">{{ item.data_format }}</p>
+  <!-- Sale Section -->
+  <div class="sale-section">
+    <div class="sale-title">
+      <h2>Special Discounted Datasets</h2>
+    </div>
+    <div class="sale-carousel-wrapper">
+      <div class="sale-carousel-container">
+        <div
+          v-for="(dataset, index) in saleDatasets"
+          :key="index"
+          class="card sale-card"
+        >
+          <img :src="dataset.image" alt="Dataset image" class="card-image" />
+          <div class="card-content compact centered">
+            <h2 class="card-title">{{ dataset.name }}</h2>
+            <div class="card-info">
+              <p class="card-info">
+                Discounted Price: {{ dataset.discountPrice }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-bar-container">
+    <div class="search-bar">
+      <span class="icon" style="color: #757575">🔍</span>
+      <input type="text" v-model="searchQuery" placeholder="Search datasets" />
+    </div>
+    <button class="filter-button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M10 18h4v-2h-4v2zm-7-6v2h18v-2H3zm3-4h12V6H6v2z"></path>
+      </svg>
+      Filters
+    </button>
+  </div>
+
+  <!-- Category Tags -->
+  <div class="category-tags" style="max-width: 1200px; margin: 0 auto">
+    <div v-for="(tag, index) in categoryTags" :key="index" class="category-tag">
+      {{ tag }}
+    </div>
+  </div>
+
+  <!-- Datasets Sections -->
+  <div v-for="(section, index) in datasetSections" :key="index" class="dataset-section">
+    <div class="section-header">
+      <h2 class="section-title"> {{ section.title }} </h2>
+      <a href="#" class="see-all">See All</a>
+    </div>
+    <div class="card-grid">
+      <div
+        v-for="(dataset, index) in section.datasets"
+        :key="index"
+        @click="goToDetail(dataset.id_dataset)"
+        class="card"
+      >
+        <img v-if="dataset && dataset.avatar" :src="dataset.avatar" alt="Dataset image" class="card-image" />
+        <div class="card-content compact">
+          <h2 class="card-title">{{ dataset.name_dataset }}</h2>
+          <div class="card-info">
+            <p class="card-info">Updated {{ dataset.day_updated }}</p>
+            <p class="card-info">Versions: {{ dataset.version_count }}</p>
+            <p class="card-info">Format: {{ dataset.data_format }}</p>
+          </div>
+        </div>
         <div class="card-footer">
           <div class="views">
             <img
               src="../../../assets/icon/eye.svg"
               alt="Views"
-              style="width: 15px; height: 20px; margin-right: 4px"
+              class="icon-eye"
             />
-            {{ item.views }}
+            {{ dataset.views }}
           </div>
-          <span class="status">Verified</span>
-          <span class="discount">-{{ item.voucher }}%</span>
+          <span v-if="dataset.verified" class="tag status">Verified</span>
+          <span class="discount">{{ dataset.voucher }}% </span>
         </div>
       </div>
     </div>
@@ -41,131 +93,429 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { fetchDatasets } from '@/services/datasets'
-import { ElLoading } from 'element-plus'
-import { useRouter } from 'vue-router'
+  import { ref, onMounted } from 'vue'
+  import { fetchDatasets } from '@/services/datasets'
+  import { ElLoading } from 'element-plus'
+  import { useRouter } from 'vue-router'
 
-const route = useRouter()
-const items = ref<any[]>([])
-const isLoading = ref(true)
-const fullscreenLoading = ref(false)
+  const route = useRouter()
+  const datasets = ref<any[]>([])
+  const isLoading = ref(true)
+  const fullscreenLoading = ref(false)
 
-const openFullScreen1 = () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Markat is loading 🗿⌛',
-    background: 'rgba(0, 0, 0, 0.2)',
-  })
-  setTimeout(() => {
-    loading.close()
-  }, 300)
-}
-
-const loadDatasets = async () => {
-  try {
-    openFullScreen1()
-    items.value = await fetchDatasets()
-  } catch (error) {
-    console.error('Failed to load datasets:', error)
+  const openFullScreen1 = () => {
+    const loading = ElLoading.service({
+      lock: true,
+      text: 'Markat is loading 👟⌛',
+      background: 'rgba(0, 0, 0, 0.2)',
+    })
+    setTimeout(() => {
+      loading.close()
+    }, 300)
   }
-}
 
-const goToDetail = (id: number) => {
-  route.push({ name: 'dataset-detail', params: { id } })
-}
+  const setupSaleCarousel = () => {
+    const saleCarouselContainer = document.querySelector('.sale-carousel-container');
 
-onMounted(() => {
-  loadDatasets()
-})
+    if (saleCarouselContainer) {
+      const saleCards = saleCarouselContainer.querySelectorAll('.sale-card');
+      saleCards.forEach((card) => {
+        const clone = card.cloneNode(true);
+        saleCarouselContainer.appendChild(clone);
+      });
+      saleCarouselContainer.style.overflow = 'visible';
+    }
+  };
+
+  const startSaleCarousel = () => {
+    const saleCarouselContainer = document.querySelector('.sale-carousel-container');
+    let currentPosition = 0;
+    const spacing = 23;
+
+    function startCarousel() {
+      if (saleCarouselContainer) {
+        const saleCards = saleCarouselContainer.querySelectorAll('.sale-card');
+        if (saleCards.length > 0) {
+          const cardWidth = saleCards[0].offsetWidth;
+          currentPosition -= 1;
+          saleCarouselContainer.style.transition = 'transform 0.05s linear';
+          saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`;
+          if (Math.abs(currentPosition) >= cardWidth) {
+            saleCarouselContainer.style.transition = 'none';
+            currentPosition += cardWidth + spacing;
+            saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`;
+            saleCarouselContainer.appendChild(saleCards[0]);
+          }
+        }
+      }
+    }
+
+    setInterval(startCarousel, 16);
+  };
+
+  const loadDatasets = async (limit : number, offset : number, topic : string) => {
+    try {
+        const topics = [
+        { title: 'Trending Datasets', topic: 'trendingDatasets' },
+        { title: 'Healthcare Datasets', topic: 'healthCare' },
+        { title: 'Animal Datasets', topic: 'animal' },
+        { title: 'Earth and Nature Datasets', topic: 'earthAndNature' },
+        { title: 'Recently Viewed Datasets', topic: 'recentlyViewedDatasets' },
+      ];
+
+      for (const { title, topic } of topics) {
+        try {
+          const datasets = await fetchDatasets(4, 0, topic);
+          const section = datasetSections.value.find((section) => section.title === title);
+          if (section) {
+            section.datasets = datasets;
+          }
+        } catch (error) {
+          console.error(`Failed to load datasets for ${title}:`, error);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load datasets:', error)
+    }
+  }
+
+  const goToDetail = (id: number) => {
+    route.push({ name: 'dataset-detail', params: { id } })
+  }
+
+  onMounted(async () => {
+    await openFullScreen1();
+    await loadDatasets();
+    await setupSaleCarousel();
+    await startSaleCarousel();
+  });
+
+  // ref
+
+  const searchQuery = ref('');
+
+  const categoryTags = ref([
+    'All datasets',
+    'Computer Science',
+    'Education',
+    'Classification',
+    'Computer Vision',
+    'NLP',
+    'Data Visualization',
+    'Pre-Trained Model',
+  ]);
+
+  const datasetSections = ref([
+    {
+      title: 'Trending Datasets',
+      datasets: []
+    },
+    {
+      title: 'Healthcare Datasets',
+      datasets: []
+    },
+    {
+      title: 'Animal Datasets',
+      datasets: []
+    },
+    {
+      title: 'Earth and Nature Datasets',
+      datasets: []
+    },
+    {
+      title: 'Recently Viewed Datasets',
+      datasets: []
+    }
+  ]);
+
+  const saleDatasets = ref([
+    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 1', discountPrice: '$10.00' },
+    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 2', discountPrice: '$15.00' },
+    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 3', discountPrice: '$20.00' },
+    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 4', discountPrice: '$25.00' },
+    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 5', discountPrice: '$30.00' },
+    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 6', discountPrice: '$30.00' }
+  ]);
+
+  const currentSaleDatasetIndex = ref(0);
 </script>
 
 <style scoped lang="scss">
-.dataset-page__container {
-  margin-top: 20px;
-  padding: 20px 40px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 25px;
-  justify-content: start;
-}
+  /* Search Bar Styles */
+  .search-bar-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    padding: 8px 16px;
+    border-radius: 30px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  background-color: white;
-  width: 220px;
-  border-radius: 30px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  transition: transform 0.2s;
-  cursor: pointer;
-}
+  .search-bar {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
 
-.card:hover {
-  transform: translateY(-5px);
-}
+  .search-bar input[type="text"] {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+  }
 
-.card-image {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
-}
+  .search-bar .icon {
+    margin-right: 10px;
+    color: #757575;
+    font-size: 20px;
+  }
 
-.card-content {
-  padding: 16px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  line-height: 15px;
-}
+  .filter-button {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 30px;
+    background-color: #f5f5f5;
+    color: #333;
+    cursor: pointer;
+    font-size: 16px;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
 
-.card-title {
-  font-size: 1.1rem;
-  font-weight: bold;
-  //margin: 2px 0 1px 0;
-  height: 60px;
-  line-height: 22px;
-}
+  .filter-button:hover {
+    background-color: #e0e0e0;
+    color: #000;
+  }
 
-.card-info {
-  font-size: 0.9rem;
-  color: #555;
-  margin: 4px 0;
-}
+  .filter-button svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+  }
 
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 5px;
-  padding: 10px 0 0 0;
-  margin-bottom: -5px;
-}
+  /* Category Tags Styles */
+  .category-tags {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-.views {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #888;
-}
+  .category-tag {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
 
-.icon-eye {
-  margin-right: 5px;
-}
+  .category-tag:hover {
+    background-color: #f5f5f5;
+  }
 
-.status {
-  color: #4caf50;
-  font-weight: bold;
-  background-color: #e8f5e9;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
 
-.discount {
-  color: #e53935;
-  font-weight: bold;
-}
+  // Sale Dataset Carousel Styles
+  .sale-carousel-container {
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    position: relative;
+    display: flex;
+    transition: transform 1s ease-in-out;
+    will-change: transform;
+    align-items: center;
+    overflow: hidden;
+    background-color: #fff;
+    gap: 20px;
+  }
+
+  .sale-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2em;
+    font-weight: bold;
+    margin-top: 30px;
+  }
+
+  .sale-carousel-wrapper {
+    overflow: hidden;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0px auto 20px;
+    position: relative;
+  }
+
+  .sale-carousel {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto 20px auto;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    transition: transform 1s ease-in-out;
+  }
+
+  .sale-card {
+    display: flex;
+    min-width: calc((100% / 4) - 15px);
+    flex-shrink: 0;
+    box-sizing: border-box;
+    flex: 1;
+    gap: 20px;
+    transition: transform 0.5s ease;
+  }
+
+  // Center content in sale cards
+  .card-content.centered {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  // Category Dataset Styles
+  .dataset-section {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 45px auto 20px auto;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    gap: 10px;
+  }
+
+  .see-all {
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #333;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+    font-weight: bold;
+    transition:
+    background-color 0.3s,
+    color 0.3s;
+  }
+
+  .see-all:hover {
+    background-color: #e0e0e0;
+    color: #000;
+  }
+
+  .card-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+    cursor: pointer;
+    height: 330px;
+    width: 280px;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  .card-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+
+  .card-content.compact {
+    padding: 12px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+
+  .card-info {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 5px;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .views {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .icon-eye {
+    margin-right: 5px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .status {
+    color: #4caf50;
+    font-weight: bold;
+    background-color: #e8f5e9;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  .discount {
+    color: #e53935;
+    font-weight: bold;
+  }
 </style>

@@ -27,8 +27,10 @@ const handleRequest = async (
   try {
     if (requiredFields.length > 0) {
       for (const field of requiredFields) {
-        //  console.log(params[0][field]);
+        //console.log(params[0][field]);
         if (!params[0][field]) {
+          console.log(params[0][field]);
+
           return res.status(400).json({
             status: "error",
             message: `${field} is required.`,

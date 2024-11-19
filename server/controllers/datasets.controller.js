@@ -13,13 +13,13 @@ const createDataset = async (req, res, next) => {
   );
 };
 
-const getAllDatasets = async (req, res, next) => {
+const getDatasetsByTopic = async (req, res, next) => {
   await handleRequest(
-    datasetService.getAllDatasets,
-    [],
+    datasetService.getDatasetsByTopic,
+    [req.query],
     res,
     next,
-    [],
+    ["offset","limit", "topic"],
     "Datasets retrieved successfully.",
     "No datasets found."
   );
@@ -87,7 +87,7 @@ const versionBuyingTransaction = async (req, res, next) => {
 
 module.exports = {
   createDataset,
-  getAllDatasets,
+  getDatasetsByTopic,
   getUserOwnedDatasets,
   getUserOwnedDatasetById,
   getDatasetbyDatasetId,

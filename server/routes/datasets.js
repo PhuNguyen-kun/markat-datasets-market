@@ -3,7 +3,7 @@ const {
   createDataset,
   getUserOwnedDatasetById,
   getUserOwnedDatasets,
-  getAllDatasets,
+  getDatasetsByTopic,
   getDatasetbyDatasetId,
   getVersion,
   versionBuyingTransaction,
@@ -13,7 +13,7 @@ router.route("/owned/:id_user/:page").get(getUserOwnedDatasets);
 router.route("/owned/:id").get(getUserOwnedDatasetById);
 router.route("/create").post(createDataset);
 //router.version("/version").get(getVersion);
-router.route("/").get(getAllDatasets);
+router.route("/").get(getDatasetsByTopic);
 router.route("/:id_dataset/").get(getDatasetbyDatasetId);
 router.route("/:id_dataset/:name_version").get(getVersion);
 router.route("/buying/:id_version").post(versionBuyingTransaction);

@@ -1,3 +1,4 @@
+const { log } = require("console");
 const client = require("../config");
 const fs = require('fs').promises;
 const path = require('path');
@@ -13,32 +14,57 @@ const getDatasetAvatar = async (id_dataset) => {
   }
 };
 
-const getAllDatasetsDb = async ({ limit, offset }) => {
+const getDatasetsByTopicDb = async ({ offset, limit, topic }) => {
   const { rows: datasets } = await client.query(
     `SELECT
-    d.ID_dataset,
-    d.Avatar,
-    d.Name_dataset,
-    (SELECT COUNT(*) FROM User_click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
-    d.Voucher,
-    df.Data_format AS Data_Format,
-    (SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS Version_Count
+      d.ID_dataset,
+      d.Avatar,
+      d.Name_dataset,
+      d.Verified,
+      (SELECT COUNT(*) FROM User_click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
+      d.Voucher,
+      df.Data_format AS Data_Format,
+      (SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS Version_Count,
+      COALESCE(
+        (
+          SELECT MAX(v.Valuation_due_date)
+          FROM Version v
+          WHERE v.ID_dataset = d.ID_dataset AND v.Valuation_due_date <= NOW()
+        ), '2024-01-01 10:00:00'
+      ) AS latest_valuation_due_date
     FROM
-        Dataset d
+      Dataset d
     LEFT JOIN
-        Version v ON d.ID_Dataset = v.ID_Dataset
+      Data_format df ON d.ID_data_format = df.ID_data_format
     LEFT JOIN
-        Data_format df ON d.ID_data_format = df.ID_data_format
+      Dataset_topic dt ON d.ID_dataset = dt.ID_dataset
+    WHERE
+      dt.Topic = $3
     GROUP BY
-        d.ID_Dataset, d.Avatar, d.Name_dataset, d.Voucher, df.Data_format
+      d.ID_Dataset, d.Avatar, d.Name_dataset, d.Verified, d.Voucher, df.Data_format
     ORDER BY
-        d.ID_Dataset ASC
+      d.ID_Dataset ASC
     OFFSET $1 LIMIT $2;
     `,
-    [offset, limit]
+    [offset, limit, topic]
   );
+
+  // Tính toán sự khác biệt ngày trong JavaScript (nếu cần)
+  const now = new Date();
+  datasets.forEach(dataset => {
+    if (dataset.latest_valuation_due_date) {
+      const valuationDate = new Date(dataset.latest_valuation_due_date);
+      const dayDifference = Math.floor((now - valuationDate) / (1000 * 60 * 60 * 24));
+      dataset.day_updated = dayDifference > 0 ? `${dayDifference} days ago` : "Today";
+    } else {
+      dataset.day_updated = "No update available";
+    }
+  });
+
   return datasets;
 };
+
+
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
   const { rows: dataset } = await client.query(
     `SELECT
@@ -145,7 +171,7 @@ const getVersionDb = async (id_dataset, name_version) => {
 
 module.exports = {
   getDatasetAvatar,
-  getAllDatasetsDb,
+  getDatasetsByTopicDb,
   getDatasetbyDatasetIdDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,

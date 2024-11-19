@@ -2,7 +2,7 @@ const client = require("../config");
 const Data = require('../models/data');
 const {
   getDatasetAvatar,
-  getAllDatasetsDb,
+  getDatasetsByTopicDb,
   getDatasetbyDatasetIdDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,
@@ -30,11 +30,9 @@ class DatasetService {
     }
   }
 
-  async getAllDatasets() {
-    const limit = 20;
-    const offset = 0;
+  async getDatasetsByTopic({ offset, limit, topic }) {
     try {
-      const datasets = await getAllDatasetsDb({ limit, offset });
+      const datasets = await getDatasetsByTopicDb({ offset, limit, topic });
       const datasetsWithAvatar = await Promise.all(datasets.map(async (dataset) => {
         if (dataset.avatar && dataset.id_dataset) {
           dataset.avatar = await getDatasetAvatar(dataset.id_dataset);
