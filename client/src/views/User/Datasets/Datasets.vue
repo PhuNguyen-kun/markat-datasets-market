@@ -245,33 +245,39 @@ const datasetSections = ref([
 
 const saleDatasets = ref([
   {
-    image: 'https://via.placeholder.com/200x150',
-    name: 'Dataset 1',
+    image:
+      'https://storage.googleapis.com/kaggle-datasets-images/5922591/9688104/226010b17b3ada6068ffb6a684565b10/dataset-cover.png?t=2024-10-22-02-50-51',
+    name: 'Binance Coin',
     discountPrice: '$10.00',
   },
   {
-    image: 'https://via.placeholder.com/200x150',
-    name: 'Dataset 2',
+    image:
+      'https://storage.googleapis.com/kaggle-datasets-images/5813326/9542635/c1be59c679780569020f5665a131ddbe/dataset-cover.jpg?t=2024-10-03-22-39-41',
+    name: 'COVID 19 Dataset',
     discountPrice: '$15.00',
   },
   {
-    image: 'https://via.placeholder.com/200x150',
-    name: 'Dataset 3',
+    image:
+      'https://storage.googleapis.com/kaggle-datasets-images/5875096/9624910/20079a4cb6283ca6dd1f27a86c03c1af/dataset-cover.png?t=2024-10-14-20-25-19',
+    name: 'Esophageal Cancer Dataset',
     discountPrice: '$20.00',
   },
   {
-    image: 'https://via.placeholder.com/200x150',
-    name: 'Dataset 4',
+    image:
+      'https://storage.googleapis.com/kaggle-datasets-images/5936111/9705963/082deb5ddef7115535fcbe53b923d3e0/dataset-cover.jpg?t=2024-10-24-11-42-23',
+    name: 'Gold Price Regression',
     discountPrice: '$25.00',
   },
   {
-    image: 'https://via.placeholder.com/200x150',
-    name: 'Dataset 5',
+    image:
+      'https://storage.googleapis.com/kaggle-datasets-images/5991508/9780089/bbda05846ccf00c77af547701626330e/dataset-cover.jpg?t=2024-11-01-11-55-37',
+    name: "World's Richest Sports Leagues Dataset",
     discountPrice: '$30.00',
   },
   {
-    image: 'https://via.placeholder.com/200x150',
-    name: 'Dataset 6',
+    image:
+      'https://storage.googleapis.com/kaggle-datasets-images/5939172/9709961/41861e256033e26bf5bfb52d80c00edc/dataset-cover.PNG?t=2024-10-24-16-57-02',
+    name: 'GDP-BY-COUNTRY-2023',
     discountPrice: '$30.00',
   },
 ])

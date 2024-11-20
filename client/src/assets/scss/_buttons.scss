@@ -101,6 +101,20 @@
     border-radius: 99px;
   }
 
+  &--black-rounded {
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    background: #000;
+    color: #fff;
+  }
+
+  &--black-rounded:hover {
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    background: #313131;
+    color: #fff;
+  }
+
   &--danger {
     color: #fff;
     background: #ed4337;
