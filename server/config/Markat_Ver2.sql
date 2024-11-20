@@ -546,7 +546,12 @@ INSERT INTO Dataset_topic (ID_dataset, Topic) VALUES
 (16, 'recentlyViewedDatasets'),
 (17, 'recentlyViewedDatasets'),
 (1, 'recentlyViewedDatasets'),
-(2, 'recentlyViewedDatasets');
+(2, 'recentlyViewedDatasets'),
+(4, 'similarDatasets'),
+(10, 'similarDatasets'),
+(16, 'similarDatasets'),
+(9, 'similarDatasets');
+
 
 INSERT INTO Dataset_tag (ID_dataset, ID_tag) VALUES
 (1, 7),
