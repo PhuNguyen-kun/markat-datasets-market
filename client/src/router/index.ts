@@ -34,4 +34,11 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+router.afterEach(() => {
+  const content = document.querySelector('.content')
+  if (content) {
+    content.scrollTop = 0
+  }
+})
+
 export default router
