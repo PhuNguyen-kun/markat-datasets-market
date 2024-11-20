@@ -89,6 +89,7 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -166,10 +167,12 @@
       for (const { title, topic } of topics) {
         try {
           const datasets = await fetchDatasets(4, 0, topic);
+          console.log(datasets);
           const section = datasetSections.value.find((section) => section.title === title);
           if (section) {
             section.datasets = datasets;
           }
+          console.log('hieudz',section);
         } catch (error) {
           console.error(`Failed to load datasets for ${title}:`, error);
         }
