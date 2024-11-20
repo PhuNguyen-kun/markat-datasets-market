@@ -162,8 +162,16 @@
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="onCancel">Cancel</el-button>
-        <el-button type="primary" @click="onSubmit">Send</el-button>
+        <button class="btn btn--rounded" @click="onCancel" style="width: 90px">
+          Cancel
+        </button>
+        <button
+          class="btn btn--black-rounded"
+          @click="onSubmit"
+          style="margin-left: 10px; width: 90px"
+        >
+          Send
+        </button>
       </div>
     </template>
   </el-dialog>
