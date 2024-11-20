@@ -1,6 +1,10 @@
 import axiosInstance from '@/utils/axiosInstance'
 
 export const fetchYourWorkData = async (id_user: number) => {
+  const token = localStorage.getItem('access_token') // Retrieve token from localStorage
+  console.log('Access Token:', token)
+  console.log('Sending id_user:', id_user)
+
   try {
     const response = await axiosInstance.get('/yourwork', {
       params: {

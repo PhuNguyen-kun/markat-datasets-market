@@ -9,7 +9,14 @@
     <div class="heading">
       <div class="heading--title">
         <h1 class="small-title">Flowers Dataset</h1>
-        <h2 class="small-sub-title">Version 1</h2>
+        <div style="display: flex; gap: 15px">
+          <div class="el-tag el-tag--primary el-tag--light">
+            <h2 class="el-tag__content small-sub-title">Version 1</h2>
+          </div>
+          <div class="el-tag el-tag--primary el-tag--light">
+            <h2 class="small-sub-title">Part {{ id_part }}</h2>
+          </div>
+        </div>
       </div>
 
       <el-pagination
@@ -30,6 +37,7 @@
         <div class="label-detail__tag">
           <button
             class="btn btn--rounded"
+            :class="{ selected: currentImageData.label === label }"
             v-for="label in currentImageData.labels"
             :key="label"
             @click="selectLabel(label)"
@@ -55,8 +63,8 @@ import { ElLoading, ElMessage } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
-const id_user = 1
-const id_part = 1
+const id_user = Number(route.query.id_user) || 1
+const id_part = Number(route.query.id_part) || 1
 
 const labelingData = ref([])
 const totalItems = ref(0)
@@ -105,22 +113,38 @@ function handlePageChange(page: number) {
 
 async function selectLabel(label: string) {
   const imageData = currentImageData.value
+  const id_labeler = '1'
+
   if (imageData) {
     imageData.label = label
     imageData.labelingTime = new Date()
 
-    const result = await updateLabel(imageData._id, label)
-    if (result && result.success) {
-      ElMessage.success(`You have selected the label: ${label}`)
+    try {
+      loadingInstance = ElLoading.service({
+        lock: true,
+        text: 'Markat is loading 🗿⌛',
+        background: 'rgba(0, 0, 0, 0.2)',
+      })
 
-      // Tự động chuyển sang ảnh tiếp theo
-      if (currentPage.value < totalItems.value) {
-        currentPage.value += 1
+      const result = await updateLabel(imageData._id, id_labeler, label)
+      if (result && result.status === 'success') {
+        ElMessage.success(`You have selected the label: ${label}`)
+
+        if (currentPage.value < totalItems.value) {
+          currentPage.value += 1
+        } else {
+          ElMessage.info('You have labeled all images.')
+        }
       } else {
-        ElMessage.info('You have labeled all images.')
+        ElMessage.error(result?.message || 'Failed to update label.')
       }
-    } else {
-      ElMessage.error('Failed to update label.')
+    } catch (error) {
+      console.error('Error updating label:', error)
+      ElMessage.error('An error occurred while updating the label.')
+    } finally {
+      if (loadingInstance) {
+        loadingInstance.close()
+      }
     }
   }
 }
@@ -153,7 +177,7 @@ function goBack() {
       align-items: start;
       flex-direction: column;
       gap: 15px;
-      margin-left: 30px;
+      margin-left: 100px;
     }
 
     .small-title {
@@ -165,6 +189,10 @@ function goBack() {
       width: 200px;
       height: auto;
     }
+  }
+
+  .small-sub-title {
+    font-size: 15px;
   }
 }
 
@@ -201,5 +229,11 @@ function goBack() {
   display: flex;
   flex-wrap: wrap;
   height: 100px;
+}
+
+.label-detail__tag .selected {
+  background-color: #00b000;
+  color: white;
+  border-color: #007bff;
 }
 </style>

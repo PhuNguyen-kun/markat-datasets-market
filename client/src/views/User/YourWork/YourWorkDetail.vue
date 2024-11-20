@@ -1,18 +1,20 @@
 <template>
   <div class="your-work-detail__container">
-    <router-link to="/your-work" class="page-link">
+    <div @click="goBack" class="page-link">
       <button class="btn btn--rounded">
         <el-icon size="20">
           <Back />
         </el-icon>
         <span>Back</span>
       </button>
-    </router-link>
+    </div>
     <div class="heading">
       <div class="heading--title">
-        <!--        <img src="/avatar1.png" alt="" class="heading&#45;&#45;img" />-->
-        <h1 class="small-title">{{ datasetName }}</h1>
-        <h2 class="small-sub-title">Version {{ versionNumber }}</h2>
+        <div style="display: flex; flex-direction: column; width: 300px">
+          <h1 class="small-title">{{ datasetName }}</h1>
+          <h2 class="small-sub-title">Version {{ versionNumber }}</h2>
+        </div>
+        <img src="/flowers_dataset_thumbnail.png" alt="" class="heading--img" />
       </div>
       <!-- Clock -->
       <p id="demo" class="count-down">
@@ -163,6 +165,10 @@ const value = ref(Date.now() + 1000 * 60 * 60 * 7)
 const value1 = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
 const value2 = ref(dayjs().add(1, 'month').startOf('month'))
 let loadingInstance: any = null
+
+const goBack = () => {
+  router.back()
+}
 
 function reset() {
   value1.value = Date.now() + 1000 * 60 * 60 * 24 * 2
@@ -334,18 +340,20 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 200px;
+  margin-top: 30px;
 
   &--title {
-    width: 250px;
+    width: 350px;
     display: flex;
     align-items: start;
-    flex-direction: column;
     gap: 15px;
   }
 
   &--img {
-    width: 200px;
+    width: 280px;
     height: auto;
+    border-radius: 10px;
   }
 }
 
@@ -376,6 +384,7 @@ onMounted(() => {
 .small-title {
   font-size: 20px;
   font-weight: 600;
+  width: 200px;
 }
 
 .small-sub-title {
@@ -384,14 +393,13 @@ onMounted(() => {
 }
 
 .count-down {
-  width: 950px;
+  width: 550px;
   font-size: 20px;
   font-weight: 500;
-  margin-top: 30px;
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 25px;
-  background-color: #dcdcdc;
+  background-color: #fff;
   color: #ff914d;
 }
 

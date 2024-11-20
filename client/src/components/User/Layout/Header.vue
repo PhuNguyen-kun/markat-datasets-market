@@ -11,13 +11,7 @@
         />
       </svg>
       <form action="">
-        <input
-          type="text"
-          name=""
-          id=""
-          placeholder="Search for data"
-          required=""
-        />
+        <input type="text" name="" id="" placeholder="Search for data" />
       </form>
     </div>
 
@@ -66,9 +60,9 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item>Your profile</el-dropdown-item>
-              <router-link to="/your-work" class="page-link">
-                <el-dropdown-item> Your work</el-dropdown-item>
-              </router-link>
+              <el-dropdown-item @click="goToYourWork"
+                >Your work
+              </el-dropdown-item>
               <el-dropdown-item>Transaction History</el-dropdown-item>
               <el-dropdown-item>Settings</el-dropdown-item>
               <!--              <el-dropdown-item disabled>Action 4</el-dropdown-item>-->
@@ -95,17 +89,29 @@ import { ref, onMounted } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { logout as logoutService } from '@/services/auth'
 import { useRouter } from 'vue-router'
+import { jwtDecode } from 'jwt-decode'
 
 const isLoggedIn = ref(false)
 // const userAvatarUrl = ref('')
+const router = useRouter()
+
+const userId = ref<string | null>(null)
+const goToYourWork = () => {
+  router.push({ path: '/your-work', query: { id_user: userId.value } })
+}
 
 onMounted(() => {
   const token = localStorage.getItem('access_token')
   if (token) {
-    isLoggedIn.value = true
-
-    // userAvatarUrl.value =
-    //   localStorage.getItem('user_avatar') || 'default-avatar-url'
+    try {
+      const decoded = jwtDecode<{ id_user: string }>(token)
+      userId.value = decoded.id_user
+      isLoggedIn.value = true
+    } catch (error) {
+      console.error('Failed to decode token:', error)
+    }
+  } else {
+    console.warn('No access token found in localStorage')
   }
 })
 
@@ -114,7 +120,7 @@ const logout = async () => {
     await logoutService()
     localStorage.removeItem('access_token')
     isLoggedIn.value = false
-    await route.push('/auth/login')
+    await router.push('/auth/login')
   } catch (error) {
     console.error('Failed to logout:', error)
   }
@@ -161,11 +167,11 @@ input::placeholder {
 </style>
 
 <style lang="scss">
-.el-dropdown-menu__item:nth-of-type(4):not(.is-disabled):hover {
-  background-color: #ffd9d9;
-  color: red;
-}
-
+//.el-dropdown-menu__item:nth-of-type(4):not(.is-disabled):hover {
+//  background-color: #ffd9d9;
+//  color: red;
+//}
+//
 .el-dropdown-menu__item:not(.is-disabled) {
   font-size: 15px;
   height: 40px;

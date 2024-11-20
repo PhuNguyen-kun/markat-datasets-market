@@ -1,5 +1,4 @@
 import axiosInstance from '@/utils/axiosInstance'
-import axios from 'axios'
 
 export const fetchLabelingData = async (
   id_user: number,
@@ -37,14 +36,20 @@ export const fetchLabelingDetailData = async (
   }
 }
 
-export const updateLabel = async (id: string, label: string) => {
+export const updateLabel = async (
+  id_data: string,
+  id_labeler: string,
+  label: string,
+) => {
   try {
-    const response = await axiosInstance.post('/labeling/label', {
-      id,
+    const response = await axiosInstance.patch('/labeling/label', {
+      id_data,
+      id_labeler,
       label,
     })
     return response.data
   } catch (error) {
     console.error('Failed to update label', error)
+    throw error
   }
 }
