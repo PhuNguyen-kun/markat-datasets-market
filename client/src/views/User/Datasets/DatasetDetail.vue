@@ -4,37 +4,36 @@
       <div class="dataset-detail__heading">
         <div>
           <h1 class="common__title-black">{{ dataset.name_dataset }}</h1>
+          <p class="dataset-detail__description">{{ dataset.description }}</p>
           <div class="dataset-detail__info">
             <p class="dataset-detail__size">Total size: {{ versionData.total_size }} GB</p>
             <p class="dataset-detail__records">Number of data: {{ versionData.number_of_data }} records</p>
             <p class="dataset-detail__updated">Day updated: {{ formatDate(versionData.day_updated) }}</p>
           </div>
           <div class="dataset-detail__buttons">
-            <el-button class="btn-try" type="primary" @click="handleTryClick">Try first</el-button>
-            <el-button class="btn-buy" type="success" @click="handleBuyClick">Buy</el-button>
+            <el-button class="dataset-detail__trybutton" @click="handleTryClick">
+              <div style = "color: rgb(32, 33, 36);">
+                Try first
+              </div>
+            </el-button>
+            <el-button class="dataset-detail__buybutton" @click="handleBuyClick">
+              <div style = "color: rgb(255, 255, 255);">
+                Buy
+              </div>
+            </el-button>
+          </div>
+          <div class="version-container" style = "margin-top : 20px;">
+            <el-button v-for="version in versionCount" :key="version.id" class="version-button" @click="selectVersion(version.id)">
+              Version {{ version }}
+            </el-button>
           </div>
         </div>
         <img :src="`${dataset.avatar}`" alt="Dataset Image" class="dataset-detail__image" />
       </div>
     </div>
 
-    <div class="dataset-description">
-      <h2>Description</h2>
-      <p>{{ dataset.description }}</p>
-    </div>
-
-    <div class="dataset-about">
-      <h2>About Dataset</h2>
-      <p>{{ dataset.about }}</p>
-    </div>
-
-    <div class="dataset-request">
-      <h2>Request</h2>
-      <div class="dataset-request__content">
-        <p>{{ dataset.request_text }}</p>
-      </div>
+    <div class="dataset-section">
       <div class="dataset-tags">
-        <h3>Tags</h3>
         <div class="tags-container">
           <el-tag v-for="(tag, index) in expertTagsArray" :key="index" class="expert-tag">
             {{ tag }}
@@ -43,8 +42,20 @@
       </div>
     </div>
 
+    <div class="dataset-section">
+      <div class="section-header">
+        <div class = "section-title">
+          About Dataset
+        </div>
+      </div>
+      <div >
+        This dataset contains information about three popular types of flowers: roses, shoeblack plants, and hibiscus. The data includes various attributes that are significant for understanding and predicting the characteristics of these flowers. Each entry in the dataset provides details on the species, size, fragrance, and height, which can be useful for botanical studies, horticultural planning, and machine learning model training.
+        The dataset is synthetic, generated using the Faker library, and aims to simulate realistic data. While the data points do not correspond to real-world measurements, they are designed to follow typical characteristics observed in these flower species. This makes the dataset an excellent resource for educational purposes, prototyping machine learning models, and conducting preliminary data analysis.
+      </div>
+    </div>
+
   </div>
-   <div class="overview-body">
+  <div class="overview-body">
     <div class = "section-header">
       <h2 class = "section-title">
         Activity Overview
@@ -143,6 +154,7 @@ const versionData = ref<any>(null);
 const viewsChart = ref(null);
 const buysChart = ref(null);
 const triesChart = ref(null);
+const versionCount = [1,2,3,4];
 
 const loadDatasetDetail = async () => {
   try {
@@ -164,6 +176,7 @@ const loadVersionData = async (datasetId: number, versionId: number) => {
     if (response && response.data) {
       versionData.value = response.data;
     }
+    //versionData.value = (1,2,3,4);
   } catch (error) {
     console.error('Failed to load version data:', error);
   }
@@ -299,7 +312,6 @@ const triesData = Array.from(
   ]);
 </script>
 
-
 <style scoped lang="scss">
 .dataset-detail {
   &__container {
@@ -322,11 +334,15 @@ const triesData = Array.from(
   }
 
   &__heading img {
-    align-items: center;
-    align-self: center;
-    justify-content: center;
-    display: flex;
-    flex-shrink: 0;
+    border: 0;
+    font-family: inherit;
+    font-size: 100%;
+    font-style: inherit;
+    font-variant: inherit;
+    font-weight: inherit;
+    margin-top : 30px;
+    padding: 0;
+    vertical-align: baseline;
   }
 
   &__heading h1 {
@@ -335,32 +351,52 @@ const triesData = Array.from(
     color: #333;
   }
 
+  &__description {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #555;
+  }
+
   &__info {
     margin: 15px 0;
   }
 
-  &__buybutton {
-    margin-top: 20px;
+  &__buttons {
     display: flex;
-    gap: 12px;
+    align-items: center;
+    margin-left: 8px;
+  }
+  &__buybutton {
+  align-items: center;
+  background-color: rgb(32, 33, 36);
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  height: 36px;
+  padding: 0px 16px 0px 12px;
+  transition: 0.3s;
+  white-space: nowrap;
+  width: 100px;
   }
 
   &__trybutton {
-        align-items: center;
-    background-color: transparent;
-    border-radius: 20px;
-    border: 1px solid rgb(189, 193, 198);
-    cursor: pointer;
-    display: inline-flex;
-    height: 36px;
-    padding: 0px 24px;
-    transition: 0.3s;
-    white-space: nowrap;
-    width: fit-content;
-  }
+  align-items: center;
+  background-color: transparent;
+  border-radius: 20px;
+  border: 1px solid rgb(189, 193, 198);
+  cursor: pointer;
+  display: inline-flex;
+  height: 36px;
+  padding: 0px 24px;
+  transition: 0.3s;
+  white-space: nowrap;
+  width: fit-content;
+}
   &__image {
-    width: 200px;
-    height: 200px;
+    margin-top : 100px;
+    width: 300px;
+    height: 210px;
     object-fit: cover;
     border-radius: 10px;
   }
