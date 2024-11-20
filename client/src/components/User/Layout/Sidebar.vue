@@ -57,138 +57,41 @@
           v-if="isDatasetExpanded && item.action === 'expand'"
           class="dataset-option__container"
         >
-          <div class="dataset-option" @click="selectOption('Selling Request')">
+          <div class="dataset-option" @click="openModal('selling')">
             Selling Request
           </div>
-          <div class="dataset-option" @click="selectOption('Buying Request')">
+          <div class="dataset-option" @click="openModal('buying')">
             Buying Request
           </div>
         </div>
       </template>
     </div>
 
-    <el-dialog
-      v-model="centerDialogVisible"
-      title="Send selling request"
-      width="900"
-      center
-    >
-      <el-form
-        :model="form"
-        :rules="rules"
-        ref="formRef"
-        label-width="120px"
-        class="selling-form"
-      >
-        <!-- Row 1 -->
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Name dataset" prop="datasetName">
-              <el-input v-model="form.datasetName" placeholder="Name dataset" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="Description" prop="description">
-              <el-input
-                v-model="form.description"
-                placeholder="Description"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <!-- Row 2 -->
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Data" prop="data">
-              <el-input v-model="form.data" placeholder="Data" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="Logo" prop="logo">
-              <el-upload
-                action="#"
-                list-type="picture-card"
-                :auto-upload="false"
-                :show-file-list="false"
-              >
-                <i class="el-icon-plus"></i>
-              </el-upload>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <!-- Row 3 -->
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Expected price" prop="expectedPrice">
-              <el-input
-                v-model="form.expectedPrice"
-                placeholder="Price"
-                suffix="Kat"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="Evolution" prop="evolution">
-              <el-select v-model="form.evolution" placeholder="Select">
-                <el-option
-                  v-for="item in evolutionOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <!-- Row 4 -->
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Data format" prop="dataFormat">
-              <el-select v-model="form.dataFormat" placeholder="Select">
-                <el-option
-                  v-for="format in formatOptions"
-                  :key="format.value"
-                  :label="format.label"
-                  :value="format.value"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item
-              label="Data requirements"
-              prop="dataRequirements"
-              label-width="150px"
-            >
-              <el-input
-                v-model="form.dataRequirements"
-                placeholder="Add requirements"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="centerDialogVisible = false">Cancel</el-button>
-          <el-button type="primary" @click="centerDialogVisible = false">
-            Send
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <RequestSendingModal
+      v-model:visible="centerDialogVisible"
+      :title="modalTitle"
+      :modalType="modalType"
+      @submit="handleSubmit"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, defineProps } from 'vue'
+import RequestSendingModal from '@/components/User/Modal/RequestSendingModal.vue'
 
 const sidebarLinks = ref<HTMLElement[]>([])
 const isDatasetExpanded = ref(false)
 const centerDialogVisible = ref(false)
+const modalTitle = ref('')
+const modalType = ref('')
+
+const openModal = type => {
+  modalType.value = type
+  modalTitle.value =
+    type === 'selling' ? 'Send Selling Request' : 'Send Buying Request'
+  centerDialogVisible.value = true
+}
 
 const props = defineProps({
   isCollapsed: Boolean,
@@ -245,49 +148,9 @@ const items = [
   },
 ]
 
-const form = ref({
-  datasetName: '',
-  description: '',
-  data: '',
-  logo: '',
-  expectedPrice: '',
-  evolution: '',
-  dataFormat: '',
-  dataRequirements: '',
-})
-
-const rules = ref({
-  datasetName: [
-    { required: true, message: 'Please enter dataset name', trigger: 'blur' },
-  ],
-  description: [
-    { required: true, message: 'Please enter description', trigger: 'blur' },
-  ],
-  data: [{ required: true, message: 'Please add data', trigger: 'blur' }],
-  expectedPrice: [
-    { required: true, message: 'Please enter expected price', trigger: 'blur' },
-  ],
-  evolution: [
-    { required: true, message: 'Please select evolution', trigger: 'change' },
-  ],
-  dataFormat: [
-    { required: true, message: 'Please select data format', trigger: 'change' },
-  ],
-})
-
-const evolutionOptions = [
-  { label: 'Option 1', value: '1' },
-  { label: 'Option 2', value: '2' },
-]
-
-const formatOptions = [
-  { label: 'JSON', value: 'json' },
-  { label: 'CSV', value: 'csv' },
-]
-
 const handleActiveClick = (index: number) => {
   sidebarLinks.value.forEach((link, i) => {
-    const element = link instanceof HTMLElement ? link : link?.$el // Đảm bảo `link` là phần tử HTML
+    const element = link instanceof HTMLElement ? link : link?.$el
     if (i === index) {
       const svgPath = link.querySelector('path')
       const fillColor = svgPath?.getAttribute('fill') || '#000'
@@ -298,18 +161,12 @@ const handleActiveClick = (index: number) => {
   })
 }
 
-const toggleDatasetOptions = () => {
-  isDatasetExpanded.value = !isDatasetExpanded.value
+const handleSubmit = formData => {
+  console.log('Form submitted:', formData)
 }
 
-const selectOption = (option: string) => {
-  console.log(`Selected: ${option}`)
-  if (option === 'Selling Request') {
-    centerDialogVisible.value = true
-    console.log('Navigating to Selling Request...')
-  } else if (option === 'Buying Request') {
-    console.log('Navigating to Buying Request...')
-  }
+const toggleDatasetOptions = () => {
+  isDatasetExpanded.value = !isDatasetExpanded.value
 }
 
 onMounted(() => {
@@ -454,9 +311,12 @@ onMounted(() => {
 </style>
 <style lang="scss">
 .el-dialog__header {
-  font-size: 22px;
+  margin: 20px 0;
+}
+
+.el-dialog__title {
   font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 22px;
 }
 
 //.el-dialog {
@@ -464,6 +324,11 @@ onMounted(() => {
 //  margin-top: 80px;
 //}
 //
+//
+.el-dialog {
+  z-index: 2000;
+}
+
 .dialog-footer {
   margin-top: 20px;
 }

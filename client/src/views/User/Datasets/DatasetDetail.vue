@@ -1,13 +1,13 @@
 <template>
   <div class="dataset-detail__container" v-if="dataset">
-    <router-link to="/datasets" class="page-link">
+    <div @click="goBack" class="page-link">
       <button class="btn btn--rounded" style="margin-bottom: 30px">
         <el-icon size="20">
           <Back />
         </el-icon>
         <span>Back</span>
       </button>
-    </router-link>
+    </div>
     <div class="dataset-detail__heading">
       <div>
         <h1 class="common__title-black">{{ dataset.name_dataset }}</h1>
@@ -132,10 +132,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { fetchDatasetsDetail, fetchVersionData } from '@/services/datasets'
 import { ElLoading } from 'element-plus'
 
+const router = useRouter()
 const route = useRoute()
 const dataset = ref<any>(null)
 const activeTab = ref('version-1')
@@ -219,6 +220,10 @@ const expertTagsArray = computed(() => {
     ? dataset.value.tags.split(',').map(tag => tag.trim())
     : []
 })
+
+const goBack = () => {
+  router.back()
+}
 </script>
 
 <style scoped lang="scss">
