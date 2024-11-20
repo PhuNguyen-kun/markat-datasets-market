@@ -8,11 +8,13 @@
     </button>
 
     <div class="heading">
-      <!--      <div class="heading&#45;&#45;title">-->
-      <!--        &lt;!&ndash;        <img src="/avatar1.png" alt="" class="heading&#45;&#45;img" />&ndash;&gt;-->
-      <!--        &lt;!&ndash;        <h1 class="small-title">{{ datasetName }}</h1>&ndash;&gt;-->
-      <!--        &lt;!&ndash;        <h2 class="small-sub-title">Version {{ versionNumber }}</h2>&ndash;&gt;-->
-      <!--      </div>-->
+      <div class="heading--title">
+        <div style="display: flex; flex-direction: column; width: 300px">
+          <h1 class="small-title">Flowers Dataset</h1>
+          <h2 class="small-sub-title">Version 1</h2>
+        </div>
+        <img src="/flowers_dataset_thumbnail.png" alt="" class="heading--img" />
+      </div>
       <!-- Clock -->
       <p id="demo" class="count-down">
         <el-row>
@@ -181,18 +183,20 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 200px;
+  margin-top: 30px;
 
   &--title {
-    width: 250px;
+    width: 350px;
     display: flex;
     align-items: start;
-    flex-direction: column;
     gap: 15px;
   }
 
   &--img {
-    width: 200px;
+    width: 280px;
     height: auto;
+    border-radius: 10px;
   }
 }
 
@@ -223,18 +227,22 @@ onMounted(() => {
 .small-title {
   font-size: 20px;
   font-weight: 600;
+  width: 200px;
+}
+
+.small-sub-title {
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .count-down {
-  width: 950px;
+  width: 550px;
   font-size: 20px;
   font-weight: 500;
-  margin-top: 30px;
-  margin-left: 70px;
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 25px;
-  background-color: #dcdcdc;
+  background-color: #fff;
   color: #ff914d;
 }
 

@@ -31,9 +31,10 @@ const getUserByEmailDb = async (email) => {
   try {
     const { rows } = await client.query(
       `SELECT
-        ID_user AS idUser,
+        ID_user AS id_user,
         Password AS password,
-        Email AS email
+        Email AS email,
+        Full_name AS full_name
       FROM Users
       WHERE email = $1`,
       [email]
@@ -60,7 +61,6 @@ const changeUserPasswordDb = async (password, email) => {
     throw new Error("Database error while updating user password.");
   }
 };
-
 
 // Tạo người dùng mới
 const createUserDb = async (email, password, full_name) => {

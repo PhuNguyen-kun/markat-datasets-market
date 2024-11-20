@@ -1,9 +1,11 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const SECRET_KEY = process.env.SECRET_KEY;
+console.log("SECRET_KEY:", SECRET_KEY);
 
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
+  console.log("Authorization Header:", req.headers["authorization"]);
 
   if (!token) {
     return res.status(403).json({ message: "No token provided." });
@@ -13,7 +15,7 @@ const verifyToken = (req, res, next) => {
     if (err) {
       return res.status(401).json({ message: "Unauthorized." });
     }
-    req.userId = decoded.userId;
+    req.userId = decoded.id_user;
     next();
   });
 };

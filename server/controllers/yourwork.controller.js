@@ -3,8 +3,11 @@ const { handleRequest } = require("../helpers/error");
 
 const getAllYourWorkVersionsByUserId = async (req, res, next) => {
   const { id_user } = req.query;
+  console.log("Received id_user:", id_user);
   if (!id_user) {
-    return res.status(400).json({ status: "error", message: "User ID is required" });
+    return res
+      .status(400)
+      .json({ status: "error", message: "User ID is required" });
   }
   await handleRequest(
     YourWorkService.getAllYourWorkVersionsByUserId,

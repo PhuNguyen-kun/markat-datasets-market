@@ -54,9 +54,13 @@
   </div>
 
   <!-- Datasets Sections -->
-  <div v-for="(section, index) in datasetSections" :key="index" class="dataset-section">
+  <div
+    v-for="(section, index) in datasetSections"
+    :key="index"
+    class="dataset-section"
+  >
     <div class="section-header">
-      <h2 class="section-title"> {{ section.title }} </h2>
+      <h2 class="section-title">{{ section.title }}</h2>
       <a href="#" class="see-all">See All</a>
     </div>
     <div class="card-grid">
@@ -66,7 +70,12 @@
         @click="goToDetail(dataset.id_dataset)"
         class="card"
       >
-        <img v-if="dataset && dataset.avatar" :src="dataset.avatar" alt="Dataset image" class="card-image" />
+        <img
+          v-if="dataset && dataset.avatar"
+          :src="dataset.avatar"
+          alt="Dataset image"
+          class="card-image"
+        />
         <div class="card-content compact">
           <h2 class="card-title">{{ dataset.name_dataset }}</h2>
           <div class="card-info">
@@ -93,429 +102,458 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
-  import { fetchDatasets } from '@/services/datasets'
-  import { ElLoading } from 'element-plus'
-  import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { fetchDatasets } from '@/services/datasets'
+import { ElLoading } from 'element-plus'
+import { useRouter } from 'vue-router'
 
-  const route = useRouter()
-  const datasets = ref<any[]>([])
-  const isLoading = ref(true)
-  const fullscreenLoading = ref(false)
+const route = useRouter()
+const datasets = ref<any[]>([])
+const isLoading = ref(true)
+const fullscreenLoading = ref(false)
 
-  const openFullScreen1 = () => {
-    const loading = ElLoading.service({
-      lock: true,
-      text: 'Markat is loading 👟⌛',
-      background: 'rgba(0, 0, 0, 0.2)',
+const openFullScreen1 = () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Markat is loading 👟⌛',
+    background: 'rgba(0, 0, 0, 0.2)',
+  })
+  setTimeout(() => {
+    loading.close()
+  }, 300)
+}
+
+const setupSaleCarousel = () => {
+  const saleCarouselContainer = document.querySelector(
+    '.sale-carousel-container',
+  )
+
+  if (saleCarouselContainer) {
+    const saleCards = saleCarouselContainer.querySelectorAll('.sale-card')
+    saleCards.forEach(card => {
+      const clone = card.cloneNode(true)
+      saleCarouselContainer.appendChild(clone)
     })
-    setTimeout(() => {
-      loading.close()
-    }, 300)
+    saleCarouselContainer.style.overflow = 'visible'
   }
+}
 
-  const setupSaleCarousel = () => {
-    const saleCarouselContainer = document.querySelector('.sale-carousel-container');
+const startSaleCarousel = () => {
+  const saleCarouselContainer = document.querySelector(
+    '.sale-carousel-container',
+  )
+  let currentPosition = 0
+  const spacing = 23
 
+  function startCarousel() {
     if (saleCarouselContainer) {
-      const saleCards = saleCarouselContainer.querySelectorAll('.sale-card');
-      saleCards.forEach((card) => {
-        const clone = card.cloneNode(true);
-        saleCarouselContainer.appendChild(clone);
-      });
-      saleCarouselContainer.style.overflow = 'visible';
-    }
-  };
-
-  const startSaleCarousel = () => {
-    const saleCarouselContainer = document.querySelector('.sale-carousel-container');
-    let currentPosition = 0;
-    const spacing = 23;
-
-    function startCarousel() {
-      if (saleCarouselContainer) {
-        const saleCards = saleCarouselContainer.querySelectorAll('.sale-card');
-        if (saleCards.length > 0) {
-          const cardWidth = saleCards[0].offsetWidth;
-          currentPosition -= 1;
-          saleCarouselContainer.style.transition = 'transform 0.05s linear';
-          saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`;
-          if (Math.abs(currentPosition) >= cardWidth) {
-            saleCarouselContainer.style.transition = 'none';
-            currentPosition += cardWidth + spacing;
-            saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`;
-            saleCarouselContainer.appendChild(saleCards[0]);
-          }
+      const saleCards = saleCarouselContainer.querySelectorAll('.sale-card')
+      if (saleCards.length > 0) {
+        const cardWidth = saleCards[0].offsetWidth
+        currentPosition -= 1
+        saleCarouselContainer.style.transition = 'transform 0.05s linear'
+        saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`
+        if (Math.abs(currentPosition) >= cardWidth) {
+          saleCarouselContainer.style.transition = 'none'
+          currentPosition += cardWidth + spacing
+          saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`
+          saleCarouselContainer.appendChild(saleCards[0])
         }
       }
     }
+  }
 
-    setInterval(startCarousel, 16);
-  };
+  setInterval(startCarousel, 16)
+}
 
-  const loadDatasets = async (limit : number, offset : number, topic : string) => {
-    try {
-        const topics = [
-        { title: 'Trending Datasets', topic: 'trendingDatasets' },
-        { title: 'Healthcare Datasets', topic: 'healthCare' },
-        { title: 'Animal Datasets', topic: 'animal' },
-        { title: 'Earth and Nature Datasets', topic: 'earthAndNature' },
-        { title: 'Recently Viewed Datasets', topic: 'recentlyViewedDatasets' },
-      ];
+const loadDatasets = async (limit: number, offset: number, topic: string) => {
+  try {
+    const topics = [
+      { title: 'Trending Datasets', topic: 'trendingDatasets' },
+      { title: 'Healthcare Datasets', topic: 'healthCare' },
+      { title: 'Animal Datasets', topic: 'animal' },
+      { title: 'Earth and Nature Datasets', topic: 'earthAndNature' },
+      { title: 'Recently Viewed Datasets', topic: 'recentlyViewedDatasets' },
+    ]
 
-      for (const { title, topic } of topics) {
-        try {
-          const datasets = await fetchDatasets(4, 0, topic);
-          const section = datasetSections.value.find((section) => section.title === title);
-          if (section) {
-            section.datasets = datasets;
-          }
-        } catch (error) {
-          console.error(`Failed to load datasets for ${title}:`, error);
+    for (const { title, topic } of topics) {
+      try {
+        const datasets = await fetchDatasets(4, 0, topic)
+        const section = datasetSections.value.find(
+          section => section.title === title,
+        )
+        if (section) {
+          section.datasets = datasets
         }
+      } catch (error) {
+        console.error(`Failed to load datasets for ${title}:`, error)
       }
-    } catch (error) {
-      console.error('Failed to load datasets:', error)
     }
+  } catch (error) {
+    console.error('Failed to load datasets:', error)
   }
+}
 
-  const goToDetail = (id: number) => {
-    route.push({ name: 'dataset-detail', params: { id } })
-  }
+const goToDetail = (id: number) => {
+  route.push({ name: 'dataset-detail', params: { id } })
+}
 
-  onMounted(async () => {
-    await openFullScreen1();
-    await loadDatasets();
-    await setupSaleCarousel();
-    await startSaleCarousel();
-  });
+onMounted(async () => {
+  await openFullScreen1()
+  await loadDatasets()
+  await setupSaleCarousel()
+  await startSaleCarousel()
+})
 
-  // ref
+// ref
 
-  const searchQuery = ref('');
+const searchQuery = ref('')
 
-  const categoryTags = ref([
-    'All datasets',
-    'Computer Science',
-    'Education',
-    'Classification',
-    'Computer Vision',
-    'NLP',
-    'Data Visualization',
-    'Pre-Trained Model',
-  ]);
+const categoryTags = ref([
+  'All datasets',
+  'Computer Science',
+  'Education',
+  'Classification',
+  'Computer Vision',
+  'NLP',
+  'Data Visualization',
+  'Pre-Trained Model',
+])
 
-  const datasetSections = ref([
-    {
-      title: 'Trending Datasets',
-      datasets: []
-    },
-    {
-      title: 'Healthcare Datasets',
-      datasets: []
-    },
-    {
-      title: 'Animal Datasets',
-      datasets: []
-    },
-    {
-      title: 'Earth and Nature Datasets',
-      datasets: []
-    },
-    {
-      title: 'Recently Viewed Datasets',
-      datasets: []
-    }
-  ]);
+const datasetSections = ref([
+  {
+    title: 'Trending Datasets',
+    datasets: [],
+  },
+  {
+    title: 'Healthcare Datasets',
+    datasets: [],
+  },
+  {
+    title: 'Animal Datasets',
+    datasets: [],
+  },
+  {
+    title: 'Earth and Nature Datasets',
+    datasets: [],
+  },
+  {
+    title: 'Recently Viewed Datasets',
+    datasets: [],
+  },
+])
 
-  const saleDatasets = ref([
-    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 1', discountPrice: '$10.00' },
-    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 2', discountPrice: '$15.00' },
-    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 3', discountPrice: '$20.00' },
-    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 4', discountPrice: '$25.00' },
-    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 5', discountPrice: '$30.00' },
-    { image: 'https://via.placeholder.com/200x150', name: 'Dataset 6', discountPrice: '$30.00' }
-  ]);
+const saleDatasets = ref([
+  {
+    image: 'https://via.placeholder.com/200x150',
+    name: 'Dataset 1',
+    discountPrice: '$10.00',
+  },
+  {
+    image: 'https://via.placeholder.com/200x150',
+    name: 'Dataset 2',
+    discountPrice: '$15.00',
+  },
+  {
+    image: 'https://via.placeholder.com/200x150',
+    name: 'Dataset 3',
+    discountPrice: '$20.00',
+  },
+  {
+    image: 'https://via.placeholder.com/200x150',
+    name: 'Dataset 4',
+    discountPrice: '$25.00',
+  },
+  {
+    image: 'https://via.placeholder.com/200x150',
+    name: 'Dataset 5',
+    discountPrice: '$30.00',
+  },
+  {
+    image: 'https://via.placeholder.com/200x150',
+    name: 'Dataset 6',
+    discountPrice: '$30.00',
+  },
+])
 
-  const currentSaleDatasetIndex = ref(0);
+const currentSaleDatasetIndex = ref(0)
 </script>
 
 <style scoped lang="scss">
-  /* Search Bar Styles */
-  .search-bar-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto 30px auto;
-    padding: 8px 16px;
-    border-radius: 30px;
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
+/* Search Bar Styles */
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+  padding: 8px 16px;
+  border-radius: 30px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
 
-  .search-bar {
-    display: flex;
-    align-items: center;
-    flex: 1;
-  }
+.search-bar {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
 
-  .search-bar input[type="text"] {
-    flex: 1;
-    border: none;
-    outline: none;
-    background: transparent;
-    padding: 10px;
-    font-size: 16px;
-    color: #333;
-  }
+.search-bar input[type='text'] {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+}
 
-  .search-bar .icon {
-    margin-right: 10px;
-    color: #757575;
-    font-size: 20px;
-  }
+.search-bar .icon {
+  margin-right: 10px;
+  color: #757575;
+  font-size: 20px;
+}
 
-  .filter-button {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 30px;
-    background-color: #f5f5f5;
-    color: #333;
-    cursor: pointer;
-    font-size: 16px;
-    transition:
-      background-color 0.3s,
-      color 0.3s;
-  }
-
-  .filter-button:hover {
-    background-color: #e0e0e0;
-    color: #000;
-  }
-
-  .filter-button svg {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
-  }
-
-  /* Category Tags Styles */
-  .category-tags {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto 30px auto;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .category-tag {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    cursor: pointer;
-    font-size: 14px;
-    color: #333;
-    transition:
-      background-color 0.3s,
-      color 0.3s;
-  }
-
-  .category-tag:hover {
-    background-color: #f5f5f5;
-  }
-
-
-  // Sale Dataset Carousel Styles
-  .sale-carousel-container {
-    max-width: 1200px;
-    margin: 0 auto 30px auto;
-    position: relative;
-    display: flex;
-    transition: transform 1s ease-in-out;
-    will-change: transform;
-    align-items: center;
-    overflow: hidden;
-    background-color: #fff;
-    gap: 20px;
-  }
-
-  .sale-title {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 2em;
-    font-weight: bold;
-    margin-top: 30px;
-  }
-
-  .sale-carousel-wrapper {
-    overflow: hidden;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0px auto 20px;
-    position: relative;
-  }
-
-  .sale-carousel {
-    display: flex;
-    max-width: 1200px;
-    margin: 0 auto 20px auto;
-    padding: 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 20px;
-    transition: transform 1s ease-in-out;
-  }
-
-  .sale-card {
-    display: flex;
-    min-width: calc((100% / 4) - 15px);
-    flex-shrink: 0;
-    box-sizing: border-box;
-    flex: 1;
-    gap: 20px;
-    transition: transform 0.5s ease;
-  }
-
-  // Center content in sale cards
-  .card-content.centered {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-
-  // Category Dataset Styles
-  .dataset-section {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto 30px auto;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    margin: 45px auto 20px auto;
-  }
-
-  .section-title {
-    display: flex;
-    align-items: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    gap: 10px;
-  }
-
-  .see-all {
-    padding: 8px 16px;
-    border-radius: 20px;
-    color: #333;
-    cursor: pointer;
-    font-size: 0.9rem;
-    text-decoration: none;
-    font-weight: bold;
-    transition:
+.filter-button {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 30px;
+  background-color: #f5f5f5;
+  color: #333;
+  cursor: pointer;
+  font-size: 16px;
+  transition:
     background-color 0.3s,
     color 0.3s;
-  }
+}
 
-  .see-all:hover {
-    background-color: #e0e0e0;
-    color: #000;
-  }
+.filter-button:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
 
-  .card-grid {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-top: 20px;
-  }
+.filter-button svg {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
 
-  .card {
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-    border-radius: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
-    cursor: pointer;
-    height: 330px;
-    width: 280px;
-  }
+/* Category Tags Styles */
+.category-tags {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-  .card:hover {
-    transform: translateY(-5px);
-  }
+.category-tag {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
 
-  .card-image {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-  }
+.category-tag:hover {
+  background-color: #f5f5f5;
+}
 
-  .card-content.compact {
-    padding: 12px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-  }
+// Sale Dataset Carousel Styles
+.sale-carousel-container {
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+  position: relative;
+  display: flex;
+  transition: transform 1s ease-in-out;
+  will-change: transform;
+  align-items: center;
+  overflow: hidden;
+  background-color: #fff;
+  gap: 20px;
+}
 
-  .card-title {
-    font-size: 1rem;
-    font-weight: bold;
-    line-height: 1.2;
-  }
+.sale-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2em;
+  font-weight: bold;
+  margin-top: 30px;
+}
 
-  .card-info {
-    font-size: 0.8rem;
-    color: #555;
-    margin-top: 5px;
-  }
+.sale-carousel-wrapper {
+  overflow: hidden;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0px auto 20px;
+  position: relative;
+}
 
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.sale-carousel {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto 20px auto;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  transition: transform 1s ease-in-out;
+}
 
-  .views {
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-    color: #666;
-  }
+.sale-card {
+  display: flex;
+  min-width: calc((100% / 4) - 15px);
+  flex-shrink: 0;
+  box-sizing: border-box;
+  flex: 1;
+  gap: 20px;
+  transition: transform 0.5s ease;
+}
 
-  .icon-eye {
-    margin-right: 5px;
-    width: 18px;
-    height: 18px;
-  }
+// Center content in sale cards
+.card-content.centered {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 
-  .status {
-    color: #4caf50;
-    font-weight: bold;
-    background-color: #e8f5e9;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-  }
+// Category Dataset Styles
+.dataset-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+}
 
-  .discount {
-    color: #e53935;
-    font-weight: bold;
-  }
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 45px auto 20px auto;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  gap: 10px;
+}
+
+.see-all {
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: #333;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  font-weight: bold;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.see-all:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+.card-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  cursor: pointer;
+  height: 330px;
+  width: 280px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.card-content.compact {
+  padding: 12px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.card-info {
+  font-size: 0.8rem;
+  color: #555;
+  margin-top: 5px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.views {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.icon-eye {
+  margin-right: 5px;
+  width: 18px;
+  height: 18px;
+}
+
+.status {
+  color: #4caf50;
+  font-weight: bold;
+  background-color: #e8f5e9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.discount {
+  color: #e53935;
+  font-weight: bold;
+}
 </style>

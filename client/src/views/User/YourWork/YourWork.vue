@@ -17,31 +17,45 @@
             fixed
             prop="dataset_name"
             label="Dataset name"
-            width="270"
+            width="250"
           />
-          <el-table-column prop="id_dataset" label="ID" width="120" />
+          <!--          <el-table-column prop="id_dataset" label="ID" width="120" />-->
           <!--    <el-table-column prop="id_version" label="Version ID" width="120" />-->
           <el-table-column prop="version_number" label="Version" width="150" />
-          <el-table-column
-            prop="create_date"
-            label="Created date"
-            width="280"
-          />
+
+          <el-table-column prop="create_date" label="Created date" width="280">
+            <template #default="{ row }">
+              {{ formatDate(row.create_date) }}
+            </template>
+          </el-table-column>
+
           <el-table-column
             prop="data_sending_due_date"
             label="Data sending due date"
             width="280"
-          />
+          >
+            <template #default="{ row }">
+              {{ formatDate(row.data_sending_due_date) }}
+            </template>
+          </el-table-column>
           <el-table-column
             prop="data_labeling_due_date"
             label="Data labeling due date"
             width="280"
-          />
+          >
+            <template #default="{ row }">
+              {{ formatDate(row.data_labeling_due_date) }}
+            </template>
+          </el-table-column>
           <el-table-column
             prop="recently_updated"
             label="Latest updated date"
             width="280"
-          />
+          >
+            <template #default="{ row }">
+              {{ formatDate(row.recently_updated) }}
+            </template>
+          </el-table-column>
           <el-table-column fixed="right" label="Operations" min-width="120">
             <template #default="scope">
               <el-button
@@ -209,8 +223,10 @@ const loadData = async () => {
   try {
     loading.value = true
     const token = localStorage.getItem('access_token')
+    console.log('Access Token:', token)
     if (token) {
       const decoded = jwtDecode<{ id_user: number }>(token)
+      console.log('Decoded token:', decoded)
       const id_user = decoded.id_user
       const response = await fetchYourWorkData(id_user)
       yourWorkData.value = response.data.versions
@@ -225,6 +241,19 @@ const loadData = async () => {
   }
 }
 
+const formatDate = (date: string) => {
+  if (!date) return '-'
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }
+  return new Date(date).toLocaleDateString('en-US', options)
+}
+
 onMounted(() => {
   loadData()
 })
@@ -233,9 +262,6 @@ onMounted(() => {
 <style scoped lang="scss">
 .your-work-page__container {
   padding: 5px 40px 60px 40px;
-}
-
-.your-work-table {
 }
 </style>
 
