@@ -103,111 +103,20 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { fetchDatasets } from '@/services/datasets'
 import { ElLoading } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { fetchProjects } from '@/services/projects';
+import { fetchDatasets } from '@/services/datasets';
 
 const route = useRouter()
 const datasets = ref<any[]>([])
 const isLoading = ref(true)
 const fullscreenLoading = ref(false)
-
-const openFullScreen1 = () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Markat is loading 👟⌛',
-    background: 'rgba(0, 0, 0, 0.2)',
-  })
-  setTimeout(() => {
-    loading.close()
-  }, 300)
-}
-
-const setupSaleCarousel = () => {
-  const saleCarouselContainer = document.querySelector(
-    '.sale-carousel-container',
-  )
-
-  if (saleCarouselContainer) {
-    const saleCards = saleCarouselContainer.querySelectorAll('.sale-card')
-    saleCards.forEach(card => {
-      const clone = card.cloneNode(true)
-      saleCarouselContainer.appendChild(clone)
-    })
-    saleCarouselContainer.style.overflow = 'visible'
-  }
-}
-
-const startSaleCarousel = () => {
-  const saleCarouselContainer = document.querySelector(
-    '.sale-carousel-container',
-  )
-  let currentPosition = 0
-  const spacing = 23
-
-  function startCarousel() {
-    if (saleCarouselContainer) {
-      const saleCards = saleCarouselContainer.querySelectorAll('.sale-card')
-      if (saleCards.length > 0) {
-        const cardWidth = saleCards[0].offsetWidth
-        currentPosition -= 1
-        saleCarouselContainer.style.transition = 'transform 0.05s linear'
-        saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`
-        if (Math.abs(currentPosition) >= cardWidth) {
-          saleCarouselContainer.style.transition = 'none'
-          currentPosition += cardWidth + spacing
-          saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`
-          saleCarouselContainer.appendChild(saleCards[0])
-        }
-      }
-    }
-  }
-
-  setInterval(startCarousel, 16)
-}
-
-const loadDatasets = async (limit: number, offset: number, topic: string) => {
-  try {
-    const topics = [
-      { title: 'Trending Datasets', topic: 'trendingDatasets' },
-      { title: 'Healthcare Datasets', topic: 'healthCare' },
-      { title: 'Animal Datasets', topic: 'animal' },
-      { title: 'Earth and Nature Datasets', topic: 'earthAndNature' },
-      { title: 'Recently Viewed Datasets', topic: 'recentlyViewedDatasets' },
-    ]
-
-    for (const { title, topic } of topics) {
-      try {
-        const datasets = await fetchDatasets(4, 0, topic)
-        const section = datasetSections.value.find(
-          section => section.title === title,
-        )
-        if (section) {
-          section.datasets = datasets
-        }
-      } catch (error) {
-        console.error(`Failed to load datasets for ${title}:`, error)
-      }
-    }
-  } catch (error) {
-    console.error('Failed to load datasets:', error)
-  }
-}
-
-const goToDetail = (id: number) => {
-  route.push({ name: 'dataset-detail', params: { id } })
-}
-
-onMounted(async () => {
-  await openFullScreen1()
-  await loadDatasets()
-  await setupSaleCarousel()
-  await startSaleCarousel()
-})
-
-// ref
-
 const searchQuery = ref('')
+
+const saleCarouselContainer = document.querySelector(
+  '.sale-carousel-container',
+) as HTMLElement | null;
 
 const categoryTags = ref([
   'All datasets',
@@ -220,10 +129,28 @@ const categoryTags = ref([
   'Pre-Trained Model',
 ])
 
-const datasetSections = ref([
+type Dataset = {
+  id_dataset: number;
+  name_dataset?: string;
+  avatar?: string;
+  verified?: boolean;
+  views?: number;
+  voucher?: string[];
+  data_format?: string;
+  version_count?: number;
+  latest_valuation_due_date?: string;
+  day_updated?: string;
+};
+
+type DatasetSection = {
+  title: string;
+  datasets: Dataset[];
+};
+
+const datasetSections = ref<DatasetSection[]>([
   {
     title: 'Trending Datasets',
-    datasets: [],
+    datasets: [] ,
   },
   {
     title: 'Healthcare Datasets',
@@ -241,7 +168,7 @@ const datasetSections = ref([
     title: 'Recently Viewed Datasets',
     datasets: [],
   },
-])
+]);
 
 const saleDatasets = ref([
   {
@@ -282,10 +209,94 @@ const saleDatasets = ref([
   },
 ])
 
-const currentSaleDatasetIndex = ref(0)
+const openFullScreen1 = () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Markat is loading 👟⌛',
+    background: 'rgba(0, 0, 0, 0.2)',
+  })
+  setTimeout(() => {
+    loading.close()
+  }, 300)
+}
+
+const setupSaleCarousel = () => {
+  if (saleCarouselContainer) {
+    const saleCards = saleCarouselContainer.querySelectorAll('.sale-card')
+    saleCards.forEach(card => {
+      const clone = card.cloneNode(true)
+      saleCarouselContainer.appendChild(clone)
+    })
+    saleCarouselContainer.style.overflow = 'visible'
+  }
+}
+
+const startSaleCarousel = () => {
+  let currentPosition = 0
+  const spacing = 23
+
+  function startCarousel() {
+    if (saleCarouselContainer) {
+      const saleCards = saleCarouselContainer.querySelectorAll('.sale-card')
+      if (saleCards.length > 0) {
+        const cardWidth = (saleCards[0] as HTMLElement).offsetWidth
+        currentPosition -= 1
+        saleCarouselContainer.style.transition = 'transform 0.05s linear'
+        saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`
+        if (Math.abs(currentPosition) >= cardWidth) {
+          saleCarouselContainer.style.transition = 'none'
+          currentPosition += cardWidth + spacing
+          saleCarouselContainer.style.transform = `translateX(${currentPosition}px)`
+          saleCarouselContainer.appendChild(saleCards[0])
+        }
+      }
+    }
+  }
+  setInterval(startCarousel, 16)
+}
+
+const loadDatasets = async () => {
+  try {
+    const topics = [
+      { title: 'Trending Datasets', topic: 'trendingDatasets' },
+      { title: 'Healthcare Datasets', topic: 'healthCare' },
+      { title: 'Animal Datasets', topic: 'animal' },
+      { title: 'Earth and Nature Datasets', topic: 'earthAndNature' },
+      { title: 'Recently Viewed Datasets', topic: 'recentlyViewedDatasets' },
+    ]
+
+    for (const { title, topic } of topics) {
+      try {
+        const datasets = await fetchDatasets(4, 0, topic)
+        const section = datasetSections.value.find(
+          section => section.title === title,
+        )
+        if (section) {
+          section.datasets = datasets
+        }
+      } catch (error) {
+        console.error(`Failed to load datasets for ${title}:`, error)
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load datasets:', error)
+  }
+}
+
+const goToDetail = (id: number) => {
+  route.push({ name: 'dataset-detail', params: { id } })
+}
+
+onMounted(async () => {
+  await openFullScreen1()
+  await loadDatasets()
+  await setupSaleCarousel()
+  await startSaleCarousel()
+})
+
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 /* Search Bar Styles */
 .search-bar-container {
   display: flex;
@@ -368,12 +379,13 @@ const currentSaleDatasetIndex = ref(0)
   font-size: 14px;
   color: #333;
   transition:
-    background-color 0.3s,
-    color 0.3s;
+  background-color 0.3s,
+  color 0.3s;
 }
 
 .category-tag:hover {
   background-color: #f5f5f5;
+  border: 1px solid black;
 }
 
 // Sale Dataset Carousel Styles

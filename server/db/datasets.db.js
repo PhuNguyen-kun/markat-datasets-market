@@ -1,4 +1,3 @@
-const { log } = require("console");
 const client = require("../config");
 const fs = require('fs').promises;
 const path = require('path');
@@ -24,7 +23,7 @@ const getDatasetsByTopicDb = async ({ offset, limit, topic }) => {
       (SELECT COUNT(*) FROM User_click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
       d.Voucher,
       df.Data_format AS Data_Format,
-      (SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS Version_Count,
+      CAST((SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS INTEGER) AS Version_Count, -- Ép kiểu số
       COALESCE(
         (
           SELECT MAX(v.Valuation_due_date)
@@ -49,7 +48,6 @@ const getDatasetsByTopicDb = async ({ offset, limit, topic }) => {
     [offset, limit, topic]
   );
 
-  // Tính toán sự khác biệt ngày trong JavaScript (nếu cần)
   const now = new Date();
   datasets.forEach(dataset => {
     if (dataset.latest_valuation_due_date) {
@@ -64,15 +62,15 @@ const getDatasetsByTopicDb = async ({ offset, limit, topic }) => {
   return datasets;
 };
 
-
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
   const { rows: dataset } = await client.query(
-    `SELECT
-      d.Name_dataset,
-      d.Avatar,
-      COALESCE(dsr.Description, dbr.Description) AS Description,
-      STRING_AGG(t.Tag_name, ', ') AS Tags,
-      version_count.total_versions AS versionCount
+    `
+    SELECT
+    d.Name_dataset,
+    d.Avatar,
+    COALESCE(dsr.Description, dbr.Description) AS Description,
+    ARRAY_AGG(DISTINCT t.Tag_name) AS Tags,
+    ARRAY_AGG(DISTINCT v.ID_version) AS Versions
     FROM
       Dataset d
     LEFT JOIN
@@ -84,12 +82,11 @@ const getDatasetbyDatasetIdDb = async (id_dataset) => {
     LEFT JOIN
       Tag t ON dt.ID_tag = t.ID_tag
     LEFT JOIN
-      (SELECT ID_dataset, COUNT(*) AS total_versions FROM Version GROUP BY ID_dataset) AS version_count
-      ON d.ID_dataset = version_count.ID_dataset
+      Version v ON d.ID_dataset = v.ID_dataset
     WHERE
       d.ID_dataset = $1
     GROUP BY
-      d.Name_dataset, d.Avatar, dsr.Description, dbr.Description, version_count.total_versions;
+      d.Name_dataset, d.Avatar, dsr.Description, dbr.Description;
     `,
     [id_dataset]
   );
@@ -153,18 +150,17 @@ const getUserOwnedDatasetByIdDb = async (datasetId) => {
   );
   return dataset;
 };
-const getVersionDb = async (id_dataset, name_version) => {
+
+const getVersionDb = async (id_version) => {
   const { rows: version } = await client.query(
     `SELECT v.Price,
             v.Total_size,
             v.Number_of_data,
             v.Create_Date AS day_updated
      FROM Version v
-     WHERE v.ID_dataset = $1
-     ORDER BY v.ID_version ASC LIMIT 1
-     OFFSET ($2 - 1)
+     WHERE v.ID_version = $1
     `,
-    [id_dataset, name_version]
+    [id_version]
   );
   return version[0];
 };

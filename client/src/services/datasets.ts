@@ -3,12 +3,6 @@ import { notifyError } from '@/services/notification'
 
 export const fetchDatasets = async (limit : number, offset : number, topic : string) => {
   try {
-    // const limit = 4, offset = 0;
-    // const topic = "trendingDatasets";
-    // console.log(limit);
-    // console.log(offset);
-    // console.log(topic);
-
     const response = await axiosInstance.get('/datasets', {
       params: {
         limit,
@@ -43,12 +37,11 @@ export const fetchDatasetsDetail = async (datasetId: number) => {
 }
 
 export const fetchVersionData = async (
-  datasetId: number,
   versionId: number,
 ) => {
   try {
     const response = await axiosInstance.get(
-      `/datasets/${datasetId}/${versionId}`,
+      `/datasets/version/${versionId}`,
     )
     console.log(response.data)
     return response.data

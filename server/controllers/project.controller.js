@@ -1,13 +1,13 @@
 const projectService = require("../services/project.service");
 const { handleRequest } = require("../helpers/error");
 
-const getAllProjects = async (req, res, next) => {
+const getProjectsByTopic = async (req, res, next) => {
   await handleRequest(
-    projectService.getAllProjects,
+    projectService.getProjectsByTopic,
     [req.query],
     res,
     next,
-    ["page"],
+    ["offset", "limit", "topic"],
     "Projects retrieved successfully",
     "Projects not found"
   );
@@ -26,6 +26,6 @@ const getProjectDetail = async (req, res, next) => {
 };
 
 module.exports = {
-  getAllProjects,
+  getProjectsByTopic,
   getProjectDetail,
 };

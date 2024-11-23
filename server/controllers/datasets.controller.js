@@ -64,10 +64,10 @@ const getDatasetbyDatasetId = async (req, res, next) => {
 const getVersion = async (req, res, next) => {
   await handleRequest(
     datasetService.getVersion,
-    [{ id_dataset: req.params.id_dataset, name_version: req.params.name_version }],
+    [{ id_version: req.params.id_version }],
     res,
     next,
-    ["id_dataset", "name_version"],
+    ["id_version"],
     "Version retrieved successfully.",
     "Version not found."
   );

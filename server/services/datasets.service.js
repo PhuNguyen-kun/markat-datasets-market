@@ -33,13 +33,14 @@ class DatasetService {
   async getDatasetsByTopic({ offset, limit, topic }) {
     try {
       const datasets = await getDatasetsByTopicDb({ offset, limit, topic });
-      const datasetsWithAvatar = await Promise.all(datasets.map(async (dataset) => {
+
+      await Promise.all(datasets.map(async (dataset) => {
         if (dataset.avatar && dataset.id_dataset) {
           dataset.avatar = await getDatasetAvatar(dataset.id_dataset);
         }
         return dataset;
       }));
-      return { datasets: datasetsWithAvatar };
+      return { datasets };
     } catch (error) {
       throw new ErrorHandler(error.statusCode || 500, error.message || "Failed to fetch datasets.");
     }
@@ -74,9 +75,9 @@ class DatasetService {
     }
   }
 
-  async getVersion({ id_dataset, name_version }) {
+  async getVersion({ id_version }) {
     try {
-      return await getVersionDb(id_dataset, name_version);
+      return await getVersionDb(id_version);
     } catch (error) {
       throw new ErrorHandler(error.statusCode || 500, error.message || "Failed to fetch version information.");
     }

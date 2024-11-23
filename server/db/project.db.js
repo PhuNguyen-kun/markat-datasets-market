@@ -1,10 +1,12 @@
 const client = require("../config");
 const Data = require('../models/data');
 
-const getAllProjectsDb = async ({ limit, offset }) => {
+const getProjectsByTopicDb = async ({ offset, limit, topic }) => {
   const projects = await client.query(
     `
-    SELECT
+   SELECT
+      d.ID_dataset,
+      d.Avatar,
       v.ID_version,
       d.Name_dataset,
       v.Stock_percent,
@@ -19,17 +21,22 @@ const getAllProjectsDb = async ({ limit, offset }) => {
         WHEN NOW() BETWEEN v.Create_date AND v.Data_sending_due_date THEN 'Sending'
         WHEN NOW() BETWEEN v.Data_sending_due_date AND v.Data_labeling_due_date THEN 'Labeling'
       END AS Status
-    FROM
-      Version v
-    JOIN
-      Dataset d ON v.ID_dataset = d.ID_dataset
-    WHERE
-      (NOW() BETWEEN v.Create_date AND v.Data_sending_due_date)
-      OR
-      (NOW() BETWEEN v.Data_sending_due_date AND v.Data_labeling_due_date)
-    OFFSET $1 LIMIT $2;
+      FROM
+        Version v
+      JOIN
+        Dataset d ON v.ID_dataset = d.ID_dataset
+      LEFT JOIN
+        Dataset_topic dt ON d.ID_dataset = dt.ID_dataset
+      WHERE
+        (
+          (NOW() BETWEEN v.Create_date AND v.Data_sending_due_date)
+          OR
+          (NOW() BETWEEN v.Data_sending_due_date AND v.Data_labeling_due_date)
+        )
+        AND dt.Topic = $3
+      OFFSET $1 LIMIT $2;
     `,
-    [offset, limit]
+    [offset, limit, topic]
   );
 
   const projectsWithUserCounts = await Promise.all(
@@ -74,7 +81,7 @@ const getAllProjectsDb = async ({ limit, offset }) => {
     })
   );
 
-  return { projects : projectsWithUserCounts };
+  return projectsWithUserCounts;
 };
 
 const getProjectDetailDb = async (id_version) => {
@@ -216,6 +223,6 @@ const getProjectDetailDb = async (id_version) => {
 };
 
 module.exports = {
-  getAllProjectsDb,
+  getProjectsByTopicDb,
   getProjectDetailDb,
 };
