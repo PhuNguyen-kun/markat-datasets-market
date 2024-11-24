@@ -1,5 +1,3 @@
-const { logger } = require("../utils/logger");
-
 class ErrorHandler extends Error {
   constructor(statusCode, message) {
     super(message);

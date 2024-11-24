@@ -1,12 +1,11 @@
 import axiosInstance from '@/utils/axiosInstance'
 import { notifyError } from '@/services/notification'
 
-export const fetchDatasets = async (limit : number, offset : number, topic : string) => {
+export const fetchDatasets = async (quantity : number, topic : string) => {
   try {
     const response = await axiosInstance.get('/datasets', {
       params: {
-        limit,
-        offset,
+        quantity,
         topic,
       }
     });

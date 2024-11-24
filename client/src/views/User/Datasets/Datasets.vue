@@ -267,7 +267,7 @@ const loadDatasets = async () => {
 
     for (const { title, topic } of topics) {
       try {
-        const datasets = await fetchDatasets(4, 0, topic)
+        const datasets = await fetchDatasets(4, topic)
         const section = datasetSections.value.find(
           section => section.title === title,
         )

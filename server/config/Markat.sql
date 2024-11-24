@@ -517,41 +517,64 @@ VALUES
 (TRUE, 'avatar8.png', 'Chest X-rays Labeled by 13 Classes - 150 studies', 7.5, 2, 'Buying', 'chest_c-rays_labeled_by_13_classes'),
 (FALSE, 'avatar9.png', 'House Plant Species', 14.0, 2, 'Buying', 'house_plant_species'),
 (TRUE, 'avatar10.png', 'Image Classification - 64 Classes - Animal', 11.0, 2, 'Selling', 'image_classification-64classes-animal'),
-(FALSE, 'avatar11.png', 'Cat Dataset', 11.0, 2, 'Selling', 'cat_dataset'),
-(TRUE, 'avatar12.png', 'Animal Faces', 11.0, 2, 'Selling', 'animal_faces'),
-(FALSE, 'avatar13.png', 'Sea Animals Image Dataset', 11.0, 2, 'Selling', 'sea_animals_image_dataset'),
-(TRUE, 'avatar14.png', 'Celebrity Face Image Dataset', 11.0, 2, 'Selling', 'celebrity_face_image_dataset'),
-(TRUE, 'avatar15.png', 'Drone Dataset', 11.0, 2, 'Selling', 'drone_dataset'),
-(FALSE, 'avatar16.png', 'Date Fruit Datasets', 11.0, 2, 'Selling', 'date_fruit_datasets'),
-(FALSE, 'avatar17.png', 'Yoga Posture Dataset', 11.0, 2, 'Selling', 'yoga_posture_dataset'),
-(TRUE, 'avatar18.png', 'Dog vs Cat', 11.0, 2, 'Selling', 'dog_vs_cat');
+(FALSE, 'avatar11.png', 'Cat Dataset', 30.0, 2, 'Selling', 'cat_dataset'),
+(TRUE, 'avatar12.png', 'Animal Faces', 40.0, 2, 'Selling', 'animal_faces'),
+(FALSE, 'avatar13.png', 'Sea Animals Image Dataset', 90.0, 2, 'Selling', 'sea_animals_image_dataset'),
+(TRUE, 'avatar14.png', 'Celebrity Face Image Dataset', 15.0, 2, 'Selling', 'celebrity_face_image_dataset'),
+(TRUE, 'avatar15.png', 'Drone Dataset', 32.0, 2, 'Selling', 'drone_dataset'),
+(FALSE, 'avatar16.png', 'Date Fruit Datasets', 56.0, 2, 'Selling', 'date_fruit_datasets'),
+(FALSE, 'avatar17.png', 'Yoga Posture Dataset', 47.0, 2, 'Selling', 'yoga_posture_dataset'),
+(FALSE, 'avatar18.png', 'Dog vs Cat', 75.0, 2, 'Selling', 'dog_vs_cat'),
+(FALSE, 'avatar19.png', '100 Sports Image Classification', 0, 2, 'Selling', 'gym_members_exercise_dataset'),
+(FALSE, 'avatar20.png', 'Rice Images Dataset', 0, 2, 'Selling', 'rice_images_dataset'),
+(FALSE, 'avatar21.png', 'Chest X-ray Dataset for Tuberculosis Segmentation', 0, 2, 'Selling', 'chest_x-ray_dataset_for_tuberculosis_segmentation'),
+(FALSE, 'avatar22.png', 'Guava Fruit Disease Dataset', 22, 2, 'Selling','guava_fruit_disease_dataset'),
+(FALSE, 'avatar23.png', 'Mens & Womens Images for Fashion, Classification',0, 2, 'Selling', 'mens_&_womens_images_for_fashion,_classification'),
+(FALSE, 'avatar24.png', 'Fruit Images for Object Detection', 0, 2, 'Selling', 'fruit_images_for_object_detection'),
+(FALSE, 'avatar25.png', 'Vegetable Image Dataset', 34, 2, 'Selling', 'vegetable_image_dataset'),
+(FALSE, 'avatar26.png', 'Car vs Bike Classification Dataset', 0, 2, 'Selling', 'car_vs_bike_classification_dataset'),
+(FALSE, 'avatar27.png', 'Fruit Classification', 0, 2, 'Selling', 'fruit_classification'),
+(FALSE, 'avatar28.png', 'Pizza or Not Pizza?', 53, 2, 'Selling', 'pizza_or_not_pizza?'),
+(FALSE, 'avatar29.png', 'Butterfly & Moths Image Classification 100 species', 0, 2, 'Selling', 'butterfly_&_moths_image_classification_100_species'),
+(FALSE, 'avatar30.png', 'Healthy and Bleached Corals Image Classification', 0, 2, 'Selling', 'healthy_and_bleached_corals_image_classification');
 
 INSERT INTO Dataset_topic (ID_dataset, Topic) VALUES
 (1, 'trendingDatasets'),
 (2, 'trendingDatasets'),
 (3, 'trendingDatasets'),
 (6, 'trendingDatasets'),
+(19, 'trendingDatasets'),
+(23, 'trendingDatasets'),
+(26, 'trendingDatasets'),
 (4, 'healthCare'),
 (5, 'healthCare'),
 (7, 'healthCare'),
 (8, 'healthCare'),
+(21, 'healthCare'),
+(30, 'healthCare'),
 (10, 'animal'),
 (11, 'animal'),
 (12, 'animal'),
 (18, 'animal'),
+(29, 'animal'),
 (9, 'earthAndNature'),
 (13, 'earthAndNature'),
 (15, 'earthAndNature'),
 (14, 'earthAndNature'),
+(20, 'earthAndNature'),
+(22, 'earthAndNature'),
+(24, 'earthAndNature'),
+(25, 'earthAndNature'),
+(27, 'earthAndNature'),
 (16, 'recentlyViewedDatasets'),
 (17, 'recentlyViewedDatasets'),
 (1, 'recentlyViewedDatasets'),
 (2, 'recentlyViewedDatasets'),
+(28, 'recentlyViewedDatasets'),
 (4, 'similarDatasets'),
 (10, 'similarDatasets'),
 (16, 'similarDatasets'),
 (9, 'similarDatasets');
-
 
 INSERT INTO Dataset_tag (ID_dataset, ID_tag) VALUES
 (1, 7),
@@ -562,7 +585,6 @@ INSERT INTO Dataset_tag (ID_dataset, ID_tag) VALUES
 (2, 7),
 (2, 8),
 (2, 103);
-
 
 INSERT INTO User_click (ID_user, ID_dataset) VALUES
 (1, 1), (2, 2),(3, 3),(4, 4), (5, 5),(6, 6),(7, 7),(8, 8),
@@ -660,6 +682,7 @@ INSERT INTO Version_sender_tag (ID_version, ID_expert_tag) VALUES
 (9, 1),
 (10, 1),
 (11, 1);
+
 INSERT INTO Version_labeler_tag (ID_version, ID_expert_tag) VALUES
 (1, 22),
 (1, 24),
@@ -716,7 +739,6 @@ INSERT INTO User_version_participation (ID_user, ID_version, Participation_Type,
 (20, 5, 'Sending', '2024-01-10 09:50:00'),
 (20, 7, 'Labeling', '2024-11-30 11:00:00');
 
-
 INSERT INTO Admin (Username, Password, Permission) VALUES
 ('admin1', 'password1', 1),
 ('admin2', 'password2', 2),
@@ -735,7 +757,19 @@ VALUES
 (16, 15, 2, 'Drone Dataset', 1300.00, TRUE, 'This dataset collected by me Mehdi Özel for a UAV Competition. When I search about "Drone (UAV) Dataset", I realized that the datasets only contain photos taken by UAVs(drone-to earth view mostly).', 'Data_requirements15.txt', '2024-01-01 00:00:00'),
 (17, 16, 2, 'Date Fruit Datasets', 7800.00, TRUE, 'A great number of fruits are grown around the world, each of which has various types. The factors that determine the type of fruit are the external appearance features such as color, length, diameter, and shape. ', 'Data_requirements16.txt', '2024-01-01 00:00:00'),
 (28, 17, 2, 'Yoga Posture Dataset', 10000.00, FALSE, 'Yoga is a group of physical, mental, and spiritual practices or disciplines that originated in ancient India and aim to control and still the mind, recognizing a detached witness-consciousness untouched by the mind and mundane suffering. There is a wide variety of schools of yoga, practices, and goals in Hinduism, Buddhism, and Jainism, and traditional and modern yoga is practiced worldwide.', 'Data_requirements17.txt', '2024-01-01 00:00:00'),
-(19, 18, 2, 'Dog vs Cat', 1200000.00, TRUE, 'This dataset contains a total of 1000 images, with an equal distribution of 500 images of dog and 500 images of cat. The images are standardized to a resolution of 512x512 pixels.', 'Data_requirements18.txt', '2024-01-01 00:00:00');
+(19, 18, 2, 'Dog vs Cat', 1200000.00, TRUE, 'This dataset contains a total of 1000 images, with an equal distribution of 500 images of dog and 500 images of cat. The images are standardized to a resolution of 512x512 pixels.', 'Data_requirements18.txt', '2024-01-01 00:00:00'),
+(20, 19, 2, '100 Sports Image Classification', 23000.00, TRUE, '13493 train, 500 test, 500 validate images 224,224,3 jpg format', 'Data_requirements19.txt', '2024-01-01 00:00:00'),
+(15, 20, 2, 'Rice Images Dataset', 100000.00, TRUE, 'images of 5 different varieties of rice often grown in Turkey', 'Data_requirements20.txt', '2024-01-01 00:00:00'),
+(13, 21, 2, 'Chest X-ray Dataset for Tuberculosis Segmentation', 1200.00, TRUE, 'Chest X-ray Organized Lung Segmentation Masks', 'Data_requirements21.txt', '2024-01-01 00:00:00'),
+(12, 22, 2, 'Guava Fruit Disease Dataset', 890000.00, TRUE, 'From Image to Insight: Advancing Disease Detection', 'Data_requirements22.txt', '2024-01-01 00:00:00'),
+(13, 23, 2, 'Mens & Womens Images for Fashion, Classification', 123240.00, TRUE, 'Gender Classification Dataset: Male and Female Images for ML, DP, CV', 'Data_requirements23.txt', '2024-01-01 00:00:00'),
+(14, 24, 2, 'Fruit Images for Object Detection', 4200.00, TRUE, 'Containing labelled fruit images to train object detection systems.', 'Data_requirements24.txt', '2024-01-01 00:00:00'),
+(25, 25, 2, 'Vegetable Image Dataset', 32000.00, TRUE, 'Vegetable classification and recognition', 'Data_requirements25.txt', '2024-01-01 00:00:00'),
+(28, 26, 2, 'Car vs Bike Classification Dataset', 1200.00, TRUE, 'Binary classification task for Car and Bike Classification.', 'Data_requirements26.txt', '2024-01-01 00:00:00'),
+(29, 27, 2, 'Fruit Classification', 12020.00, TRUE, '22495 Images of Fruit!', 'Data_requirements27.txt', '2024-01-01 00:00:00'),
+(14, 28, 2, 'Pizza or Not Pizza?', 100.00, TRUE, 'Binary image classification', 'Data_requirements28.txt', '2024-01-01 00:00:00'),
+(21, 29, 2, 'Butterfly & Moths Image Classification 100 species', 1200.00, TRUE, '12594 train, 500 test, 500 validation images 224 X 224 X 3 jpg format', 'Data_requirements29.txt', '2024-01-01 00:00:00'),
+(22, 30, 2, 'Healthy and Bleached Corals Image Classification', 345234.00, TRUE, 'Images of Healthy and Bleached Corals for Image Classification', 'Data_requirements30.txt', '2024-01-01 00:00:00');
 
 INSERT INTO Data_buying_request (ID_buyer, ID_dataset, ID_data_format, Name_dataset, Deposit, Price, Due_Date, Public_data, Description, Data_requirements, Time)
 VALUES

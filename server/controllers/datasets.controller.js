@@ -19,7 +19,7 @@ const getDatasetsByTopic = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["offset","limit", "topic"],
+    ["quantity", "topic"],
     "Datasets retrieved successfully.",
     "No datasets found."
   );

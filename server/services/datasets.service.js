@@ -30,21 +30,31 @@ class DatasetService {
     }
   }
 
-  async getDatasetsByTopic({ offset, limit, topic }) {
+  async getDatasetsByTopic({ quantity, topic }) {
     try {
-      const datasets = await getDatasetsByTopicDb({ offset, limit, topic });
+      const datasets = await getDatasetsByTopicDb({ topic });
 
-      await Promise.all(datasets.map(async (dataset) => {
-        if (dataset.avatar && dataset.id_dataset) {
-          dataset.avatar = await getDatasetAvatar(dataset.id_dataset);
-        }
-        return dataset;
-      }));
-      return { datasets };
+      await Promise.all(
+        datasets.map(async (dataset) => {
+          if (dataset.avatar && dataset.id_dataset) {
+            dataset.avatar = await getDatasetAvatar(dataset.id_dataset);
+          }
+          return dataset;
+        })
+      );
+
+      const shuffledDatasets = datasets.sort(() => 0.5 - Math.random());
+      const randomDatasets = shuffledDatasets.slice(0, quantity);
+
+      return { datasets: randomDatasets };
     } catch (error) {
-      throw new ErrorHandler(error.statusCode || 500, error.message || "Failed to fetch datasets.");
+      throw new ErrorHandler(
+        error.statusCode || 500,
+        error.message || "Failed to fetch datasets."
+      );
     }
   }
+
 
   async getDatasetbyDatasetId({ id_dataset }) {
     try {

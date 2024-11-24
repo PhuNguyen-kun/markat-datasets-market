@@ -13,7 +13,7 @@ const getDatasetAvatar = async (id_dataset) => {
   }
 };
 
-const getDatasetsByTopicDb = async ({ offset, limit, topic }) => {
+const getDatasetsByTopicDb = async ({ topic }) => {
   const { rows: datasets } = await client.query(
     `SELECT
       d.ID_dataset,
@@ -38,14 +38,13 @@ const getDatasetsByTopicDb = async ({ offset, limit, topic }) => {
     LEFT JOIN
       Dataset_topic dt ON d.ID_dataset = dt.ID_dataset
     WHERE
-      dt.Topic = $3
+      dt.Topic = $1
     GROUP BY
       d.ID_Dataset, d.Avatar, d.Name_dataset, d.Verified, d.Voucher, df.Data_format
     ORDER BY
       d.ID_Dataset ASC
-    OFFSET $1 LIMIT $2;
     `,
-    [offset, limit, topic]
+    [topic]
   );
 
   const now = new Date();
