@@ -7,7 +7,7 @@
     </p>
   </div>
 
-  <div class="search-bar-container">
+  <div class="search-bar-container" style="margin-top: 30px">
     <div class="search-bar">
       <span class="icon" style="color: #757575">🔍</span>
       <input type="text" v-model="searchQuery" placeholder="Search datasets" />
@@ -26,9 +26,9 @@
       {{ tag }}
     </div>
   </div>
-  <div class="progress-container">
-    <div :id="'progress-bar-1'" class="progress-bar"></div>
-  </div>
+  <!--  <div class="progress-container">-->
+  <!--    <div :id="'progress-bar-1'" class="progress-bar"></div>-->
+  <!--  </div>-->
 
   <!-- Datasets Sections -->
   <div
@@ -56,10 +56,13 @@
         <div class="card-content compact">
           <h2 class="card-title">{{ project.name_dataset }}</h2>
           <div class="card-info">
-            <p class="card-info"> {{ project.status }}</p>
-            <p class="card-info"> {{ project.time }}</p>
+            <p class="card-info">{{ project.status }}</p>
+            <p class="card-info">{{ project.time }}</p>
             <div class="progress-container">
-              <div :id="'progress-bar-' + project.id_version" class="progress-bar"></div>
+              <div
+                :id="'progress-bar-' + project.id_version"
+                class="progress-bar"
+              ></div>
             </div>
             <!-- <p class="card-info">Format: {{ dataset.data_format }}</p> -->
           </div>
@@ -102,7 +105,7 @@ import { ref, onMounted } from 'vue'
 import { fetchDatasets } from '@/services/datasets'
 import { ElLoading } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { fetchProjects } from '@/services/projects';
+import { fetchProjects } from '@/services/projects'
 
 const route = useRouter()
 const datasets = ref<any[]>([])
@@ -122,26 +125,26 @@ const categoryTags = ref([
 ])
 
 type Project = {
-  id_dataset: number,
-  avatar? : string,
-  id_version : number,
-  name_dataset?: string,
-  stock_percent?: 80,
-  reliability_minimum?: 92,
-  time?: string,
-  status?: string,
+  id_dataset: number
+  avatar?: string
+  id_version: number
+  name_dataset?: string
+  stock_percent?: 80
+  reliability_minimum?: 92
+  time?: string
+  status?: string
   usersCount?: number
-};
+}
 
 type ProjectSection = {
-  title: string;
-  projects: Project[];
-};
+  title: string
+  projects: Project[]
+}
 
 const projectSections = ref<ProjectSection[]>([
   {
     title: 'Trending Datasets',
-    projects: [] ,
+    projects: [],
   },
   {
     title: 'Healthcare Datasets',
@@ -159,7 +162,7 @@ const projectSections = ref<ProjectSection[]>([
     title: 'Recently Viewed Datasets',
     projects: [],
   },
-]);
+])
 
 const openFullScreen1 = () => {
   const loading = ElLoading.service({
@@ -185,7 +188,7 @@ const loadDatasets = async () => {
     for (const { title, topic } of topics) {
       try {
         const projects = await fetchProjects(4, 0, topic)
-        console.log(projects);
+        console.log(projects)
 
         const section = projectSections.value.find(
           section => section.title === title,
@@ -207,43 +210,45 @@ const goToDetail = (id: number) => {
 }
 
 const updateProgressBar = (id: number, progress: number) => {
-  const progressBar = document.getElementById(`progress-bar-${id}`);
+  const progressBar = document.getElementById(`progress-bar-${id}`)
 
   if (!progressBar) {
-    console.error(`Progress bar with ID progress-bar-${id} not found`);
-    return;
+    console.error(`Progress bar with ID progress-bar-${id} not found`)
+    return
   }
   console.log(id, progress)
   // Giới hạn progress từ 0 đến 100
-  const clampedProgress = Math.min(Math.max(progress, 0), 100);
+  const clampedProgress = Math.min(Math.max(progress, 0), 100)
 
   // Cập nhật chiều rộng
-  progressBar.style.width = `${clampedProgress}%`;
+  progressBar.style.width = `${clampedProgress}%`
 
   // Tính toán màu sắc
-  const red = Math.floor((clampedProgress / 100) * 255);
-  const green = 255 - red;
-  progressBar.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
-};
+  const red = Math.floor((clampedProgress / 100) * 255)
+  const green = 255 - red
+  progressBar.style.backgroundColor = `rgb(${red}, ${green}, 0)`
+}
 
 // Ví dụ sử dụng với backend truyền data
 // Dữ liệu được cập nhật từ backend (giả lập qua setInterval)
 
 onMounted(async () => {
   // Gọi hàm mở toàn màn hình
-  await openFullScreen1();
+  await openFullScreen1()
 
   // Tải dữ liệu
-  await loadDatasets();
-  updateProgressBar(1, 50);
+  await loadDatasets()
+  updateProgressBar(1, 50)
   // Lặp qua từng section và cập nhật thanh tiến trình cho từng project
-  projectSections.value.forEach((section) => {
-    section.projects.forEach((project) => {
-      updateProgressBar(project.id_version, Number(Math.floor(Math.random() * 101)));
-    });
-  });
-});
-
+  projectSections.value.forEach(section => {
+    section.projects.forEach(project => {
+      updateProgressBar(
+        project.id_version,
+        Number(Math.floor(Math.random() * 101)),
+      )
+    })
+  })
+})
 </script>
 
 <style lang="scss">
@@ -329,8 +334,8 @@ onMounted(async () => {
   font-size: 14px;
   color: #333;
   transition:
-  background-color 0.3s,
-  color 0.3s;
+    background-color 0.3s,
+    color 0.3s;
 }
 
 .category-tag:hover {
@@ -348,14 +353,15 @@ onMounted(async () => {
   position: relative;
 }
 
-#progress-bar {
-  width: 0%;
+.progress-bar {
+  width: 0;
   height: 100%;
   border-radius: 15px;
-  transition: width 0.3s, background-color 0.3s;
+  transition:
+    width 0.3s,
+    background-color 0.3s;
   background-color: #00ff00; /* Xanh lá */
 }
-
 
 // Category Dataset Styles
 .dataset-section {
