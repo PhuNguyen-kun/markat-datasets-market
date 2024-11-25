@@ -37,6 +37,8 @@ class UsersService {
     }
   };
   getUserKatbyId = async ({ id_user }) => {
+    console.log(id_user);
+    
     try {
       return await getKatByIdUserDb(id_user);
     } catch (error) {

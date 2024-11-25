@@ -86,7 +86,7 @@ const centerDialogVisible = ref(false)
 const modalTitle = ref('')
 const modalType = ref('')
 
-const openModal = type => {
+const openModal = (type : string) => {
   modalType.value = type
   modalTitle.value =
     type === 'selling' ? 'Send Selling Request' : 'Send Buying Request'

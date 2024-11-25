@@ -8,7 +8,7 @@
           <div class="dataset-detail__info">
             <p>{{ versionData.price }}</p>
             <p class="dataset-detail__size">
-              Total size: {{ versionData.total_size }} GB
+              Total size: {{ versionData.total_size / 1024}} GB
             </p>
             <p class="dataset-detail__records">
               Number of data: {{ versionData.number_of_data }} records

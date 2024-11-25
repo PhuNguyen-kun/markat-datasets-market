@@ -113,10 +113,6 @@ const isLoading = ref(true)
 const fullscreenLoading = ref(false)
 const searchQuery = ref('')
 
-const saleCarouselContainer = document.querySelector(
-  '.sale-carousel-container',
-) as HTMLElement | null;
-
 const categoryTags = ref([
   'All datasets',
   'Computer Science',
@@ -219,7 +215,14 @@ const openFullScreen1 = () => {
   }, 300)
 }
 
-const setupSaleCarousel = () => {
+const startSaleCarousel = () => {
+
+  let currentPosition = 0
+  const spacing = 23
+  
+  const saleCarouselContainer = document.querySelector(
+  '.sale-carousel-container',
+  ) as HTMLElement | null;
   if (saleCarouselContainer) {
     const saleCards = saleCarouselContainer.querySelectorAll('.sale-card')
     saleCards.forEach(card => {
@@ -228,11 +231,6 @@ const setupSaleCarousel = () => {
     })
     saleCarouselContainer.style.overflow = 'visible'
   }
-}
-
-const startSaleCarousel = () => {
-  let currentPosition = 0
-  const spacing = 23
 
   function startCarousel() {
     if (saleCarouselContainer) {
@@ -294,9 +292,12 @@ const handleDatasetClick = (id_dataset: number) => {
 onMounted(async () => {
   await openFullScreen1()
   await loadDatasets()
-  await setupSaleCarousel()
   await startSaleCarousel()
 })
+
+const saleCarouselContainer = document.querySelector(
+  '.sale-carousel-container',
+) as HTMLElement | null;
 
 </script>
 

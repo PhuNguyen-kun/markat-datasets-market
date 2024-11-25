@@ -20,11 +20,11 @@ const createAccount = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Before calling login");
+    // console.log("Before calling login");
 
     const { user } = await authService.login(email, password);
-    console.log("User data:", user);
-    console.log("Creating token for id_user:", user.id_user);
+    // console.log("User data:", user);
+    // console.log("Creating token for id_user:", user.id_user);
 
     const access_token = jwt.sign(
       { id_user: user.id_user, full_name: user.full_name, email: user.email },
