@@ -7,7 +7,7 @@ const getProjectsByTopic = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["offset", "limit", "topic"],
+    [["offset", "limit", "topic"]],
     "Projects retrieved successfully",
     "Projects not found"
   );
@@ -19,7 +19,7 @@ const getProjectDetail = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_version"],
+    [["id_version"]],
     "Project detail retrieved successfully",
     "Project detail not found"
   );

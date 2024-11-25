@@ -20,7 +20,7 @@ const getDatasetsByTopicDb = async ({ topic }) => {
       d.Avatar,
       d.Name_dataset,
       d.Verified,
-      (SELECT COUNT(*) FROM User_click uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
+      (SELECT COUNT(*) FROM Dataset_view uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
       d.Voucher,
       df.Data_format AS Data_Format,
       CAST((SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS INTEGER) AS Version_Count, -- Ép kiểu số
@@ -164,6 +164,18 @@ const getVersionDb = async (id_version) => {
   return version[0];
 };
 
+const updateDatasetViewDb = async (id_dataset, id_user) => {
+  const { rows } = await client.query(
+    `
+    INSERT INTO Dataset_view (ID_user, ID_dataset)
+    VALUES ($1, $2)
+    RETURNING *;
+    `,
+    [id_user, id_dataset]
+  );
+  return rows[0];
+}
+
 module.exports = {
   getDatasetAvatar,
   getDatasetsByTopicDb,
@@ -172,4 +184,5 @@ module.exports = {
   getUserOwnedDatasetsDb,
   getUserOwnedDatasetByIdDb,
   getVersionDb,
+  updateDatasetViewDb,
 };

@@ -7,7 +7,7 @@ const sendSellingRequest = async (req, res, next) => {
     [req.body],
     res,
     next,
-    [
+    [[
       "id_seller",
       "id_data_format",
       "name_dataset",
@@ -15,7 +15,7 @@ const sendSellingRequest = async (req, res, next) => {
       "evolution",
       "description",
       "data_requirements",
-    ],
+    ]],
     "Selling request sent successfully",
     "Unable to send selling request"
   );
@@ -27,7 +27,7 @@ const sendBuyingRequest = async (req, res, next) => {
     [req.body],
     res,
     next,
-    [
+    [[
       "id_buyer",
       "id_data_format",
       "name_dataset",
@@ -37,7 +37,7 @@ const sendBuyingRequest = async (req, res, next) => {
       "public_data",
       "description",
       "data_requirements",
-    ],
+    ]],
     "Buying request sent successfully",
     "Unable to send buying request"
   );
@@ -49,7 +49,7 @@ const getRequestsHistory = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user"],
+    [["id_user"]],
     "Request history retrieved successfully",
     "No request history found"
   );
@@ -61,7 +61,7 @@ const getDataFormat = async (req, res, next) => {
     [],
     res,
     next,
-    [],
+    [[]],
     "Data format retrieved successfully",
     "Data format not found"
   );

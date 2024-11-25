@@ -7,7 +7,7 @@ const getVersionPartsDetail = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user", "id_version"], // Các trường bắt buộc
+    [["id_user", "id_version"]], // Các trường bắt buộc
     "Version parts detail retrieved successfully.",
     "Version parts detail not found."
   );
@@ -19,7 +19,7 @@ const getDatas = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user", "id_part"], // Các trường bắt buộc
+    [["id_user", "id_part"]], // Các trường bắt buộc
     "Datas retrieved successfully.",
     "Datas not found."
   );
@@ -31,7 +31,7 @@ const labelData = async (req, res, next) => {
     [req.body],
     res,
     next,
-    ["id_data", "id_labeler", "label"], // Các trường bắt buộc
+    [["id_data", "id_labeler", "label"]], // Các trường bắt buộc
     "Data labeled successfully.",
     "Data labeling failed."
   );

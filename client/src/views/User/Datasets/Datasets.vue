@@ -67,7 +67,7 @@
       <div
         v-for="(dataset, index) in section.datasets"
         :key="index"
-        @click="goToDetail(dataset.id_dataset)"
+        @click="handleDatasetClick(dataset.id_dataset)"
         class="card"
       >
         <img
@@ -102,11 +102,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, handleError } from 'vue'
 import { ElLoading } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { fetchProjects } from '@/services/projects';
-import { fetchDatasets } from '@/services/datasets';
+import { fetchDatasets, updateDatasetView } from '@/services/datasets';
 
 const route = useRouter()
 const datasets = ref<any[]>([])
@@ -285,6 +284,11 @@ const loadDatasets = async () => {
 
 const goToDetail = (id: number) => {
   route.push({ name: 'dataset-detail', params: { id } })
+}
+
+const handleDatasetClick = (id_dataset: number) => {
+  goToDetail(id_dataset);
+  updateDatasetView(id_dataset);
 }
 
 onMounted(async () => {

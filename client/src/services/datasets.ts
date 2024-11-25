@@ -24,10 +24,9 @@ export const fetchDatasets = async (quantity : number, topic : string) => {
   }
 }
 
-export const fetchDatasetsDetail = async (datasetId: number) => {
+export const fetchDatasetsDetail = async (id_dataset: number) => {
   try {
-    const response = await axiosInstance.get(`/datasets/${datasetId}`)
-    console.log(response.data)
+    const response = await axiosInstance.get(`/datasets/${id_dataset}`)
     return response.data
   } catch (error) {
     notifyError('Failed to load dataset details!')
@@ -36,15 +35,40 @@ export const fetchDatasetsDetail = async (datasetId: number) => {
 }
 
 export const fetchVersionData = async (
-  versionId: number,
+  id_version: number,
 ) => {
   try {
     const response = await axiosInstance.get(
-      `/datasets/version/${versionId}`,
+      `/datasets/version/${id_version}`,
     )
-    console.log(response.data)
     return response.data
   } catch (error) {
     console.error('Failed to fetch version data:', error)
   }
 }
+
+export const updateDatasetView = async (id_dataset: number) => {
+  try {
+    const accessToken = localStorage.getItem("access_token");
+
+    if (!accessToken) {
+      throw new Error("Access token not found");
+    }
+    const response = await axiosInstance.post(
+      `/datasets/view`,
+      {
+        id_dataset,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to update dataset view:", error);
+    throw error;
+  }
+};

@@ -8,6 +8,7 @@ const {
   getUserOwnedDatasetsDb,
   getUserOwnedDatasetByIdDb,
   getVersionDb,
+  updateDatasetViewDb,
 } = require("../db/datasets.db.js");
 const { getKatByIdUserDb } = require("../db/users.db.js");
 const { ErrorHandler } = require("../helpers/error");
@@ -197,6 +198,14 @@ class DatasetService {
     } catch (error) {
       await client.query("ROLLBACK");
       throw new ErrorHandler(error.statusCode || 500, error.message || "Transaction failed.");
+    }
+  }
+
+  async updateDatasetView({ id_dataset }, { id_user } ) {
+    try {
+      return await updateDatasetViewDb(id_dataset, id_user);
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode || 500, error.message || "Failed to update dataset view");
     }
   }
 }

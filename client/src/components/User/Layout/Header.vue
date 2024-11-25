@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { logout as logoutService } from '@/services/auth'
+import { isTokenExpired, logout as logoutService } from '@/services/auth'
 import { useRouter } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 
@@ -101,26 +101,30 @@ const goToYourWork = () => {
 }
 
 onMounted(() => {
-  const token = localStorage.getItem('access_token')
+  const token = localStorage.getItem('access_token');
   if (token) {
-    try {
-      const decoded = jwtDecode<{ id_user: string }>(token)
-      userId.value = decoded.id_user
-      isLoggedIn.value = true
-    } catch (error) {
-      console.error('Failed to decode token:', error)
+    if (!isTokenExpired(token)) {
+      try {
+        const decoded = jwtDecode<{ id_user: string }>(token);
+        userId.value = decoded.id_user;
+        isLoggedIn.value = true;
+        console.log('User is logged in with ID:', userId.value);
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+      }
+    } else {
+      console.warn('Token has expired');
     }
   } else {
-    console.warn('No access token found in localStorage')
+    console.warn('No access token found in localStorage');
   }
-})
+});
 
 const logout = async () => {
   try {
-    await logoutService()
-    localStorage.removeItem('access_token')
+    await logoutService();
     isLoggedIn.value = false
-    await router.push('/auth/login')
+    await router.push('login')
   } catch (error) {
     console.error('Failed to logout:', error)
   }

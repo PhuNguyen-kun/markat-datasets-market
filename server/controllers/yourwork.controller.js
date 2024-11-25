@@ -14,7 +14,7 @@ const getAllYourWorkVersionsByUserId = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user"],
+    [["id_user"]],
     "Work versions retrieved successfully",
     "Work versions not found"
   );
@@ -26,7 +26,7 @@ const getYourWorkDetail = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user", "id_version"],
+    [["id_user", "id_version"]],
     "Work detail retrieved successfully",
     "Work detail not found"
   );
@@ -38,7 +38,7 @@ const getAllCollectionsByUserId = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user"],
+    [["id_user"]],
     "Collections retrieved successfully",
     "Collections not found"
   );
@@ -50,7 +50,7 @@ const getCollection = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user", "id_dataset"],
+    [["id_user", "id_dataset"]],
     "Collection detail retrieved successfully",
     "Collection detail not found"
   );

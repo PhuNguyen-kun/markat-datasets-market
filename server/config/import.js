@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const database = require("./index.js");
 const { log } = require('console');
-database.connectMongoDb();
+// database.connectMongoDb();
 
 const ImageSchema = new mongoose.Schema({
   ID_version: String,
@@ -81,6 +81,27 @@ const getRandomTimeBetween = (start, end) => {
   const endDate = new Date(end).getTime();
   const randomTime = new Date(startDate + Math.random() * (endDate - startDate));
   return randomTime.toISOString().replace('T', ' ').substring(0, 19);
+};
+
+const getRandomTimes = (start, end) => {
+  const startDate = new Date(start).getTime();
+  const endDate = new Date(end).getTime();
+
+  // Tạo 2 giá trị ngẫu nhiên giữa 0 và 1, sau đó sắp xếp để đảm bảo thứ tự
+  const randomFactors = [Math.random(), Math.random()].sort((a, b) => a - b);
+
+  // Tính toán các mốc thời gian
+  const time1 = new Date(startDate + randomFactors[0] * (endDate - startDate));
+  const time2 = new Date(startDate + randomFactors[1] * (endDate - startDate));
+  const time3 = new Date(startDate + Math.random() * (endDate - startDate));
+
+  // Sắp xếp để đảm bảo time1 < time2 < time3
+  const times = [time1, time2, time3].sort((a, b) => a - b);
+
+  // Trả về mảng 3 thời gian dưới định dạng yyyy-MM-dd HH:mm:ss
+  return times.map((time) =>
+    time.toISOString().replace('T', ' ').substring(0, 19)
+  );
 };
 
 const uploadImagesToMongo = async () => {
@@ -194,5 +215,13 @@ const roundDownToTwoDecimals = (value) => {
 // addLabelToImage("data_1", { labeler: "user_03", label: "2" });
 //sinh ngẫu nhiên ngày
 // random();
-countRecordsWithIDPart();
+// countRecordsWithIDPart();
 // roundDownToTwoDecimals(15/36);
+const genTime = () => {
+  for (let index = 0; index < 20; index++)
+  {
+    console.log(getRandomTimes('2024-01-01 10:00:00', '2024-12-30 23:59:59'));
+  }
+}
+
+// genTime();

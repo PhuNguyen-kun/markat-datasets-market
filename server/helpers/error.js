@@ -18,25 +18,24 @@ const handleRequest = async (
   params,
   res,
   next,
-  requiredFields = [],
+  requiredFields = [[]],
   successMessage = "Request successful",
   errorMessage = "Resource not found"
 ) => {
   try {
     if (requiredFields.length > 0) {
-      for (const field of requiredFields) {
-        //console.log(params[0][field]);
-        if (!params[0][field]) {
-          console.log(params[0][field]);
-
-          return res.status(400).json({
-            status: "error",
-            message: `${field} is required.`,
-          });
+      for (let i = 0; i < params.length; i++) {
+        const currentRequiredFields = requiredFields[i] || [];
+        for (const field of currentRequiredFields) {
+          if (!params[i] || !params[i][field]) {
+            return res.status(400).json({
+              status: "error",
+              message: `${field} is required in parameter at index ${i}.`,
+            });
+          }
         }
       }
     }
-
     const result = await serviceFunction(...params);
     if (!result || (Array.isArray(result) && result.length === 0)) {
       return res.status(404).json({
@@ -44,7 +43,6 @@ const handleRequest = async (
         message: errorMessage,
       });
     }
-
     return res.status(200).json({
       status: "success",
       message: successMessage,

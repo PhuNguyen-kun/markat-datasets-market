@@ -120,7 +120,7 @@ const loginAccount = async () => {
       password: password.value,
     }
     const response = await login(loginForm)
-    console.log(response)
+    // console.log(response)
 
     const access_token = response.data.access_token
     localStorage.setItem('access_token', access_token)

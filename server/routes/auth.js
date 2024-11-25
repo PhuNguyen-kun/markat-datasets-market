@@ -5,7 +5,7 @@ const {
   resetPassword,
   logoutUser,
 } = require("../controllers/auth.controller.js");
-const verifyToken = require("../middleware/auth.middleware.js");
+const verifyToken = require("../middleware/verifyToken.js");
 
 router.post("/signup", createAccount);
 router.post("/login", loginUser);

@@ -19,7 +19,7 @@ const getUserReliability = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user"],
+    [["id_user"]],
     "User reliability retrieved successfully",
     "User reliability not found"
   );
@@ -31,7 +31,7 @@ const getUserKat = async (req, res, next) => {
     [req.query],
     res,
     next,
-    ["id_user"],
+    [["id_user"]],
     "User Kat retrieved successfully",
     "User Kat not found"
   );
