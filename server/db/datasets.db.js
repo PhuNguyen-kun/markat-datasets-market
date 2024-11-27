@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const client = require("../config");
 const fs = require('fs').promises;
 const path = require('path');
@@ -20,6 +21,7 @@ const getDatasetsByTopicDb = async ({ topic }) => {
       d.Avatar,
       d.Name_dataset,
       d.Verified,
+      d.Slug,
       (SELECT COUNT(*) FROM Dataset_view uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
       d.Voucher,
       df.Data_format AS Data_Format,
@@ -61,10 +63,43 @@ const getDatasetsByTopicDb = async ({ topic }) => {
   return datasets;
 };
 
+const getDatasetbyDatasetSlugDb = async (slug) => {
+  const { rows: dataset } = await client.query(
+    `
+    SELECT
+    d.ID_dataset,
+    d.Name_dataset,
+    d.Avatar,
+    COALESCE(dsr.Description, dbr.Description) AS Description,
+    ARRAY_AGG(DISTINCT t.Tag_name) AS Tags,
+    ARRAY_AGG(DISTINCT v.ID_version) AS Versions
+    FROM
+      Dataset d
+    LEFT JOIN
+      Data_selling_request dsr ON d.ID_dataset = dsr.ID_dataset AND d.Request_type = 'Selling'
+    LEFT JOIN
+      Data_buying_request dbr ON d.ID_dataset = dbr.ID_dataset AND d.Request_type = 'Buying'
+    LEFT JOIN
+      Dataset_tag dt ON d.ID_dataset = dt.ID_dataset
+    LEFT JOIN
+      Tag t ON dt.ID_tag = t.ID_tag
+    LEFT JOIN
+      Version v ON d.ID_dataset = v.ID_dataset
+    WHERE
+      d.Slug = $1
+    GROUP BY
+      d.ID_dataset, d.Name_dataset, d.Avatar, dsr.Description, dbr.Description;
+    `,
+    [slug]
+  );
+  return dataset[0];
+};
+
 const getDatasetbyDatasetIdDb = async (id_dataset) => {
   const { rows: dataset } = await client.query(
     `
     SELECT
+    d.Slug
     d.Name_dataset,
     d.Avatar,
     COALESCE(dsr.Description, dbr.Description) AS Description,
@@ -176,9 +211,11 @@ const updateDatasetViewDb = async (id_dataset, id_user) => {
   return rows[0];
 }
 
+
 module.exports = {
   getDatasetAvatar,
   getDatasetsByTopicDb,
+  getDatasetbyDatasetSlugDb,
   getDatasetbyDatasetIdDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,

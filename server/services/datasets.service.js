@@ -3,6 +3,7 @@ const Data = require('../models/data');
 const {
   getDatasetAvatar,
   getDatasetsByTopicDb,
+  getDatasetbyDatasetSlugDb,
   getDatasetbyDatasetIdDb,
   createDatasetDb,
   getUserOwnedDatasetsDb,
@@ -64,6 +65,21 @@ class DatasetService {
         throw new ErrorHandler(404, "Dataset not found.");
       }
       dataset.avatar = await getDatasetAvatar(id_dataset);
+      return dataset;
+    } catch (error) {
+      throw new ErrorHandler(error.statusCode || 500, error.message || "Failed to fetch dataset.");
+    }
+  }
+
+  async getDatasetbyDatasetSlug({ slug }) {
+    try {
+      const dataset = await getDatasetbyDatasetSlugDb(slug);
+      if (!dataset) {
+        throw new ErrorHandler(404, "Dataset not found.");
+      }
+      // console.log(dataset);
+
+      dataset.avatar = await getDatasetAvatar(dataset.id_dataset);
       return dataset;
     } catch (error) {
       throw new ErrorHandler(error.statusCode || 500, error.message || "Failed to fetch dataset.");

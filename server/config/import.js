@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const database = require("./index.js");
-const { log } = require('console');
-// database.connectMongoDb();
+database.connectMongoDb();
 
 const ImageSchema = new mongoose.Schema({
   ID_version: String,
@@ -28,6 +27,14 @@ const DataSchema = new mongoose.Schema({
     required: false,
   }
 }, { collection: 'Data' });
+
+const DatasetSchema = new mongoose.Schema({
+  Name_dataset : String,
+  Slug: String,
+  Description: String,
+  Price: Number,
+  Voucher : Number,
+}, { collection: 'Chatbot' });
 // id_version = 1
 // const labels = ["daisy", "dandelion", "roses", "sunflowers", "tulips"];
 // const senders = ["1","19"];
@@ -217,11 +224,91 @@ const roundDownToTwoDecimals = (value) => {
 // random();
 // countRecordsWithIDPart();
 // roundDownToTwoDecimals(15/36);
-const genTime = () => {
-  for (let index = 0; index < 20; index++)
-  {
-    console.log(getRandomTimes('2024-01-01 10:00:00', '2024-12-30 23:59:59'));
-  }
-}
 
-// genTime();
+// const DatasetSchema = new mongoose.Schema({
+//   Name_dataset : String,
+//   Slug: String,
+//   Description: String,
+//   Voucher : Number,
+// }, { collection: 'Chatbot' });
+// const Dataset = mongoose.model('Dataset', DatasetSchema);
+
+// const setUpDataset = async () => {
+//   try {
+//     client.connectPostgresDb();
+//     client.connectMongoDb();
+//     const { rows: datasets } = await client.query(
+//       `SELECT
+//         d.ID_dataset,
+//         d.Avatar,
+//         d.Name_dataset,
+//         d.Verified,
+//         d.Slug,
+//         (SELECT COUNT(*) FROM Dataset_view uc WHERE uc.ID_dataset = d.ID_dataset) AS Views,
+//         d.Voucher,
+//         df.Data_format AS Data_Format,
+//         CAST((SELECT COUNT(*) FROM Version v WHERE v.ID_Dataset = d.ID_Dataset) AS INTEGER) AS Version_Count,
+//         COALESCE(
+//           (
+//             SELECT MAX(v.Valuation_due_date)
+//             FROM Version v
+//             WHERE v.ID_dataset = d.ID_dataset AND v.Valuation_due_date <= NOW()
+//           ), '2024-01-01 10:00:00'
+//         ) AS latest_valuation_due_date
+//       FROM
+//         Dataset d
+//       LEFT JOIN
+//         Data_format df ON d.ID_data_format = df.ID_data_format
+//       LEFT JOIN
+//         Dataset_topic dt ON d.ID_dataset = dt.ID_dataset
+//       GROUP BY
+//         d.ID_Dataset, d.Avatar, d.Name_dataset, d.Verified, d.Voucher, df.Data_format
+//       ORDER BY
+//         d.ID_Dataset ASC
+//       `,
+//     );
+//    let preparedDatasets = [];
+//     for (let index = 0; index < datasets.length; index++) {
+//       const data = datasets[index];
+//       let datasetDes = await getDatasetbyDatasetSlugDb(data.slug);
+//       // console.log(datasetDes);
+
+//       const dataset = new Dataset({
+//         Name_dataset: data.name_dataset,
+//         Slug: `http://localhost:5173/datasets/${data.slug}`,
+//         Description: datasetDes.description,
+//         Voucher: data.voucher || 0,
+//       });
+//       preparedDatasets.push(dataset);
+//       // console.log(data);
+
+//     }
+
+//     console.log("Prepared datasets:", preparedDatasets);
+//     return preparedDatasets;
+//   } catch (error) {
+//     console.error("Error in setUpDataset:", error);
+//     return [];
+//   }
+// };
+
+// const pushData = async () => {
+//   try {
+//     const datasets = await setUpDataset(); // Lấy dữ liệu đã chuẩn bị
+//     // console.log("Datasets fetched for MongoDB:", datasets);
+
+//     if (datasets.length > 0) {
+//       await Dataset.insertMany(datasets);
+//       console.log("Datasets inserted successfully!");
+//     } else {
+//       console.log("No datasets to insert.");
+//     }
+//   } catch (error) {
+//     console.error("Error in pushData:", error);
+//   } finally {
+//     mongoose.connection.close(); // Đóng kết nối MongoDB
+//   }
+// };
+
+// // Gọi hàm để chạy
+// pushData();

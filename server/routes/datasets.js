@@ -4,6 +4,7 @@ const {
   getUserOwnedDatasetById,
   getUserOwnedDatasets,
   getDatasetsByTopic,
+  getDatasetbyDatasetSlug,
   getDatasetbyDatasetId,
   getVersion,
   versionBuyingTransaction,
@@ -13,11 +14,12 @@ const verifyToken = require("../middleware/verifyToken.js");
 // Routes liên quan đến datasets
 router.route("/").get(getDatasetsByTopic); // Lấy danh sách datasets theo topic
 // router.route("/create").post(verifyToken, createDataset); // Tạo dataset
-router.route("/:id_dataset").get(getDatasetbyDatasetId); // Lấy thông tin dataset theo id
+router.route("/:slug").get(getDatasetbyDatasetSlug); // Lấy thông tin dataset theo id
+router.route("/:id").get(getDatasetbyDatasetId);
 
 // // Routes liên quan đến user owned datasets
 router.route("/owned/:id_user/:page").get(getUserOwnedDatasets); // Lấy danh sách datasets của user
-router.route("/owned/:id").get(getUserOwnedDatasetById); // Lấy dataset cụ thể của user
+// router.route("/owned/:id").get(getUserOwnedDatasetById); // Lấy dataset cụ thể của user
 
 // // Routes liên quan đến versions
 router.route("/version/:id_version").get(getVersion); // Lấy thông tin version theo id

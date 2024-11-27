@@ -49,6 +49,18 @@ const getUserOwnedDatasetById = async (req, res, next) => {
   );
 };
 
+const getDatasetbyDatasetSlug = async (req, res, next) => {
+  await handleRequest(
+    datasetService.getDatasetbyDatasetSlug,
+    [{ slug: req.params.slug }],
+    res,
+    next,
+    [["slug"]],
+    "Dataset retrieved successfully.",
+    "Dataset not found."
+  );
+};
+
 const getDatasetbyDatasetId = async (req, res, next) => {
   await handleRequest(
     datasetService.getDatasetbyDatasetId,
@@ -102,6 +114,7 @@ module.exports = {
   getDatasetsByTopic,
   getUserOwnedDatasets,
   getUserOwnedDatasetById,
+  getDatasetbyDatasetSlug,
   getDatasetbyDatasetId,
   getVersion,
   versionBuyingTransaction,

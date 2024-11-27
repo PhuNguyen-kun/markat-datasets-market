@@ -173,7 +173,7 @@
       <div
         v-for="(dataset, index) in section.datasets"
         :key="index"
-        @click="goToDetail(dataset.id_dataset)"
+        @click="handleDatasetClick(dataset.id_dataset, dataset.slug)"
         class="card"
       >
         <img
@@ -215,6 +215,7 @@ import {
   fetchDatasetsDetail,
   fetchVersionData,
   fetchDatasets,
+  updateDatasetView,
 } from '@/services/datasets'
 import { Chart, registerables } from 'chart.js'
 import { ElLoading } from 'element-plus'
@@ -244,8 +245,8 @@ const openFullScreen1 = () => {
 
 const loadDatasetDetail = async () => {
   try {
-    const datasetId = Number(route.params.id)
-    const response = await fetchDatasetsDetail(datasetId)
+    const datasetSlug = String(route.params.slug)
+    const response = await fetchDatasetsDetail(datasetSlug)
     if (response && response.data) {
       dataset.value = response.data
       versionsId.value = response.data.versions
@@ -365,21 +366,25 @@ const loadDatasets = async () => {
 }
 
 watch(
-  () => route.params.id,
-  (newId, oldId) => {
-    console.log(`Route param changed from ${oldId} to ${newId}`)
+  () => route.params.slug,
+  (newSlug, oldSlug) => {
+    // console.log(`Route param changed from ${oldSlug} to ${newSlug}`)
     openFullScreen1()
     loadDatasetDetail() // Gọi lại hàm để tải dữ liệu
   },
 )
 
-const goToDetail = (id: number) => {
-  router.push({ name: 'dataset-detail', params: { id } })
+const goToDetail = (slug: string) => {
+  router.push({ name: 'dataset-detail', params: { slug } })
+}
+
+const handleDatasetClick = (id_dataset: number, slug : string) => {
+  goToDetail(slug);
+  updateDatasetView(id_dataset);
 }
 
 onMounted(async () => {
   try {
-    // console.log("onMounted is running");
     await loadDatasetDetail()
     tagsArray.value = await getTagsArray()
     nextTick(() => {
@@ -387,8 +392,6 @@ onMounted(async () => {
         const viewsCtx = viewsChart.value.getContext('2d')
         const buysCtx = buysChart.value.getContext('2d')
         const triesCtx = triesChart.value.getContext('2d')
-
-        // Kiểm tra và chỉ khởi tạo biểu đồ nếu context tồn tại
         if (viewsCtx) {
           createChart(
             viewsCtx,
@@ -446,6 +449,7 @@ type Dataset = {
   name_dataset?: string
   avatar?: string
   verified?: boolean
+  slug : string,
   views?: number
   voucher?: string[]
   data_format?: string

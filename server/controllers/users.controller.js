@@ -35,6 +35,7 @@ const getUserKat = async (req, res, next) => {
     "User Kat retrieved successfully",
     "User Kat not found"
   );
+  
 };
 
 module.exports = {

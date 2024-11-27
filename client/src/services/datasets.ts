@@ -24,9 +24,9 @@ export const fetchDatasets = async (quantity : number, topic : string) => {
   }
 }
 
-export const fetchDatasetsDetail = async (id_dataset: number) => {
+export const fetchDatasetsDetail = async (slug: string) => {
   try {
-    const response = await axiosInstance.get(`/datasets/${id_dataset}`)
+    const response = await axiosInstance.get(`/datasets/${slug}`)
     return response.data
   } catch (error) {
     notifyError('Failed to load dataset details!')

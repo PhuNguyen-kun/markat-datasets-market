@@ -67,7 +67,7 @@
       <div
         v-for="(dataset, index) in section.datasets"
         :key="index"
-        @click="handleDatasetClick(dataset.id_dataset)"
+        @click="handleDatasetClick(dataset.id_dataset, dataset.slug)"
         class="card"
       >
         <img
@@ -129,6 +129,7 @@ type Dataset = {
   name_dataset?: string;
   avatar?: string;
   verified?: boolean;
+  slug: string;
   views?: number;
   voucher?: string[];
   data_format?: string;
@@ -219,7 +220,7 @@ const startSaleCarousel = () => {
 
   let currentPosition = 0
   const spacing = 23
-  
+
   const saleCarouselContainer = document.querySelector(
   '.sale-carousel-container',
   ) as HTMLElement | null;
@@ -280,12 +281,12 @@ const loadDatasets = async () => {
   }
 }
 
-const goToDetail = (id: number) => {
-  route.push({ name: 'dataset-detail', params: { id } })
+const goToDetail = (slug: string) => {
+  route.push({ name: 'dataset-detail', params: { slug } })
 }
 
-const handleDatasetClick = (id_dataset: number) => {
-  goToDetail(id_dataset);
+const handleDatasetClick = (id_dataset: number, slug : string) => {
+  goToDetail(slug);
   updateDatasetView(id_dataset);
 }
 

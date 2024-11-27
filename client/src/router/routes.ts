@@ -80,7 +80,7 @@ const routes: RouteRecordRaw[] = [
       },
 
       {
-        path: '/datasets/:id',
+        path: '/datasets/:slug',
         name: 'dataset-detail',
         component: () => import('../views/User/Datasets/DatasetDetail.vue'),
       },
