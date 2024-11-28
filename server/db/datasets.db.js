@@ -211,7 +211,6 @@ const updateDatasetViewDb = async (id_dataset, id_user) => {
   return rows[0];
 }
 
-
 module.exports = {
   getDatasetAvatar,
   getDatasetsByTopicDb,
@@ -223,3 +222,5 @@ module.exports = {
   getVersionDb,
   updateDatasetViewDb,
 };
+
+

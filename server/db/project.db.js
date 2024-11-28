@@ -1,7 +1,7 @@
 const client = require("../config");
 const Data = require('../models/data');
 
-const getProjectsByTopicDb = async ({ offset, limit, topic }) => {
+const getProjectsByTopicDb = async ({ topic }) => {
   const projects = await client.query(
     `
    SELECT
@@ -33,10 +33,9 @@ const getProjectsByTopicDb = async ({ offset, limit, topic }) => {
           OR
           (NOW() BETWEEN v.Data_sending_due_date AND v.Data_labeling_due_date)
         )
-        AND dt.Topic = $3
-      OFFSET $1 LIMIT $2;
+        AND dt.Topic = $1
     `,
-    [offset, limit, topic]
+    [topic]
   );
 
   const projectsWithUserCounts = await Promise.all(

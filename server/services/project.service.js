@@ -14,15 +14,17 @@ class ProjectService {
         }
         }
     }
-    async getProjectsByTopic ({ offset, limit, topic }) {
+    async getProjectsByTopic ({ quantity, topic }) {
         try {
-            const projects = await getProjectsByTopicDb({ offset, limit, topic });
+            const projects = await getProjectsByTopicDb({ topic });
             await Promise.all(projects.map(async (project) => {
                 if (project.avatar && project.id_dataset) {
                     project.avatar = await getDatasetAvatar(project.id_dataset);
                 }
             }));
-            return { projects }
+            const shuffledProjects = projects.sort(() => 0.5 - Math.random());
+            const randomProjects = shuffledProjects.slice(0, quantity);
+            return { projects : randomProjects}
         } catch (error) {
             throw new ErrorHandler(error.statusCode || 500, error.message || "Failed to fetch projects.");
         }

@@ -215,12 +215,12 @@ const roundDownToTwoDecimals = (value) => {
 // Gọi hàm uploadImagesToMongo
 // uploadImagesToMongo();
 // Gọi hàm để đếm tổng số datasets
-//countDatasets();
+// countDatasets();
 // Gọi hàm in tất cả datasets
 // printAllDatasets();
 // Thêm một nhãn mới
 // addLabelToImage("data_1", { labeler: "user_03", label: "2" });
-//sinh ngẫu nhiên ngày
+// sinh ngẫu nhiên ngày
 // random();
 // countRecordsWithIDPart();
 // roundDownToTwoDecimals(15/36);
@@ -229,6 +229,8 @@ const roundDownToTwoDecimals = (value) => {
 //   Name_dataset : String,
 //   Slug: String,
 //   Description: String,
+//   Max_price: Number,
+//   Min_price : Number,
 //   Voucher : Number,
 // }, { collection: 'Chatbot' });
 // const Dataset = mongoose.model('Dataset', DatasetSchema);
@@ -270,13 +272,44 @@ const roundDownToTwoDecimals = (value) => {
 //    let preparedDatasets = [];
 //     for (let index = 0; index < datasets.length; index++) {
 //       const data = datasets[index];
-//       let datasetDes = await getDatasetbyDatasetSlugDb(data.slug);
-//       // console.log(datasetDes);
+//       let { rows : datasetDes } = await client.query(
+//         ` SELECT
+//           d.ID_dataset,
+//           d.Name_dataset,
+//           d.Avatar,
+//           COALESCE(dsr.Description, dbr.Description) AS Description,
+//           ARRAY_AGG(DISTINCT t.Tag_name) AS Tags,
+//           ARRAY_AGG(DISTINCT v.ID_version) AS Versions,
+//           MAX(v.price) AS max_price,
+//           MIN(v.price) AS min_price
+//           FROM
+//             Dataset d
+//           LEFT JOIN
+//             Data_selling_request dsr ON d.ID_dataset = dsr.ID_dataset AND d.Request_type = 'Selling'
+//           LEFT JOIN
+//             Data_buying_request dbr ON d.ID_dataset = dbr.ID_dataset AND d.Request_type = 'Buying'
+//           LEFT JOIN
+//             Dataset_tag dt ON d.ID_dataset = dt.ID_dataset
+//           LEFT JOIN
+//             Tag t ON dt.ID_tag = t.ID_tag
+//           LEFT JOIN
+//             Version v ON d.ID_dataset = v.ID_dataset
+//           WHERE
+//             d.Slug = $1
+//           GROUP BY
+//             d.ID_dataset, d.Name_dataset, d.Avatar, dsr.Description, dbr.Description;`,
+//         [data.slug]
+//       );
+//       console.log(datasetDes[0]);
+//       // console.log(datasetDes.max_price);
+//       // console.log(datasetDes.min_price);
 
 //       const dataset = new Dataset({
 //         Name_dataset: data.name_dataset,
 //         Slug: `http://localhost:5173/datasets/${data.slug}`,
-//         Description: datasetDes.description,
+//         Description: datasetDes[0].description,
+//         Max_price: Number(datasetDes[0].max_price),
+//         Min_price : Number(datasetDes[0].min_price),
 //         Voucher: data.voucher || 0,
 //       });
 //       preparedDatasets.push(dataset);
